@@ -1,0 +1,22 @@
+# Core framework (course requirement: datapizza-ai v0.1.0)
+datapizza-ai==0.1.0
+datapizza-ai-core==0.1.3
+datapizza-ai-clients-openai==0.0.13
+datapizza-ai-embedders-openai==0.0.6
+datapizza-ai-vectorstores-qdrant==0.0.9
+qdrant-client>=1.11.0
+openai>=1.40.0
+pydantic>=2.7.0
+python-dotenv>=1.0.0
+PyYAML>=6.0
+
+# Observability (Arize Phoenix via OpenTelemetry)
+opentelemetry-sdk>=1.25.0
+opentelemetry-exporter-otlp-proto-http>=1.25.0
+
+# UI
+streamlit>=1.35.0
+
+# Maintenance scripts and tests
+pymupdf>=1.24.0
+pytest>=8.0

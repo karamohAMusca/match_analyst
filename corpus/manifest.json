@@ -1,0 +1,890 @@
+{
+  "schema_version": "2.0",
+  "release_id": "match_analyst_cards_v2",
+  "project": "Match Analyst AI",
+  "description": "Catalogue of the RAG corpus. Every document listed here is ingested. Short single-topic cards (about 1.5-3k characters) with typed metadata. document_id is the key used by retriever metadata, citations and eval/gold_set.json.",
+  "categories": {
+    "match_case": "a recent final (2022-2026): how the winner won, with numbers",
+    "game_situation": "an in-game or preparation problem: options, risks, real cases",
+    "coach_profile": "one file per coach, merging every source that describes that coach",
+    "thesis_note": "a concept from the theses, not tied to a match moment",
+    "glossary": "definitions of metrics and formations"
+  },
+  "fields": {
+    "origin_type": "derived = written by the project from the cited sources",
+    "reliability": "project_synthesis_cited = every fact cites a source with page; sections marked 'interpretazione del progetto' are the project's reading",
+    "sources": "upstream documents (thesis + pages, Wikipedia revision, FIFA/StatsBomb data) or other card ids"
+  },
+  "upstream_not_ingested": {
+    "references/theses/": "FIGC theses (PDF), not redistributed",
+    "references/wikipedia/": "CC BY-SA 4.0 extracts with revision ids",
+    "references/data/statsbomb/": "StatsBomb Open Data (no redistribution)",
+    "references/data/fifa/": "FIFA public match reports",
+    "references/SOURCES.md": "provenance, licences and card-writing rules"
+  },
+  "generated": "2026-09-27",
+  "stats": {
+    "documents": 31,
+    "total_chars": 77567
+  },
+  "documents": [
+    {
+      "document_id": "case_2022_wc_final_argentina_france",
+      "title": "Finale Mondiale 2022: Argentina 3-3 Francia (4-2 d.c.r.)",
+      "category": "match_case",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Wikipedia (it), Finale del campionato mondiale di calcio 2022 (CC BY-SA 4.0)",
+        "StatsBomb Open Data, match_id 3869685 — statistiche calcolate dal progetto. Data provided by StatsBomb."
+      ],
+      "file_records": [
+        {
+          "path": "corpus/match_cases/2022_wc_final_argentina_france.md",
+          "sha256": "67a5d0f2f3a12f0d5218bae50463979b32c8a2c4f269f00cf76d525cf793b379",
+          "bytes": 2819
+        }
+      ],
+      "themes": [
+        "partenza_aggressiva",
+        "gestione_del_vantaggio",
+        "rimonta_subita",
+        "supplementari_e_rigori"
+      ],
+      "coaches": {
+        "Argentina": "Lionel Scaloni",
+        "Francia": "Didier Deschamps"
+      },
+      "formations": {
+        "Argentina": "4-3-3",
+        "Francia": "4-2-3-1"
+      },
+      "winner": "Argentina",
+      "date": "2022-12-18"
+    },
+    {
+      "document_id": "case_2023_ucl_final_city_inter",
+      "title": "Finale Champions League 2023: Manchester City 1-0 Inter",
+      "category": "match_case",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Wikipedia (it), Finale della UEFA Champions League 2022-2023 (CC BY-SA 4.0)",
+        "Contran, tesi UEFA Pro 2023/24, pp. 90-91 (Manchester City di Guardiola 2022/23)"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/match_cases/2023_ucl_final_city_inter.md",
+          "sha256": "7459811fd7765943a9ed27fff548de3f4412ab03a469c4cf4282833cdc22e974",
+          "bytes": 2336
+        }
+      ],
+      "themes": [
+        "gioco_di_posizione",
+        "falso_centrale",
+        "difesa_organizzata",
+        "finale_equilibrata"
+      ],
+      "coaches": {
+        "Manchester City": "Pep Guardiola",
+        "Inter": "Simone Inzaghi"
+      },
+      "winner": "Manchester City",
+      "date": "2023"
+    },
+    {
+      "document_id": "case_2024_euro_final_spain_england",
+      "title": "Finale Euro 2024: Spagna 2-1 Inghilterra",
+      "category": "match_case",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Wikipedia (it), Finale del campionato europeo maschile di calcio 2024 (CC BY-SA 4.0)",
+        "Wikipedia (en), UEFA Euro 2024 final, rev. 1374029048 (CC BY-SA 4.0) — minuti dei gol e dei cambi",
+        "StatsBomb Open Data, match_id 3943043 — statistiche calcolate dal progetto. Data provided by StatsBomb."
+      ],
+      "file_records": [
+        {
+          "path": "corpus/match_cases/2024_euro_final_spain_england.md",
+          "sha256": "cd2b348ef3aff1ab8cd916d72eab07870568340fb4699c4c0bb57f86ba998411",
+          "bytes": 2664
+        }
+      ],
+      "themes": [
+        "dominio_territoriale",
+        "contropiede_dopo_intervallo",
+        "gestione_dei_cambi",
+        "attacco_dal_lato_debole"
+      ],
+      "coaches": {
+        "Spagna": "Luis de la Fuente",
+        "Inghilterra": "Gareth Southgate"
+      },
+      "formations": {
+        "Spagna": "4-2-3-1",
+        "Inghilterra": "4-2-3-1"
+      },
+      "winner": "Spagna",
+      "date": "2024-07-14"
+    },
+    {
+      "document_id": "case_2024_uel_final_atalanta_leverkusen",
+      "title": "Finale Europa League 2024: Atalanta 3-0 Bayer Leverkusen",
+      "category": "match_case",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Wikipedia (it), Finale della UEFA Europa League 2023-2024 (CC BY-SA 4.0)",
+        "Spalla, tesi UEFA Pro 2023/24, pp. 28-34 (L'Atalanta di Gasperini)"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/match_cases/2024_uel_final_atalanta_leverkusen.md",
+          "sha256": "c357daada77b3c11fc45b6966cb1cc1d43a54f9a86044490bc2a6c6543cbc445",
+          "bytes": 2280
+        }
+      ],
+      "themes": [
+        "marcatura_a_uomo",
+        "pressing_alto",
+        "transizione_positiva",
+        "duelli"
+      ],
+      "coaches": {
+        "Atalanta": "Gian Piero Gasperini"
+      },
+      "winner": "Atalanta",
+      "date": "2024"
+    },
+    {
+      "document_id": "case_2025_ucl_final_psg_inter",
+      "title": "Finale Champions League 2025: Paris Saint-Germain 5-0 Inter",
+      "category": "match_case",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Wikipedia (it), Finale della UEFA Champions League 2024-2025 (CC BY-SA 4.0)"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/match_cases/2025_ucl_final_psg_inter.md",
+          "sha256": "7eee0fc4bff918bbb7e24f33ee3f1e711ea3b8520c3d27f8c63e3223f8f02d07",
+          "bytes": 2188
+        }
+      ],
+      "themes": [
+        "pressing_alto",
+        "contropiede",
+        "attacco_della_profondita",
+        "trappola_del_fuorigioco"
+      ],
+      "coaches": {
+        "Inter": "Simone Inzaghi"
+      },
+      "winner": "Paris Saint-Germain",
+      "date": "2025",
+      "note": "The corpus does not name the PSG coach."
+    },
+    {
+      "document_id": "case_2026_ucl_final_psg_arsenal",
+      "title": "Finale Champions League 2026: Paris Saint-Germain 1-1 Arsenal (4-3 d.c.r.)",
+      "category": "match_case",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Wikipedia (en), 2026 UEFA Champions League final — section Summary (CC BY-SA 4.0). The Italian page has no match report."
+      ],
+      "file_records": [
+        {
+          "path": "corpus/match_cases/2026_ucl_final_psg_arsenal.md",
+          "sha256": "b31e23d87320845be9abb8d0679d1a71c76303a8c24a98583a320f6f22081de5",
+          "bytes": 1967
+        }
+      ],
+      "themes": [
+        "pressione_continua",
+        "rimonta",
+        "supplementari_e_rigori"
+      ],
+      "coaches": {
+        "Arsenal": "Mikel Arteta"
+      },
+      "winner": "Paris Saint-Germain",
+      "date": "2026",
+      "note": "The corpus does not name the PSG coach."
+    },
+    {
+      "document_id": "case_2026_wc_final_spain_argentina",
+      "title": "Finale Mondiale 2026: Spagna 1-0 Argentina (d.t.s.)",
+      "category": "match_case",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "FIFA Post Match Summary Report, Final Spain v Argentina (19/07/2026) — https://www.fifatrainingcentre.com/media/native/tournaments/fifa-world-cup/2026/PMSR-M104-ESP-V-ARG.pdf",
+        "FIFA Tactical Line-up, Final Spain v Argentina — https://fdp.fifa.org/assetspublic/ce281/r12552/pdf/TacticalLineup-English.pdf",
+        "Wikipedia (it), Finale del campionato mondiale di calcio 2026, rev. 152244405 (CC BY-SA 4.0)",
+        "Wikipedia (en), 2026 FIFA World Cup final, rev. 1376535351 (CC BY-SA 4.0)"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/match_cases/2026_wc_final_spain_argentina.md",
+          "sha256": "00309f9bacdcc8fd381c5befb677b7c7ab86f7d5c47245c0598a29a8ba24a1ba",
+          "bytes": 2869
+        }
+      ],
+      "themes": [
+        "dominio_del_possesso",
+        "contro_blocco_basso",
+        "riaggressione",
+        "cambi_decisivi",
+        "superiorita_numerica"
+      ],
+      "coaches": {
+        "Spagna": "Luis de la Fuente",
+        "Argentina": "Lionel Scaloni"
+      },
+      "formations": {
+        "Spagna": "4-1-2-3",
+        "Argentina": "4-4-2"
+      },
+      "winner": "Spagna",
+      "date": "2026-07-19"
+    },
+    {
+      "document_id": "situation_attaccare_un_blocco_basso",
+      "title": "Situazione: attaccare una squadra chiusa in blocco basso",
+      "category": "game_situation",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Soncin, Attacco alla difesa (UEFA Pro 2020/21), pp. 3-9, 14-41, 45, 48",
+        "case_2026_wc_final_spain_argentina"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/game_situations/attaccare_un_blocco_basso.md",
+          "sha256": "dc53dfd94f5c7e55904482e1790136f72e3ac522f75e6dbc79788f3a08940ad0",
+          "bytes": 2852
+        }
+      ],
+      "phase": "preparazione_e_gara"
+    },
+    {
+      "document_id": "situation_costruzione_dal_basso",
+      "title": "Situazione: costruire dal basso",
+      "category": "game_situation",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Soncin, Attacco alla difesa (UEFA Pro 2020/21), pp. 1, 19-24",
+        "Dileo, L'evoluzione del Sassuolo di De Zerbi, pp. 3, 7-8",
+        "Italiano, Passaggio calciatore-allenatore (UEFA Pro 2019/20), pp. 5-7, 72",
+        "Contran, Occupazione degli spazi e fluidità posizionale (UEFA Pro 2023/24), pp. 90-91",
+        "case_2026_wc_final_spain_argentina, case_2023_ucl_final_city_inter"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/game_situations/costruzione_dal_basso.md",
+          "sha256": "f5018358fbd99805e9045648ccb563f7bc4493bfbe0f7c1cf228b230a83e828c",
+          "bytes": 2494
+        }
+      ],
+      "phase": "preparazione"
+    },
+    {
+      "document_id": "situation_difendere_un_vantaggio",
+      "title": "Situazione: difendere un vantaggio",
+      "category": "game_situation",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Pioli, Le catene di gioco laterali in un 4-4-2 (Master 2002/03), pp. 7-15",
+        "Spalla, L'evoluzione del calcio in Serie A (UEFA Pro 2023/24), pp. 50-51",
+        "Soncin, Attacco alla difesa (UEFA Pro 2020/21), pp. 11, 14-18",
+        "case_2022_wc_final_argentina_france, case_2026_ucl_final_psg_arsenal, case_2023_ucl_final_city_inter"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/game_situations/difendere_un_vantaggio.md",
+          "sha256": "53b6989561345b47a34bc7a268fbe22146f4ee695d0f12c8a0631512d13b3bce",
+          "bytes": 2532
+        }
+      ],
+      "phase": "gara"
+    },
+    {
+      "document_id": "situation_giocare_in_superiorita_numerica",
+      "title": "Situazione: giocare in superiorità numerica (11 contro 10)",
+      "category": "game_situation",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Soncin, Attacco alla difesa (UEFA Pro 2020/21), pp. 4, 26",
+        "case_2026_wc_final_spain_argentina"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/game_situations/giocare_in_superiorita_numerica.md",
+          "sha256": "1dbb94cec46f192bb3d71f8aa5d00577bb49b5d940db80eb1d98731144d50f18",
+          "bytes": 1875
+        }
+      ],
+      "phase": "gara"
+    },
+    {
+      "document_id": "situation_gioco_sulle_fasce",
+      "title": "Situazione: sviluppare il gioco sulle fasce",
+      "category": "game_situation",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Pioli, Le catene di gioco laterali in un 4-4-2 (Master 2002/03), pp. 6-7, 16-23",
+        "Soncin, Attacco alla difesa (UEFA Pro 2020/21), pp. 35-41",
+        "Spalla, L'evoluzione del calcio in Serie A (UEFA Pro 2023/24), pp. 32-33, 48-49",
+        "case_2024_euro_final_spain_england, case_2024_uel_final_atalanta_leverkusen"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/game_situations/gioco_sulle_fasce.md",
+          "sha256": "163bf8f4d1706ce76b72e6cedc242d1388ac1b0cc32bd90aa73ede6585c9e9c6",
+          "bytes": 2369
+        }
+      ],
+      "phase": "preparazione"
+    },
+    {
+      "document_id": "situation_pressing_alto_e_riaggressione",
+      "title": "Situazione: pressare alto e riaggredire dopo la perdita del pallone",
+      "category": "game_situation",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Soncin, Attacco alla difesa (UEFA Pro 2020/21), pp. 10-13, 43-45",
+        "Italiano, Passaggio calciatore-allenatore (UEFA Pro 2019/20), p. 8",
+        "Polenghi, Le intermittenze del desiderio (UEFA Pro 2021/22), cap. 1, pp. 31-33",
+        "case_2025_ucl_final_psg_inter, case_2024_uel_final_atalanta_leverkusen, case_2026_wc_final_spain_argentina"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/game_situations/pressing_alto_e_riaggressione.md",
+          "sha256": "531774f84c9f25b3feda84f17e4fb89250ade7834735054b37165e5136e958b4",
+          "bytes": 2921
+        }
+      ],
+      "phase": "preparazione_e_gara"
+    },
+    {
+      "document_id": "situation_rimontare_uno_svantaggio",
+      "title": "Situazione: rimontare uno svantaggio",
+      "category": "game_situation",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Soncin, Attacco alla difesa (UEFA Pro 2020/21), pp. 4, 19-41",
+        "case_2026_ucl_final_psg_arsenal, case_2024_euro_final_spain_england, case_2022_wc_final_argentina_france, case_2023_ucl_final_city_inter"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/game_situations/rimontare_uno_svantaggio.md",
+          "sha256": "c2fa2477be495e0e8c9915ceee5adfd47abb84f295ac358e63bc2a5fa8176b8b",
+          "bytes": 2389
+        }
+      ],
+      "phase": "gara"
+    },
+    {
+      "document_id": "situation_uscire_dal_pressing_alto",
+      "title": "Situazione: uscire dal pressing alto e dalla marcatura a uomo",
+      "category": "game_situation",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Soncin, Attacco alla difesa (UEFA Pro 2020/21), pp. 1-2, 9-13, 19-25",
+        "Dileo, L'evoluzione del Sassuolo di De Zerbi, pp. 7-8",
+        "Spalla, L'evoluzione del calcio in Serie A (UEFA Pro 2023/24), pp. 30-34",
+        "case_2024_uel_final_atalanta_leverkusen"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/game_situations/uscire_dal_pressing_alto.md",
+          "sha256": "dbfa87311d24df630da8acfeaea15bc13bee43414211a8b040d2241277ea92f0",
+          "bytes": 2661
+        }
+      ],
+      "phase": "preparazione_e_gara"
+    },
+    {
+      "document_id": "coach_ancelotti",
+      "title": "Profilo allenatore: Carlo Ancelotti",
+      "category": "coach_profile",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Wikipedia (it), Carlo Ancelotti — Caratteristiche tecniche (CC BY-SA 4.0)",
+        "Contran, Occupazione degli spazi e fluidità posizionale (UEFA Pro 2023/24), p. 140 (quote by Scaloni)"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/coach_profiles/ancelotti.md",
+          "sha256": "ba39ff787ba445ce8f8db763a30d04d6591b119184dab19372979049f59f9463",
+          "bytes": 1781
+        }
+      ],
+      "themes": [
+        "adattabilita",
+        "gestione_del_gruppo",
+        "4-4-2",
+        "4-3-2-1"
+      ],
+      "coach": "Carlo Ancelotti",
+      "note": "His UEFA Pro thesis (1997) is a scan without a text layer and is not in the corpus."
+    },
+    {
+      "document_id": "coach_conte",
+      "title": "Profilo allenatore: Antonio Conte",
+      "category": "coach_profile",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Spalla, L'evoluzione del calcio in Serie A (UEFA Pro 2023/24), pp. 45-51",
+        "Polenghi, Le intermittenze del desiderio (UEFA Pro 2021/22), cap. 1, pp. 13-19",
+        "Wikipedia (it), Antonio Conte — Caratteristiche tecniche (CC BY-SA 4.0)"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/coach_profiles/conte.md",
+          "sha256": "b71a9d7cde3078bd6b921d9bcf9d688d779459f0b2bca203183ecee4504c3745",
+          "bytes": 2293
+        }
+      ],
+      "themes": [
+        "3-5-2",
+        "difesa_di_reparto",
+        "quinti_a_tutta_fascia",
+        "coppia_di_attaccanti",
+        "transizione"
+      ],
+      "coach": "Antonio Conte"
+    },
+    {
+      "document_id": "coach_de_zerbi",
+      "title": "Profilo allenatore: Roberto De Zerbi",
+      "category": "coach_profile",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Dileo, L'evoluzione del Sassuolo di De Zerbi (tesi Match Analyst), pp. 3, 6-8, 13, 16-17",
+        "Spalla, L'evoluzione del calcio in Serie A (UEFA Pro 2023/24), pp. 36-43",
+        "Wikipedia (it), Roberto De Zerbi — Caratteristiche tecniche (CC BY-SA 4.0)"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/coach_profiles/de_zerbi.md",
+          "sha256": "f558242ccccf94d33b4453d5de6d5c874fa391808d8ee716d5c8a1c7348381b0",
+          "bytes": 2665
+        }
+      ],
+      "themes": [
+        "possesso",
+        "costruzione_dal_basso",
+        "attirare_il_pressing",
+        "pressing_a_zona"
+      ],
+      "coach": "Roberto De Zerbi"
+    },
+    {
+      "document_id": "coach_gasperini",
+      "title": "Profilo allenatore: Gian Piero Gasperini",
+      "category": "coach_profile",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Spalla, L'evoluzione del calcio in Serie A (UEFA Pro 2023/24), pp. 28-34",
+        "Wikipedia (it), Gian Piero Gasperini — Caratteristiche tecniche (CC BY-SA 4.0)",
+        "case_2024_uel_final_atalanta_leverkusen"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/coach_profiles/gasperini.md",
+          "sha256": "49e183e5f977bac3067d7f2f5b2cbee9fad9df910fb9342cd3f0c6fa70f8ffd8",
+          "bytes": 2651
+        }
+      ],
+      "themes": [
+        "marcatura_a_uomo",
+        "pressing_alto",
+        "difesa_a_tre",
+        "gioco_sulle_fasce",
+        "attacco_dell_area"
+      ],
+      "coach": "Gian Piero Gasperini"
+    },
+    {
+      "document_id": "coach_guardiola",
+      "title": "Profilo allenatore: Pep Guardiola",
+      "category": "coach_profile",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Contran, Occupazione degli spazi e fluidità posizionale (UEFA Pro 2023/24), pp. 72-77, 90-91, 183",
+        "Wikipedia (it), Pep Guardiola — Caratteristiche tecniche (CC BY-SA 4.0)",
+        "case_2023_ucl_final_city_inter"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/coach_profiles/guardiola.md",
+          "sha256": "bf92c0764688f5ac3afdd581c88e1af163c1df7303427a5cebbd9a80615449ed",
+          "bytes": 2360
+        }
+      ],
+      "themes": [
+        "gioco_di_posizione",
+        "possesso",
+        "falso_nueve",
+        "falso_terzino",
+        "falso_centrale",
+        "riaggressione"
+      ],
+      "coach": "Pep Guardiola"
+    },
+    {
+      "document_id": "coach_inzaghi",
+      "title": "Profilo allenatore: Simone Inzaghi",
+      "category": "coach_profile",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Wikipedia (it), Simone Inzaghi — Caratteristiche tecniche (CC BY-SA 4.0)",
+        "Polenghi, Le intermittenze del desiderio (UEFA Pro 2021/22), cap. 1, p. 19",
+        "case_2023_ucl_final_city_inter, case_2025_ucl_final_psg_inter"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/coach_profiles/inzaghi.md",
+          "sha256": "85eeddd5b3ce2692274d79302f2bd1c9182a289bcb56626b47953d25f40f1a51",
+          "bytes": 2069
+        }
+      ],
+      "themes": [
+        "3-5-2",
+        "5-3-2_senza_palla",
+        "esterni_offensivi",
+        "difesa_uomo_nella_zona"
+      ],
+      "coach": "Simone Inzaghi"
+    },
+    {
+      "document_id": "coach_italiano",
+      "title": "Profilo allenatore: Vincenzo Italiano",
+      "category": "coach_profile",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Italiano, Passaggio calciatore-allenatore (tesi UEFA Pro 2019/20), pp. 5-10, 26, 72-73",
+        "Wikipedia (it), Vincenzo Italiano — Caratteristiche tecniche (CC BY-SA 4.0)"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/coach_profiles/italiano.md",
+          "sha256": "831589711c742d98e22d7e7e1cdaff93190b1b3971f2009261a9a4b5a67eddee",
+          "bytes": 2484
+        }
+      ],
+      "themes": [
+        "4-3-3",
+        "tutti_registi",
+        "difesa_alta",
+        "marcatura_a_uomo",
+        "riaggressione",
+        "attacco_diretto"
+      ],
+      "coach": "Vincenzo Italiano"
+    },
+    {
+      "document_id": "coach_klopp",
+      "title": "Profilo allenatore: Jürgen Klopp",
+      "category": "coach_profile",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Wikipedia (en), Jürgen Klopp — Tactics (CC BY-SA 4.0)",
+        "Soncin, Attacco alla difesa (UEFA Pro 2020/21), pp. 43-44",
+        "Polenghi, Le intermittenze del desiderio (UEFA Pro 2021/22), cap. 1, pp. 31, 46"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/coach_profiles/klopp.md",
+          "sha256": "2e4bd52c021eb402b4951b3a104bfc6196e20e67b63d34d693f71567a1b461a7",
+          "bytes": 2473
+        }
+      ],
+      "themes": [
+        "gegenpressing",
+        "riaggressione",
+        "4-3-3",
+        "pressing_alto"
+      ],
+      "coach": "Jürgen Klopp"
+    },
+    {
+      "document_id": "coach_pioli",
+      "title": "Profilo allenatore: Stefano Pioli",
+      "category": "coach_profile",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Pioli, Le catene di gioco laterali in un 4-4-2 (tesi Master 2002/03), pp. 4-25",
+        "Wikipedia (it), Stefano Pioli — Caratteristiche tecniche (CC BY-SA 4.0)"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/coach_profiles/pioli.md",
+          "sha256": "12de4a4863c9502904d18a6add9b726ca456dce732623fdaf58fd58a0cc2b7fc",
+          "bytes": 1993
+        }
+      ],
+      "themes": [
+        "difesa_a_quattro",
+        "catene_laterali",
+        "terzini_offensivi",
+        "pressing_sulle_fasce"
+      ],
+      "coach": "Stefano Pioli"
+    },
+    {
+      "document_id": "coach_scaloni",
+      "title": "Profilo allenatore: Lionel Scaloni",
+      "category": "coach_profile",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Contran, Occupazione degli spazi e fluidità posizionale (UEFA Pro 2023/24), pp. 138-143",
+        "case_2022_wc_final_argentina_france, case_2026_wc_final_spain_argentina"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/coach_profiles/scaloni.md",
+          "sha256": "52a64afc46f151055a00cd8704fd85997ac3eff6170611199ef18ee629fe73ed",
+          "bytes": 1989
+        }
+      ],
+      "themes": [
+        "gioco_relazionale",
+        "asimmetria",
+        "equilibrio",
+        "gestione_del_gruppo"
+      ],
+      "coach": "Lionel Scaloni"
+    },
+    {
+      "document_id": "note_allenare_con_variabilita",
+      "title": "Nota: allenare con la variabilità (approccio ecologico e differential learning)",
+      "category": "thesis_note",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Polenghi, Le intermittenze del desiderio (UEFA Pro 2021/22), cap. 1, pp. 40-50",
+        "Soncin, Attacco alla difesa (UEFA Pro 2020/21), p. 47"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/thesis_notes/allenare_con_variabilita.md",
+          "sha256": "224a808f446c40edeed09c7d7185184ba937f5670c04f4333030f05961d95a12",
+          "bytes": 2879
+        }
+      ],
+      "themes": [
+        "metodologia",
+        "allenamento",
+        "differential_learning",
+        "vincoli",
+        "esercitazioni"
+      ]
+    },
+    {
+      "document_id": "note_difesa_reparto_uomo",
+      "title": "Nota: difesa di reparto, a uomo nella zona, a uomo",
+      "category": "thesis_note",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Soncin, Attacco alla difesa (UEFA Pro 2020/21), pp. 5-9",
+        "Polenghi, Le intermittenze del desiderio (UEFA Pro 2021/22), cap. 1, pp. 4-10, 17-25, 37-39"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/thesis_notes/difesa_reparto_uomo.md",
+          "sha256": "7fab897b75bc6f4218c1d90e3e27889b1c1c3d4b99a6c0b8271035a8af87dd51",
+          "bytes": 3094
+        }
+      ],
+      "themes": [
+        "difesa_di_reparto",
+        "uomo_nella_zona",
+        "marcatura_a_uomo",
+        "linea_difensiva"
+      ]
+    },
+    {
+      "document_id": "note_gioco_di_posizione",
+      "title": "Nota: il gioco di posizione",
+      "category": "thesis_note",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Contran, Occupazione degli spazi e fluidità posizionale (UEFA Pro 2023/24), pp. 12-13, 32-33, 36, 40-41, 228-230"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/thesis_notes/gioco_di_posizione.md",
+          "sha256": "e02bf229def68cf20215355fc48edfa1891fc63200788bb3ad36ea5fa7e57d57",
+          "bytes": 2693
+        }
+      ],
+      "themes": [
+        "gioco_di_posizione",
+        "superiorita",
+        "half_space",
+        "scanning",
+        "possesso"
+      ]
+    },
+    {
+      "document_id": "note_gioco_relazionale",
+      "title": "Nota: il calcio associativo-relazionale",
+      "category": "thesis_note",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Contran, Occupazione degli spazi e fluidità posizionale (UEFA Pro 2023/24), pp. 100-102, 109, 124-127, 230-233"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/thesis_notes/gioco_relazionale.md",
+          "sha256": "8a0e9b1b21013a7f1d9ecc34de8a30581efd3025683a0fe1b35ae42b3dc92f52",
+          "bytes": 2671
+        }
+      ],
+      "themes": [
+        "gioco_relazionale",
+        "fluidita_posizionale",
+        "combinazioni",
+        "contro_difesa_a_uomo"
+      ]
+    },
+    {
+      "document_id": "glossary_metriche",
+      "title": "Glossario: metriche di prestazione",
+      "category": "glossary",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Dileo, L'evoluzione del Sassuolo di De Zerbi (tesi Match Analyst), pp. 5, 16-17, 20",
+        "Spalla, L'evoluzione del calcio in Serie A (UEFA Pro 2023/24), p. 51",
+        "Project computation from StatsBomb Open Data (matches 3869685, 3943043)",
+        "FIFA Post Match Summary Report, Spain v Argentina, 19 July 2026"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/glossary/metriche.md",
+          "sha256": "1760d3a6c11c5b2b0d3497a2256c7ac2ddace90ccbbc1a5c3acb61aa02004c2f",
+          "bytes": 3582
+        }
+      ],
+      "themes": [
+        "ppda",
+        "xg",
+        "field_tilt",
+        "pressing",
+        "possesso",
+        "metriche"
+      ]
+    },
+    {
+      "document_id": "glossary_moduli",
+      "title": "Glossario: moduli e sistemi di gioco",
+      "category": "glossary",
+      "origin_type": "derived",
+      "modality": "text",
+      "reliability": "project_synthesis_cited",
+      "language": "it",
+      "sources": [
+        "Wikipedia (it), Modulo (calcio) — Schieramento, Ultimi aggiustamenti (CC BY-SA 4.0)",
+        "Soncin, Attacco alla difesa (UEFA Pro 2020/21), pp. 14-18"
+      ],
+      "file_records": [
+        {
+          "path": "corpus/glossary/moduli.md",
+          "sha256": "37ff424186955bc504ddfd1d21ad05e7617a29576c5c236369057199dc13aaf9",
+          "bytes": 3009
+        }
+      ],
+      "themes": [
+        "moduli",
+        "sistemi_di_gioco",
+        "blocco_basso",
+        "ruoli"
+      ]
+    }
+  ]
+}

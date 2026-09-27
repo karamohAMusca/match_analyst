@@ -1,0 +1,27 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Third-party data: StatsBomb license forbids redistribution of the raw data
+references/data/statsbomb/
+
+# Third-party PDFs (FIGC theses): download them from the URLs listed in references/SOURCES.md (not indexed)
+references/theses/*.pdf
+
+# Local services data
+qdrant_storage/
+
+# FIFA official match reports: public documents, kept locally, not redistributed
+references/data/fifa/
+
+
+# Tooling
+.pytest_cache/
+
+# Course material (not part of the project)
+AITHO_Progetto_Personale.pdf
+S12_Coding_Agent.pdf
