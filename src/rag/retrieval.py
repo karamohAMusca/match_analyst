@@ -80,6 +80,18 @@ class Retriever:
         ]
         self.bm25 = BM25Okapi([tokenize(c.text) for c in self.chunks]) if self.chunks else None
 
+    def card_text(self, document_id: str) -> str | None:
+        """Whole card rebuilt from its chunks (title once, sections in order); None if unknown."""
+        parts = sorted(
+            (c for c in self.chunks if c.metadata["document_id"] == document_id),
+            key=lambda c: c.metadata["chunk_index"],
+        )
+        if not parts:
+            return None
+        title = parts[0].metadata["title"]
+        sections = [c.text.removeprefix(f"{title}\n\n") for c in parts]
+        return f"{title}\n\n" + "\n\n".join(sections)
+
     def lexical(self, query: str, pool: int = POOL, categories: list[str] | None = None) -> list[Chunk]:
         """BM25 ranking over the chunks (category filter applied in Python)."""
         if not self.bm25:

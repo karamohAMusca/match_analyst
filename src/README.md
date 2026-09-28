@@ -4,8 +4,9 @@
 corpus/*.md ──► corpus/cards.py ──► corpus/chunking.py ──► rag/ingest.py ──► Qdrant
   (cards)        read cards          one chunk per ##       embed + store     (Docker)
                                                                                  │
-user question ──► agent/analyst_agent.py ──► rag/retrieval.py: Retriever ◄───────┘
-                                              (dense + BM25 → fusion → max 1 per card)
+user question ──► agent/analyst_agent.py ──► tools/corpus_tools.py ──► rag/retrieval.py
+                  (Agent + prompts.py)        search_cards, read_card    Retriever ◄─────┘
+                                                                 (dense + BM25 → fusion → max 1 per card)
 ```
 
 | File | What it does | Needs |
@@ -18,8 +19,11 @@ user question ──► agent/analyst_agent.py ──► rag/retrieval.py: Retri
 | `rag/retrieval.py` | `Retriever`: the search used by the app. Hybrid as in the course: dense (Qdrant) + BM25 keywords, fused by interleaving (1st dense, 1st BM25, 2nd dense, ...; the course's RRF is kept for comparison), then at most 1 chunk per card (`DEFAULT_MAX_PER_CARD`). Modes `dense`, `bm25`, `hybrid` for comparisons. | Docker, key (not for BM25) |
 | `rag/embedding_cache.py` | `CachedEmbedder`: saves embeddings in `.cache/` so the same text is never paid twice; works offline on cached texts. | key only for new texts |
 | `evaluation/retrieval_metrics.py` | Retrieval metrics on the gold set: recall@1, recall@5, MRR@10 (course definitions) plus multi-card checks. Used by `scripts/eval_retrieval.py`. | — |
-| `agent/analyst_agent.py` | The datapizza `Agent` (gpt-4o-mini) that answers the coach. Retrieval tool not connected yet. | key |
-| `agent/prompts.py` | System prompt of the agent. **Outdated: to be rewritten together with the retrieval tool.** | — |
+| `evaluation/answer_checks.py` | Automatic checks on agent answers: citations only to consulted cards, no card-internal author references as citations, tool use, "Non lo so", answer language, required facts, length of advice. Used by `scripts/eval_agent.py`. | — |
+| `evaluation/grounding.py` | Grounding check: every proper noun and number of an answer must appear in the consulted cards (catches facts from the model's memory). Candidate for the output guardrail. | — |
+| `tools/corpus_tools.py` | The agent's tools. `search_cards`: up to 5 results, one per card, each headed by its `[document_id]` (the only bracketed text: card-internal references become parentheses); the first 2 are whole cards; an optional card-type filter is a preference (the best overall result is always kept). `read_card`: a whole card. Errors come back as text, never as exceptions. The descriptions state what the corpus covers. | as the Retriever |
+| `agent/analyst_agent.py` | `MatchAnalyst`: the datapizza `Agent` (gpt-4o-mini, or the model passed as `model`) with the two tools. `stateless=False` keeps the conversation (chat); `consulted_cards` lists the cards used for the last answer. Client and retriever can be injected (tests use a scripted fake LLM). | key, Docker |
+| `agent/prompts.py` | System prompt: greetings without tools; football questions always searched; answers only from passages, each claim cited with `[document_id]`; conflicts reported; "Non lo so" when the cards do not cover it. | — |
 
-`corpus/` and `evaluation/` work on files only (no network); `rag/` and `agent/` talk to external services.
+`corpus/` and `evaluation/` work on files only (no network); `rag/`, `tools/` and `agent/` talk to external services.
 Commands that use these modules are in `scripts/` (see the main README).

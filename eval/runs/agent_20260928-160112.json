@@ -1,0 +1,348 @@
+{
+  "run": "20260928-160112",
+  "questions": [
+    {
+      "question_id": "Q13",
+      "type": "situational",
+      "question": "Domenica affrontiamo una squadra che si chiude in un 4-4-2 basso. Noi giochiamo 4-3-3. Come la prepariamo?",
+      "answer": "Per affrontare una squadra che si schiera in un 4-4-2 basso, è fondamentale adottare strategie che sfruttino gli spazi e le debolezze di questo modulo. Ecco alcune raccomandazioni:\n\n1. **Arrivare nella zona di rifinitura**: Concentrati sul creare opportunità nelle zone intermedie, dove puoi attaccare la linea difensiva avversaria con tagli e combinazioni.\n   - **Spazi tra le linee**: Il 4-4-2 è simmetrico, quindi cerca di sfruttare gli spazi tra i centrocampisti e i difensori [situation_attaccare_un_blocco_basso].\n   - **Combinazioni rapide**: Utilizza passaggi veloci per superare la densità difensiva [situation_attaccare_un_blocco_basso].\n\n2. **Scaglionamento e ampiezza**: Mantieni almeno due giocatori larghi per allargare la difesa avversaria e creare spazi centrali.\n   - **Fissare l'ampiezza**: Due giocatori devono occupare le fasce per attirare i difensori avversari [situation_attaccare_un_blocco_basso].\n   - **Tre o quattro nella banda centrale**: Questo permette di avere superiorità numerica e opzioni di passaggio [situation_attaccare_un_blocco_basso].\n\n3. **Attirare e provocare**: Usa il possesso palla per attirare la pressione avversaria e poi colpisci gli spazi lasciati liberi.\n   - **Fermare la palla**: Attira i difensori verso di te per poi liberare compagni in movimento [situation_attaccare_un_blocco_basso].\n   - **Occupare lo spazio alle spalle**: Sfrutta i movimenti senza palla per invadere gli spazi creati [situation_attaccare_un_blocco_basso].\n\n4. **Attacco dell'area su palla laterale**: Quando il pallone è sui lati, occupa diverse zone dell'area per massimizzare le possibilità di segnare.\n   - **Anticipare il primo difensore**: Posiziona giocatori in modo da poter colpire il secondo palo o ricevere palla dietro [situation_attaccare_un_blocco_basso].\n\n5. **Riaggressione**: Se perdi palla, cerca di riconquistarla rapidamente per mantenere la pressione nella metà campo avversaria.\n   - **Marcature preventive**: Assicurati che i giocatori siano pronti a riaggressire per non permettere ripartenze [situation_attaccare_un_blocco_basso].\n\nQueste strategie possono aiutarti a scardinare il blocco basso del tuo avversario e a creare occasioni da gol.",
+      "consulted": [
+        "situation_attaccare_un_blocco_basso",
+        "situation_costruzione_dal_basso",
+        "situation_difendere_un_vantaggio",
+        "situation_uscire_dal_pressing_alto",
+        "situation_giocare_in_superiorita_numerica",
+        "glossary_moduli",
+        "glossary_metriche"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "marcatura a uomo, gioco sulle fasce, difensori centrali in area",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_italiano",
+            "coach_gasperini",
+            "coach_de_zerbi",
+            "coach_pioli",
+            "coach_conte"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "situation_attaccare_un_blocco_basso"
+        ],
+        "invalid_citations": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "situation_attaccare_un_blocco_basso"
+        ],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": true
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q15",
+      "type": "style_match",
+      "question": "La mia squadra difende a uomo a tutto campo, costruisce sulle fasce e porta anche i difensori centrali in area. A quale allenatore somiglia?",
+      "answer": "La tua squadra somiglia a Gian Piero Gasperini. Ecco alcune caratteristiche che evidenziano questa somiglianza:\n\n- **Intensità e duelli uomo contro uomo**: Gasperini utilizza un approccio di intensità e duelli in tutte le zone del campo, simile alla tua difesa a uomo a tutto campo [=== FONTE: coach_gasperini ===].\n- **Sviluppo sulle fasce**: La costruzione del gioco avviene principalmente sulle corsie laterali, con i difensori centrali che partecipano attivamente all'attacco, proprio come fai tu [=== FONTE: coach_gasperini ===].\n- **Area invasa da molti giocatori**: Gasperini incoraggia l'occupazione dell'area da parte di molti uomini, inclusi i difensori centrali, per creare superiorità numerica in fase offensiva [=== FONTE: coach_gasperini ===].\n- **Sistema fluido**: Utilizza moduli come il 3-4-3 o il 3-4-2-1, che permettono una transizione rapida tra fase difensiva e offensiva, simile alla tua strategia di costruzione [=== FONTE: coach_gasperini ===].\n- **Pressione alta**: La sua squadra è nota per il pressing alto e per la riconquista immediata della palla, che potrebbe essere un aspetto utile da considerare nel tuo approccio [=== FONTE: coach_gasperini ===].",
+      "consulted": [
+        "coach_inzaghi",
+        "coach_gasperini",
+        "coach_de_zerbi",
+        "coach_italiano",
+        "coach_conte"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "marcatura a uomo, gioco sulle fasce, difensori centrali in area",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_italiano",
+            "coach_gasperini",
+            "coach_de_zerbi",
+            "coach_pioli",
+            "coach_conte"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [],
+        "invalid_citations": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_gasperini"
+        ],
+        "facts_found": "1/1",
+        "forbidden_found": [],
+        "cites_something": false
+      },
+      "problems": [
+        "no [document_id] citation"
+      ]
+    },
+    {
+      "question_id": "Q18",
+      "type": "trap",
+      "question": "Nella sua tesi Pioli spiega come giocava il suo Milan campione d'Italia?",
+      "answer": "Non ho trovato informazioni specifiche sulla tesi di Pioli riguardo al suo Milan campione d'Italia. Tuttavia, posso fornirti dettagli su concetti generali come il gioco di posizione e la difesa, che potrebbero essere rilevanti per il suo approccio.\n\nSe desideri approfondire un aspetto specifico del gioco di Pioli o di un altro argomento, fammelo sapere!",
+      "consulted": [
+        "note_difesa_reparto_uomo",
+        "note_gioco_di_posizione",
+        "note_allenare_con_variabilita",
+        "note_gioco_relazionale"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "marcatura a uomo, gioco sulle fasce, difensori centrali in area",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_italiano",
+            "coach_gasperini",
+            "coach_de_zerbi",
+            "coach_pioli",
+            "coach_conte"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [],
+        "invalid_citations": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [],
+        "facts_found": "0/2",
+        "forbidden_found": [],
+        "cites_something": false
+      },
+      "problems": [
+        "no [document_id] citation",
+        "required facts found 0/2"
+      ]
+    },
+    {
+      "question_id": "Q19",
+      "type": "out_of_corpus",
+      "question": "Qual è il PPDA medio della Fiorentina di Italiano nella stagione 2022/23?",
+      "answer": "Non ho informazioni specifiche sul PPDA medio della Fiorentina di Italiano nella stagione 2022/23. \n\nIl PPDA (Passes Per Defensive Action) è una metrica che indica quanto spesso una squadra prova a riconquistare palla nelle prime fasi della costruzione avversaria: più è basso, più il pressing è aggressivo [glossario_metriche].",
+      "consulted": [
+        "glossary_metriche",
+        "glossary_moduli"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "marcatura a uomo, gioco sulle fasce, difensori centrali in area",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_italiano",
+            "coach_gasperini",
+            "coach_de_zerbi",
+            "coach_pioli",
+            "coach_conte"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [],
+        "invalid_citations": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": false,
+        "relevant_consulted": [],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": null
+      },
+      "problems": [
+        "missing \"Non lo so\""
+      ]
+    },
+    {
+      "question_id": "Q21",
+      "type": "out_of_corpus",
+      "question": "Chi ha vinto la finale di Champions League 2026 e con chi era in panchina il PSG?",
+      "answer": "Il Paris Saint-Germain ha vinto la finale di Champions League 2026 contro l'Arsenal, con un punteggio di 1-1 dopo i tempi supplementari e 4-3 ai rigori. L'Arsenal era passato in vantaggio al 6' con un gol di Havertz, ma il PSG ha pareggiato su rigore con Dembélé al 61' [case_2026_ucl_final_psg_arsenal].\n\nPer quanto riguarda la panchina del PSG, non ci sono informazioni specifiche sui membri dello staff o sull'allenatore in quel momento. Non lo so.",
+      "consulted": [
+        "case_2023_ucl_final_city_inter",
+        "case_2026_ucl_final_psg_arsenal",
+        "case_2026_wc_final_spain_argentina",
+        "situation_pressing_alto_e_riaggressione",
+        "case_2025_ucl_final_psg_inter"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "marcatura a uomo, gioco sulle fasce, difensori centrali in area",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_italiano",
+            "coach_gasperini",
+            "coach_de_zerbi",
+            "coach_pioli",
+            "coach_conte"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "case_2026_ucl_final_psg_arsenal"
+        ],
+        "invalid_citations": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": true,
+        "relevant_consulted": [
+          "case_2026_ucl_final_psg_arsenal"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": null
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q24",
+      "type": "chitchat",
+      "question": "Ciao, chi sei e cosa sai fare?",
+      "answer": "Ciao! Sono un assistente per allenatori di calcio e posso aiutarti a preparare partite o a prendere decisioni durante le partite, utilizzando informazioni su situazioni di gioco, profili di allenatori e tesi di Coverciano.",
+      "consulted": [],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "marcatura a uomo, gioco sulle fasce, difensori centrali in area",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_italiano",
+            "coach_gasperini",
+            "coach_de_zerbi",
+            "coach_pioli",
+            "coach_conte"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [],
+        "invalid_citations": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": null
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q31",
+      "type": "single_hop",
+      "question": "Secondo la tesi di Contran, da dove nasce il 'falso terzino'?",
+      "answer": "Non ho trovato informazioni specifiche sul concetto di \"falso terzino\" nella tesi di Contran. Tuttavia, il \"falso terzino\" è spesso associato a un approccio di gioco che enfatizza la fluidità e la capacità di creare superiorità numerica, elementi che possono essere legati al \"gioco di posizione\" e al \"gioco associativo-relazionale\" descritti da Contran.\n\nSe desideri approfondire questi concetti o altre tematiche, fammi sapere!",
+      "consulted": [
+        "note_gioco_di_posizione",
+        "note_gioco_relazionale",
+        "note_difesa_reparto_uomo",
+        "note_allenare_con_variabilita"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "marcatura a uomo, gioco sulle fasce, difensori centrali in area",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_italiano",
+            "coach_gasperini",
+            "coach_de_zerbi",
+            "coach_pioli",
+            "coach_conte"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [],
+        "invalid_citations": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [],
+        "facts_found": "0/3",
+        "forbidden_found": [],
+        "cites_something": false
+      },
+      "problems": [
+        "no [document_id] citation",
+        "required facts found 0/3"
+      ]
+    },
+    {
+      "question_id": "Q41",
+      "type": "style_match",
+      "question": "My team marks man-to-man all over the pitch, builds play down the flanks and even sends the centre-backs into the box. Which coach does it resemble?",
+      "answer": "La tua squadra somiglia molto al gioco di Gian Piero Gasperini. Ecco alcune caratteristiche che la collegano al suo stile:\n\n- **Marcatura uomo contro uomo**: Gasperini utilizza duelli uomo contro uomo in tutte le zone del campo, favorendo un approccio aggressivo [coach_gasperini].\n- **Sviluppo sulle fasce**: La sua squadra sviluppa il gioco principalmente sulle corsie laterali, con un'occupazione massiccia dell'area, inclusi i difensori centrali [coach_gasperini].\n- **Area invasa da difensori**: Gasperini incoraggia i difensori centrali a partecipare attivamente all'attacco, invadendo l'area avversaria [coach_gasperini].\n- **Transizioni rapide**: La sua filosofia prevede un recupero palla veloce e una transizione rapida, con molti uomini che invadono l'area avversaria [coach_gasperini].\n- **Formazioni flessibili**: Utilizza moduli come il 3-4-3 o il 3-4-2-1, che permettono una grande adattabilità e coinvolgimento di tutti i giocatori nella costruzione del gioco [coach_gasperini].",
+      "consulted": [
+        "coach_italiano",
+        "coach_gasperini",
+        "coach_de_zerbi",
+        "coach_pioli",
+        "coach_conte"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "marcatura a uomo, gioco sulle fasce, difensori centrali in area",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_italiano",
+            "coach_gasperini",
+            "coach_de_zerbi",
+            "coach_pioli",
+            "coach_conte"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_gasperini"
+        ],
+        "invalid_citations": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_gasperini"
+        ],
+        "facts_found": "1/1",
+        "forbidden_found": [],
+        "cites_something": true
+      },
+      "problems": []
+    }
+  ]
+}

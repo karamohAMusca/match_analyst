@@ -6,24 +6,13 @@ from collections import Counter
 
 import pytest
 from datapizza.type import Chunk
-from datapizza.vectorstores.qdrant import QdrantVectorstore
 
-from src.corpus.cards import load_cards
 from src.evaluation.retrieval_metrics import load_retrieval_cases, question_metrics, summarize
 from src.rag.embedding_cache import CachedEmbedder
-from src.rag.ingest import sync_corpus
-from src.rag.retrieval import Retriever, diversify, interleave, rrf_fuse, tokenize
-from tests.fakes import COLLECTION, DIM, MODEL, FakeEmbedder
+from src.rag.retrieval import diversify, interleave, rrf_fuse, tokenize
+from tests.fakes import COLLECTION, MODEL, FakeEmbedder
 
 QUERY = "Primavera del Chievo: si gioca alla domenica come ci si allena durante la settimana"
-
-
-@pytest.fixture(scope="module")
-def retriever():
-    store = QdrantVectorstore(location=":memory:")
-    embedder = FakeEmbedder()
-    sync_corpus(store, embedder, load_cards(), COLLECTION, DIM, MODEL)
-    return Retriever(store, embedder, COLLECTION)
 
 
 def test_bm25_index_covers_every_chunk(retriever):

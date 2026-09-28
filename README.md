@@ -5,8 +5,9 @@ The coach describes their own team and the opponent; the assistant helps prepare
 in-game situations, with advice **grounded in cited sources** (Coverciano theses, recent finals,
 match data), giving priority to recent (2022–2026) winning tactics. Questions in Italian or English.
 
-> **Status:** knowledge base, evaluation set and maintenance tooling are ready. Retrieval tool,
-> guardrail, observability and UI are being built (course milestones S12–S15).
+> **Status:** knowledge base, evaluation set, hybrid retrieval and the agent with its corpus
+> tools are ready. Guardrail, observability, full evaluation and UI are being built (course
+> milestones S12–S15).
 
 ---
 
@@ -29,9 +30,10 @@ match_analyst/
 │   ├── corpus/             # read cards and manifest, split cards into chunks (offline)
 │   ├── rag/                # Qdrant store, ingestion, hybrid retrieval (dense + BM25)
 │   ├── evaluation/         # metrics against the gold set
+│   ├── tools/              # agent tools: search_cards, read_card
 │   └── agent/              # datapizza-ai agent and system prompt
-├── scripts/                # ingest, build_manifest, check_corpus, sb_match_report
-├── tests/                  # offline checks (corpus, gold set, chunking, ingestion)
+├── scripts/                # ingest, eval_retrieval, build_manifest, check_corpus, sb_match_report
+├── tests/                  # offline checks (corpus, gold set, retrieval, tools, agent loop)
 ├── docker-compose.yml      # Qdrant vector store
 └── interactive_cli.py      # chat with the agent from the terminal
 ```
@@ -97,8 +99,22 @@ $0.001), later runs are free, and `python -m scripts.eval_retrieval --offline` n
 
 ### Chat with the agent (uses the OpenAI API)
 
+The agent (gpt-4o-mini) searches the cards with its tools (`search_cards`, `read_card`), answers
+only from the passages it retrieved, cites every claim with its `[document_id]`, and says
+"Non lo so" when the cards do not cover the question. Needs Qdrant running and the index built.
+
 ```bash
-python interactive_cli.py
+python interactive_cli.py                                   # conversation, follow-ups work
+python interactive_cli.py "Come preparo una partita contro un 4-4-2 basso?"   # one question
+```
+
+After each answer the CLI lists the cards the agent consulted.
+
+To check answers automatically on a set of gold questions (citations only to consulted cards,
+correct tool use, "Non lo so" when required, required facts; ~$0.02 for the default 8 questions):
+
+```bash
+python -m scripts.eval_agent            # or --ids Q13,Q18, or --all; --model gpt-4.1-mini to compare models
 ```
 
 ---

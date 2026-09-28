@@ -1,0 +1,2306 @@
+{
+  "run": "20260928-171548",
+  "model": "gpt-4.1-mini",
+  "questions": [
+    {
+      "question_id": "Q01",
+      "type": "single_hop",
+      "question": "Nella tesi di Pioli, da quali giocatori sono composte le catene laterali del 4-4-2?",
+      "answer": "Le catene laterali nel 4-4-2 secondo la tesi di Pioli sono composte da terzino, centrocampista centrale ed esterno di centrocampo dello stesso lato (a destra 2-4-7, a sinistra 3-8-11). In fase offensiva, le fasce vanno occupate con movimenti combinati e sincroni per allargare la difesa avversaria [situation_gioco_sulle_fasce].",
+      "consulted": [
+        "situation_gioco_sulle_fasce",
+        "note_allenare_con_variabilita",
+        "note_gioco_di_posizione",
+        "note_difesa_reparto_uomo",
+        "note_gioco_relazionale"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "Pioli catene laterali 4-4-2",
+          "categories": [
+            "thesis_note"
+          ],
+          "cards": [
+            "situation_gioco_sulle_fasce",
+            "note_allenare_con_variabilita",
+            "note_gioco_di_posizione",
+            "note_difesa_reparto_uomo",
+            "note_gioco_relazionale"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "situation_gioco_sulle_fasce"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [],
+        "facts_found": "5/5",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 53,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q02",
+      "type": "single_hop",
+      "question": "Come organizza Pioli il pressing sulle fasce nel suo 4-4-2?",
+      "answer": "Pioli nel suo 4-4-2 organizza il pressing sulle fasce indirizzando il gioco avversario verso l'esterno, con l'esterno di centrocampo che parte in pressione durante il passaggio, mentre terzino e mediano scalano in avanti, trasformando la squadra in un 3-4-3 in fase di pressing. Le catene laterali sono formate da terzino, centrocampista centrale ed esterno dello stesso lato, che lavorano in sincronia per occupare le fasce e creare superiorità. La squadra mantiene compattezza e aggressione costante, con regole precise di linea per coprire o salire in fuorigioco a seconda della situazione di palla libera o coperta [coach_pioli].\n\n- Gli attaccanti indirizzano il gioco verso le fasce per limitare le opzioni avversarie [coach_pioli].\n- L'esterno di centrocampo parte in pressione sul portatore di palla, mentre terzino e mediano scalano in avanti per supportare [coach_pioli].\n- La squadra diventa di fatto un 3-4-3 in fase di pressing sulle fasce [coach_pioli].\n- Le catene laterali lavorano con movimenti combinati e sincroni per occupare e sfruttare le fasce [situation_gioco_sulle_fasce].\n- Caso reale: l'Atalanta ha sfruttato sovrapposizioni e triangoli sulle fasce per segnare in Europa League 2024 [situation_gioco_sulle_fasce].",
+      "consulted": [
+        "situation_gioco_sulle_fasce",
+        "coach_pioli",
+        "situation_difendere_un_vantaggio",
+        "situation_uscire_dal_pressing_alto",
+        "situation_costruzione_dal_basso"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "Pioli pressing sulle fasce 4-4-2",
+          "categories": [
+            "coach_profile",
+            "game_situation"
+          ],
+          "cards": [
+            "situation_gioco_sulle_fasce",
+            "coach_pioli",
+            "situation_difendere_un_vantaggio",
+            "situation_uscire_dal_pressing_alto",
+            "situation_costruzione_dal_basso"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_pioli",
+          "situation_gioco_sulle_fasce"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_pioli"
+        ],
+        "facts_found": "3/4",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 187,
+        "advice": false
+      },
+      "problems": [
+        "required facts found 3/4"
+      ]
+    },
+    {
+      "question_id": "Q03",
+      "type": "single_hop",
+      "question": "Secondo Pioli, come deve comportarsi la linea difensiva con palla 'libera' e con palla 'coperta'?",
+      "answer": "Secondo Pioli, la linea difensiva deve comportarsi così:\n- Con palla libera la linea scivola indietro per coprire lo spazio e togliere profondità agli avversari.\n- Con palla coperta la linea difensiva sale per mettere in fuorigioco gli attaccanti.\n- Un difensore attacca la palla mentre gli altri tre coprono, mantenendo una posizione di 1:3; l'allineamento si rompe solo dopo che la palla è partita.\n\nQueste regole sono parte del suo 4-4-2 a zona, che punta a compattezza, equilibrio e aggressione costante sfruttando le fasce [coach_pioli].",
+      "consulted": [
+        "note_difesa_reparto_uomo",
+        "coach_de_zerbi",
+        "coach_pioli",
+        "coach_italiano",
+        "coach_gasperini"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "Pioli linea difensiva palla libera palla coperta",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "note_difesa_reparto_uomo",
+            "coach_de_zerbi",
+            "coach_pioli",
+            "coach_italiano",
+            "coach_gasperini"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_pioli"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_pioli"
+        ],
+        "facts_found": "4/4",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 87,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q04",
+      "type": "single_hop",
+      "question": "Quali sono le tipologie di difesa descritte nella tesi di Soncin e quali riferimenti usa la difesa a zona di reparto?",
+      "answer": "Le tipologie di difesa descritte nella tesi di Soncin sono: difesa a zona di reparto, difesa a uomo nella zona, e difesa a uomo. La difesa a zona di reparto prende come riferimenti palla, porta, compagno e avversario, in quest'ordine. Quando parte la palla, l'uomo nella zona va sul pallone e gli altri formano una seconda linea di copertura, ad esempio con una difesa a quattro si crea una doppia linea 1-3. La linea difensiva si muove in modo coordinato: con palla scoperta la linea scappa togliendo profondità, con palla coperta la linea sale, un difensore attacca la palla e tre coprono. L'allineamento si rompe solo dopo che la palla è partita. Un limite di questa difesa è che coprendo la profondità si libera lo spazio tra le linee davanti alla difesa, dove la pressione arriva in ritardo. [note_difesa_reparto_uomo]",
+      "consulted": [
+        "note_difesa_reparto_uomo",
+        "note_allenare_con_variabilita",
+        "note_gioco_di_posizione",
+        "note_gioco_relazionale",
+        "situation_attaccare_un_blocco_basso"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "tipologie di difesa Soncin difesa a zona di reparto",
+          "categories": [
+            "thesis_note"
+          ],
+          "cards": [
+            "note_difesa_reparto_uomo",
+            "note_allenare_con_variabilita",
+            "note_gioco_di_posizione",
+            "note_gioco_relazionale",
+            "situation_attaccare_un_blocco_basso"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "note_difesa_reparto_uomo"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "note_difesa_reparto_uomo"
+        ],
+        "facts_found": "5/5",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 143,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q05",
+      "type": "single_hop",
+      "question": "Cos'è la zona di rifinitura secondo Soncin e perché è importante contro un blocco basso?",
+      "answer": "La zona di rifinitura, secondo Soncin, è lo spazio alle spalle dei centrocampisti avversari e davanti ai difensori, nelle zone intermedie (half-space), da cui si può attaccare la linea difensiva con tagli, fuori linea o combinazioni. È importante contro un blocco basso perché permette di scardinare la difesa posizionale avversaria, che riduce gli spazi e aumenta la densità nella propria metà campo. Arrivare in questa zona con scaglionamento, ampiezza mirata e combinazioni rapide consente di creare superiorità e occasioni da gol. [situation_attaccare_un_blocco_basso]\n\n- La zona di rifinitura sfrutta gli spazi tra centrocampo e difesa, difficili da coprire in un blocco basso [situation_attaccare_un_blocco_basso].\n- Occorre almeno un giocatore in più in costruzione e un buon scaglionamento per fissare l'ampiezza e occupare la zona centrale [situation_attaccare_un_blocco_basso].\n- Attirare la pressione e invadere lo spazio alle spalle degli avversari aiuta a rompere l'equilibrio difensivo [situation_attaccare_un_blocco_basso].\n- Ampiezza con uno scopo e attacco dell'area su palla laterale sono strategie chiave per sfruttare la zona di rifinitura [situation_attaccare_un_blocco_basso].\n- Caso reale: nel Mondiale 2026 la Spagna ha battuto il 4-4-2 basso argentino con possesso avanzato e riaggressione, sfruttando la zona di rifinitura [case_2026_wc_final_spain_argentina].",
+      "consulted": [
+        "situation_attaccare_un_blocco_basso",
+        "situation_rimontare_uno_svantaggio",
+        "situation_costruzione_dal_basso",
+        "situation_pressing_alto_e_riaggressione",
+        "situation_giocare_in_superiorita_numerica"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "zona di rifinitura Soncin blocco basso",
+          "categories": [
+            "game_situation"
+          ],
+          "cards": [
+            "situation_attaccare_un_blocco_basso",
+            "situation_rimontare_uno_svantaggio",
+            "situation_costruzione_dal_basso",
+            "situation_pressing_alto_e_riaggressione",
+            "situation_giocare_in_superiorita_numerica"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "situation_attaccare_un_blocco_basso",
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "situation_attaccare_un_blocco_basso"
+        ],
+        "facts_found": "3/3",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 189,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q06",
+      "type": "single_hop",
+      "question": "Quali zone dell'area bisogna occupare quando si attacca su palla laterale, secondo Soncin?",
+      "answer": "Quando si attacca su palla laterale, secondo Soncin bisogna occupare quattro zone dell'area con più uomini possibile: l'anticipo sul primo difendente, il secondo palo, la palla dietro a rimorchio e la palla dietro oltre lo schermo [situation_attaccare_un_blocco_basso]. \n- È importante avere almeno due giocatori che fissano l'ampiezza e tre o quattro nella banda centrale per uno scaglionamento efficace [situation_attaccare_un_blocco_basso].\n- L'ampiezza va usata con uno scopo preciso, come allargare per tornare dentro o per arrivare al cross [situation_attaccare_un_blocco_basso].\n- Fermare la palla per attirare la pressione e condurre per occupare lo spazio alle spalle degli avversari sono azioni chiave [situation_attaccare_un_blocco_basso].\n- Caso reale: nella finale Mondiale 2026 la Spagna ha battuto l'Argentina con un possesso avanzante e riaggressione, sfruttando molte linee rotte e ricezioni nell'ultimo terzo [case_2026_wc_final_spain_argentina].",
+      "consulted": [
+        "situation_attaccare_un_blocco_basso",
+        "situation_pressing_alto_e_riaggressione",
+        "situation_costruzione_dal_basso",
+        "situation_gioco_sulle_fasce",
+        "situation_rimontare_uno_svantaggio"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "attaccare su palla laterale Soncin",
+          "categories": [
+            "game_situation"
+          ],
+          "cards": [
+            "situation_attaccare_un_blocco_basso",
+            "situation_pressing_alto_e_riaggressione",
+            "situation_costruzione_dal_basso",
+            "situation_gioco_sulle_fasce",
+            "situation_rimontare_uno_svantaggio"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "situation_attaccare_un_blocco_basso",
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "situation_attaccare_un_blocco_basso"
+        ],
+        "facts_found": "4/4",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 129,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q07",
+      "type": "single_hop",
+      "question": "Nella finale del Mondiale 2026, quanto tempo impiegavano in media Spagna e Argentina per recuperare palla?",
+      "answer": "Nella finale del Mondiale 2026, la Spagna recuperava la palla in media in 10,2 secondi, mentre l'Argentina impiegava 22,3 secondi in media per il recupero palla [case_2026_wc_final_spain_argentina].",
+      "consulted": [
+        "case_2026_wc_final_spain_argentina",
+        "case_2024_euro_final_spain_england",
+        "case_2022_wc_final_argentina_france",
+        "case_2024_uel_final_atalanta_leverkusen",
+        "case_2023_ucl_final_city_inter"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "finale Mondiale 2026 tempo medio recupero palla Spagna Argentina",
+          "categories": [
+            "match_case"
+          ],
+          "cards": [
+            "case_2026_wc_final_spain_argentina",
+            "case_2024_euro_final_spain_england",
+            "case_2022_wc_final_argentina_france",
+            "case_2024_uel_final_atalanta_leverkusen",
+            "case_2023_ucl_final_city_inter"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 30,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q08",
+      "type": "single_hop",
+      "question": "Come è nato il gol decisivo della finale del Mondiale 2026?",
+      "answer": "Il gol decisivo della finale del Mondiale 2026 è nato da una sponda di Nico Williams su un cross di Porro per Ferran Torres, entrato dalla panchina, che ha segnato al 106' minuto. La Spagna ha vinto controllando la partita con un possesso palla avanzato e una costruzione dai centrali, mantenendo una squadra corta e alta e riaggredendo rapidamente l'avversario. L'Argentina, in dieci dal 90'+3' per l'espulsione di Enzo Fernández, ha giocato in un prudente 4-4-2 con blocco basso, senza mai tirare nei 90 minuti regolamentari [case_2026_wc_final_spain_argentina].\n\n- Il possesso palla spagnolo era al 60,2%, con 182 linee rotte e 251 ricezioni nell'ultimo terzo, contro 87 linee rotte e 52 ricezioni dell'Argentina [case_2026_wc_final_spain_argentina].\n- La costruzione spagnola passava molto dai centrali, con Cubarsí protagonista di 124 passaggi e la catena di destra Cubarsí → Porro → Yamal la più usata [case_2026_wc_final_spain_argentina].\n- La Spagna ha mantenuto una squadra corta e alta, con la linea difensiva a 59 metri dalla porta [case_2026_wc_final_spain_argentina].\n- La riaggressione immediata ha permesso di recuperare la palla in 10,2 secondi di media, togliendo all'Argentina la possibilità di ripartire [case_2026_wc_final_spain_argentina].\n- Caso reale: gol di Ferran Torres al 106' su sponda di Nico Williams, entrambi subentrati nella seconda metà del secondo tempo supplementare [case_2026_wc_final_spain_argentina].",
+      "consulted": [
+        "case_2026_wc_final_spain_argentina",
+        "case_2022_wc_final_argentina_france",
+        "case_2026_ucl_final_psg_arsenal",
+        "case_2024_euro_final_spain_england",
+        "case_2023_ucl_final_city_inter"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "finale Mondiale 2026 gol decisivo come nato",
+          "categories": [
+            "match_case"
+          ],
+          "cards": [
+            "case_2026_wc_final_spain_argentina",
+            "case_2022_wc_final_argentina_france",
+            "case_2026_ucl_final_psg_arsenal",
+            "case_2024_euro_final_spain_england",
+            "case_2023_ucl_final_city_inter"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "facts_found": "3/3",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 211,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q09",
+      "type": "single_hop",
+      "question": "Come ha costruito il PSG il 2-0 nella finale di Champions League 2025 contro l'Inter?",
+      "answer": "Il PSG ha costruito il 2-0 nella finale di Champions League 2025 contro l'Inter con un contropiede orchestrato da Kvaratskhelia e Dembélé, con un tiro di Doué deviato decisamente da Dimarco. Questo gol è arrivato otto minuti dopo il primo, che era nato da un pressing feroce e da un attacco rapido alla linea difensiva dell'Inter, sfruttando un errore nel fuorigioco (Vitinha-Doué-Hakimi) [case_2025_ucl_final_psg_inter].\n\n- Il PSG ha iniziato con un pressing aggressivo che ha spezzato la sicurezza dell'Inter [case_2025_ucl_final_psg_inter].\n- Il primo gol è nato da un errore difensivo sull'impostazione del fuorigioco, con un passaggio in profondità per Hakimi lasciato solo [case_2025_ucl_final_psg_inter].\n- Il secondo gol è stato un contropiede rapido, con Kvaratskhelia e Dembélé protagonisti e un tiro deviato da un difensore avversario [case_2025_ucl_final_psg_inter].\n- La profondità e la velocità negli attacchi sono state decisive per il PSG, che ha sfruttato la linea difensiva non sincronizzata dell'Inter [case_2025_ucl_final_psg_inter].\n- Lettura per l'allenatore: un pressing aggressivo iniziale e attacchi rapidi alle spalle della difesa sono efficaci contro squadre che non salgono in modo coordinato [case_2025_ucl_final_psg_inter].",
+      "consulted": [
+        "case_2025_ucl_final_psg_inter",
+        "case_2026_ucl_final_psg_arsenal",
+        "case_2023_ucl_final_city_inter",
+        "case_2022_wc_final_argentina_france",
+        "case_2024_uel_final_atalanta_leverkusen"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "finale Champions League 2025 PSG Inter costruzione del secondo gol",
+          "categories": [
+            "match_case"
+          ],
+          "cards": [
+            "case_2025_ucl_final_psg_inter",
+            "case_2026_ucl_final_psg_arsenal",
+            "case_2023_ucl_final_city_inter",
+            "case_2022_wc_final_argentina_france",
+            "case_2024_uel_final_atalanta_leverkusen"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "case_2025_ucl_final_psg_inter"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [
+          "Vitinha-Doué-Hakimi"
+        ],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "case_2025_ucl_final_psg_inter"
+        ],
+        "facts_found": "4/4",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 179,
+        "advice": false
+      },
+      "problems": [
+        "names/numbers not in the consulted cards: ['Vitinha-Doué-Hakimi']"
+      ]
+    },
+    {
+      "question_id": "Q10",
+      "type": "single_hop",
+      "question": "Chi ha deciso la finale di Champions League 2023 tra Manchester City e Inter e come?",
+      "answer": "La finale di Champions League 2023 tra Manchester City e Inter è stata decisa da un solo gol di Rodri al 67', frutto di un errore difensivo dell'Inter su un'azione di Silva e Akanji. Il City ha vinto con pazienza contro una difesa solida, sfruttando il primo errore avversario e con un portiere, Ederson, decisivo nel finale con due parate importanti. L'Inter ha reagito immediatamente allo svantaggio, ma non è riuscita a pareggiare [case_2023_ucl_final_city_inter].\n\n- Il City ha attaccato con una struttura 3-2-5 e ha sfruttato il falso centrale per creare superiorità [case_2023_ucl_final_city_inter].\n- La rete è nata da un'incursione centrale di Silva, appoggio deviato da Bastoni a Rodri, che ha segnato di prima [case_2023_ucl_final_city_inter].\n- Ederson ha parato un colpo di testa ravvicinato di Lukaku e un altro di Gosens nel finale, mantenendo il vantaggio [case_2023_ucl_final_city_inter].\n- L'Inter ha risposto con un blocco avanzato e ha cercato il pareggio con i subentrati Gosens e Lukaku, senza successo [case_2023_ucl_final_city_inter].",
+      "consulted": [
+        "case_2023_ucl_final_city_inter",
+        "case_2025_ucl_final_psg_inter",
+        "case_2026_ucl_final_psg_arsenal",
+        "case_2024_uel_final_atalanta_leverkusen",
+        "case_2024_euro_final_spain_england"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "finale Champions League 2023 Manchester City Inter come ha deciso",
+          "categories": [
+            "match_case"
+          ],
+          "cards": [
+            "case_2023_ucl_final_city_inter",
+            "case_2025_ucl_final_psg_inter",
+            "case_2026_ucl_final_psg_arsenal",
+            "case_2024_uel_final_atalanta_leverkusen",
+            "case_2024_euro_final_spain_england"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "case_2023_ucl_final_city_inter"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [
+          "67"
+        ],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "case_2023_ucl_final_city_inter"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 162,
+        "advice": false
+      },
+      "problems": [
+        "names/numbers not in the consulted cards: ['67']"
+      ]
+    },
+    {
+      "question_id": "Q11",
+      "type": "multi_doc",
+      "question": "Quali principi di gioco di Gasperini si ritrovano nella vittoria dell'Atalanta nella finale di Europa League 2024?",
+      "answer": "La vittoria dell'Atalanta nella finale di Europa League 2024 riflette chiaramente i principi di gioco di Gasperini, in particolare la difesa uomo contro uomo su tutto il campo, il pressing forsennato e la transizione rapida con molti uomini in area [coach_gasperini][case_2024_uel_final_atalanta_leverkusen].\n\n- L'Atalanta ha esercitato una pressione intensa sin dall'inizio, togliendo tempo e spazio al Leverkusen [case_2024_uel_final_atalanta_leverkusen].\n- Due dei tre gol sono nati da palloni recuperati grazie al pressing aggressivo e alla riconquista immediata della palla [case_2024_uel_final_atalanta_leverkusen].\n- La squadra ha invaso l'area avversaria con molti giocatori, inclusi i difensori centrali, seguendo il modello di sviluppo offensivo di Gasperini [coach_gasperini][case_2024_uel_final_atalanta_leverkusen].\n- La costruzione del gioco si è basata su duelli uomo contro uomo e su un pressing che ha forzato errori in uscita, trasformati rapidamente in azioni pericolose [coach_gasperini][case_2024_uel_final_atalanta_leverkusen].\n- La finale ha mostrato come il pressing a uomo sia efficace se ogni duello vinto diventa subito un attacco, come dimostrato dalla tripletta di Lookman [case_2024_uel_final_atalanta_leverkusen].",
+      "consulted": [
+        "coach_gasperini",
+        "coach_de_zerbi",
+        "coach_inzaghi",
+        "coach_guardiola",
+        "coach_italiano",
+        "case_2024_uel_final_atalanta_leverkusen",
+        "case_2023_ucl_final_city_inter",
+        "case_2024_euro_final_spain_england",
+        "case_2026_ucl_final_psg_arsenal",
+        "case_2026_wc_final_spain_argentina"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "Gasperini principi di gioco",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_gasperini",
+            "coach_de_zerbi",
+            "coach_inzaghi",
+            "coach_guardiola",
+            "coach_italiano"
+          ]
+        },
+        {
+          "tool": "search_cards",
+          "query": "finale Europa League 2024 Atalanta vittoria",
+          "categories": [
+            "match_case"
+          ],
+          "cards": [
+            "case_2024_uel_final_atalanta_leverkusen",
+            "case_2023_ucl_final_city_inter",
+            "case_2024_euro_final_spain_england",
+            "case_2026_ucl_final_psg_arsenal",
+            "case_2026_wc_final_spain_argentina"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_gasperini",
+          "case_2024_uel_final_atalanta_leverkusen"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_gasperini",
+          "case_2024_uel_final_atalanta_leverkusen"
+        ],
+        "facts_found": "2/4",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 159,
+        "advice": false
+      },
+      "problems": [
+        "required facts found 2/4"
+      ]
+    },
+    {
+      "question_id": "Q12",
+      "type": "multi_doc",
+      "question": "Confronta come Klopp e Italiano usano la pressione senza palla.",
+      "answer": "Klopp e Italiano condividono l'obiettivo di recuperare la palla il più rapidamente possibile dopo la perdita, ma con approcci diversi alla pressione senza palla. Klopp applica il gegenpressing, una pressione immediata e intensa per riconquistare il pallone in zona alta, con una squadra compatta che rompe la struttura per riaggressare, richiedendo velocità, organizzazione e resistenza [coach_klopp]. Italiano invece predilige una linea difensiva alta e coraggiosa, con marcature a uomo aggressive e pressing sul primo controllo, evitando un atteggiamento attendista o un baricentro basso [coach_italiano].\n\n- Klopp usa un pressing collettivo e organizzato, con molti giocatori coinvolti nella zona di perdita palla per chiudere le linee di passaggio e riaggressare subito [coach_klopp].\n- Italiano punta su marcature a uomo aggressive e pressione immediata sul primo controllo, con una linea difensiva alta e coraggiosa [coach_italiano].\n- Entrambi mirano a recuperare palla velocemente per sfruttare la vulnerabilità dell'avversario subito dopo la perdita [coach_klopp, coach_italiano].\n- Klopp accetta la parità numerica dietro per non farsi sorprendere in profondità, bilanciando aggressività e coperture [coach_klopp].\n- Italiano non ama squadre con baricentro basso e preferisce un pressing più diretto e aggressivo [coach_italiano].",
+      "consulted": [
+        "coach_klopp",
+        "coach_guardiola",
+        "coach_italiano",
+        "coach_gasperini",
+        "coach_pioli",
+        "situation_pressing_alto_e_riaggressione",
+        "coach_de_zerbi"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "Klopp pressione senza palla",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_klopp",
+            "coach_guardiola",
+            "coach_italiano",
+            "coach_gasperini",
+            "coach_pioli"
+          ]
+        },
+        {
+          "tool": "search_cards",
+          "query": "Italiano pressione senza palla",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "situation_pressing_alto_e_riaggressione",
+            "coach_gasperini",
+            "coach_italiano",
+            "coach_de_zerbi",
+            "coach_guardiola"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_klopp",
+          "coach_italiano"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [
+          "coach_klopp, coach_italiano"
+        ],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_klopp",
+          "coach_italiano"
+        ],
+        "facts_found": "3/3",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 183,
+        "advice": false
+      },
+      "problems": [
+        "malformed citations: ['coach_klopp, coach_italiano']"
+      ]
+    },
+    {
+      "question_id": "Q13",
+      "type": "situational",
+      "question": "Domenica affrontiamo una squadra che si chiude in un 4-4-2 basso. Noi giochiamo 4-3-3. Come la prepariamo?",
+      "answer": "Per preparare la partita contro una squadra che si chiude in un 4-4-2 basso, con il vostro 4-3-3, è fondamentale puntare sull'attacco posizionale nelle zone di mezzo e sulle combinazioni rapide per scardinare la difesa simmetrica avversaria. Bisogna arrivare nella zona di rifinitura, sfruttando gli half-space con tagli, fuori linea o combinazioni, e usare l'ampiezza con uno scopo preciso, per poi tornare dentro o attaccare la linea difensiva. È importante anche attirare la pressione avversaria per poi invadere gli spazi alle loro spalle. Evitate di mantenere troppi giocatori sotto palla, perché riduce le opzioni in area. Un caso reale è la Spagna che ha battuto l'Argentina 4-4-2 basso nel Mondiale 2026 con possesso avanzato e riaggressione [situation_attaccare_un_blocco_basso].\n\n- Attaccare la zona di rifinitura con combinazioni e inserimenti negli half-space [situation_attaccare_un_blocco_basso].\n- Usare almeno due giocatori per l'ampiezza e tre o quattro nella zona centrale per creare superiorità numerica [situation_attaccare_un_blocco_basso].\n- Fermare la palla per attirare la pressione e poi condurre per invadere lo spazio alle spalle della linea avversaria [situation_attaccare_un_blocco_basso].\n- Evitare di avere troppi giocatori sotto palla per non ridurre le opzioni offensive in area [situation_attaccare_un_blocco_basso].\n- Caso reale: Spagna batte 4-4-2 basso Argentina con possesso avanzato e riaggressione nel Mondiale 2026 [case_2026_wc_final_spain_argentina].",
+      "consulted": [
+        "situation_attaccare_un_blocco_basso",
+        "situation_costruzione_dal_basso",
+        "situation_difendere_un_vantaggio",
+        "situation_uscire_dal_pressing_alto",
+        "situation_gioco_sulle_fasce"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "attaccare un blocco basso 4-4-2 basso contro 4-3-3",
+          "categories": [
+            "game_situation"
+          ],
+          "cards": [
+            "situation_attaccare_un_blocco_basso",
+            "situation_costruzione_dal_basso",
+            "situation_difendere_un_vantaggio",
+            "situation_uscire_dal_pressing_alto",
+            "situation_gioco_sulle_fasce"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "situation_attaccare_un_blocco_basso",
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "situation_attaccare_un_blocco_basso"
+        ],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 213,
+        "advice": true
+      },
+      "problems": [
+        "advice too long: 213 words"
+      ]
+    },
+    {
+      "question_id": "Q14",
+      "type": "situational",
+      "question": "Siamo in superiorità numerica negli ultimi 20 minuti e l'avversario si è abbassato. Cosa facciamo?",
+      "answer": "In superiorità numerica contro un avversario che si è abbassato, è fondamentale leggere dove manca l'uomo e occupare la zona di rifinitura per innescare azioni pericolose, mantenendo pazienza e freschezza offensiva senza concedere ripartenze [situation_giocare_in_superiorita_numerica]. \n- Sfruttare lo schieramento avversario per trovare le zone indebolite e attaccare lì [situation_giocare_in_superiorita_numerica].\n- Occupare la zona di rifinitura con un giocatore libero per creare pericoli immediati [situation_giocare_in_superiorita_numerica].\n- Inserire cambi offensivi freschi per aumentare la qualità e la velocità dell'attacco [situation_giocare_in_superiorita_numerica].\n- Evitare di mantenere troppi giocatori dietro la palla per non ridurre gli uomini in area [situation_attaccare_un_blocco_basso].\n- Mantenere marcature preventive e riaggressione per non concedere contropiedi [situation_giocare_in_superiorita_numerica].\n- Caso reale: Spagna nel Mondiale 2026 ha segnato in 11 contro 10 con un cambio offensivo nei supplementari contro l'Argentina [case_2026_wc_final_spain_argentina].",
+      "consulted": [
+        "situation_giocare_in_superiorita_numerica",
+        "situation_attaccare_un_blocco_basso",
+        "situation_uscire_dal_pressing_alto",
+        "situation_difendere_un_vantaggio",
+        "situation_gioco_sulle_fasce"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "giocare in superiorità numerica contro blocco basso",
+          "categories": [
+            "game_situation"
+          ],
+          "cards": [
+            "situation_giocare_in_superiorita_numerica",
+            "situation_attaccare_un_blocco_basso",
+            "situation_uscire_dal_pressing_alto",
+            "situation_difendere_un_vantaggio",
+            "situation_gioco_sulle_fasce"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "situation_giocare_in_superiorita_numerica",
+          "situation_attaccare_un_blocco_basso",
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "situation_giocare_in_superiorita_numerica"
+        ],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 125,
+        "advice": true
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q15",
+      "type": "style_match",
+      "question": "La mia squadra difende a uomo a tutto campo, costruisce sulle fasce e porta anche i difensori centrali in area. A quale allenatore somiglia?",
+      "answer": "La tua squadra somiglia molto al modello di Gian Piero Gasperini, che predilige un'intensità alta con duelli uomo contro uomo su tutto il campo, sviluppo sulle fasce e l'invasione dell'area anche da parte dei difensori centrali [coach_gasperini]. \n\n- Gasperini usa sistemi come il 3-4-3 o 3-4-2-1 con molti giocatori che si inseriscono in area, inclusi i difensori centrali [coach_gasperini].\n- La difesa a uomo a tutto campo con duelli intensi è una caratteristica chiave del suo stile [coach_gasperini].\n- La costruzione sulle fasce e l'ampiezza sono elementi centrali nel suo gioco offensivo [coach_gasperini].\n- Anche Simone Inzaghi usa una difesa a uomo nella zona, ma il riferimento specifico alla costruzione sulle fasce e ai difensori centrali in area è più marcato in Gasperini [coach_inzaghi].",
+      "consulted": [
+        "note_difesa_reparto_uomo",
+        "coach_inzaghi",
+        "coach_gasperini",
+        "coach_italiano",
+        "coach_de_zerbi"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "difesa a uomo a tutto campo costruzione sulle fasce difensori centrali in area",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "note_difesa_reparto_uomo",
+            "coach_inzaghi",
+            "coach_gasperini",
+            "coach_italiano",
+            "coach_de_zerbi"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_gasperini",
+          "coach_inzaghi"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_gasperini"
+        ],
+        "facts_found": "1/1",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 129,
+        "advice": true
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q16",
+      "type": "style_match",
+      "question": "Giochiamo con la difesa a tre, esterni che spingono e diventiamo una linea a cinque senza palla, con due punte. A chi somigliamo?",
+      "answer": "La vostra squadra somiglia molto al modello di Antonio Conte, che utilizza una difesa a tre con i quinti che scendono a formare una linea a cinque senza palla, e spesso schiera due punte. Conte predilige una difesa posizionale di reparto su tre linee, con i quinti che abbassano il baricentro per formare una linea a cinque compatta [coach_conte].\n\n- La difesa a tre con esterni che spingono e diventano quinti in fase difensiva è tipica del sistema di Conte [coach_conte].\n- Conte abbassa il baricentro per sfruttare le transizioni a campo aperto, con due punte pronte a ripartire [coach_conte].\n- L'Inter di Conte nel 2020-21 ha scelto un blocco compatto e ordinato con linea a cinque in fase difensiva [situation_difendere_un_vantaggio].\n- Il modello di Conte si basa su una difesa di reparto chiara e compatta, con i quinti che agiscono da esterni bassi in fase difensiva [coach_conte].\n\nSe vuoi posso approfondire con esempi di partite reali di Conte o altri dettagli.",
+      "consulted": [
+        "situation_difendere_un_vantaggio",
+        "coach_de_zerbi",
+        "coach_conte",
+        "coach_guardiola",
+        "coach_gasperini"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "difesa a tre esterni che spingono linea a cinque senza palla due punte",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "situation_difendere_un_vantaggio",
+            "coach_de_zerbi",
+            "coach_conte",
+            "coach_guardiola",
+            "coach_gasperini"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_conte",
+          "situation_difendere_un_vantaggio"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_conte"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 160,
+        "advice": true
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q17",
+      "type": "inconsistency",
+      "question": "Che percentuale di possesso palla ha avuto la Spagna nella finale del Mondiale 2026?",
+      "answer": "La Spagna ha avuto il 60,2% di possesso palla nella finale del Mondiale 2026 contro l'Argentina [case_2026_wc_final_spain_argentina].\n- Il possesso è stato efficace, con 182 linee rotte e 251 ricezioni nell'ultimo terzo, a differenza di un possesso sterile [case_2026_wc_final_spain_argentina].\n- La Spagna ha costruito dal centro con una squadra corta e alta, mantenendo il controllo del gioco [case_2026_wc_final_spain_argentina].\n- La riaggressione immediata ha impedito all'Argentina di tirare nei 90 minuti [case_2026_wc_final_spain_argentina].\n- Il gol decisivo è arrivato da un cambio offensivo con Ferran Torres, entrato dalla panchina [case_2026_wc_final_spain_argentina].",
+      "consulted": [
+        "case_2026_wc_final_spain_argentina",
+        "case_2024_euro_final_spain_england",
+        "case_2023_ucl_final_city_inter",
+        "case_2026_ucl_final_psg_arsenal",
+        "case_2022_wc_final_argentina_france"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "finale Mondiale 2026 Spagna possesso palla",
+          "categories": [
+            "match_case"
+          ],
+          "cards": [
+            "case_2026_wc_final_spain_argentina",
+            "case_2024_euro_final_spain_england",
+            "case_2023_ucl_final_city_inter",
+            "case_2026_ucl_final_psg_arsenal",
+            "case_2022_wc_final_argentina_france"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "facts_found": "1/2",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 88,
+        "advice": false
+      },
+      "problems": [
+        "required facts found 1/2"
+      ]
+    },
+    {
+      "question_id": "Q18",
+      "type": "trap",
+      "question": "Nella sua tesi Pioli spiega come giocava il suo Milan campione d'Italia?",
+      "answer": "Il Milan campione d'Italia di Pioli si basa su un 4-4-2 a zona con difesa a quattro e terzini che partecipano attivamente all'attacco, costruito sulle catene laterali. La squadra mantiene compattezza ed equilibrio in difesa, con aggressione costante e sfruttamento delle fasce. In fase di pressing, gli attaccanti indirizzano il gioco avversario sulle fasce, con esterni che partono in pressione e terzini e mediani che scalano in avanti, trasformando la squadra in un 3-4-3. In fase offensiva si privilegiano movimenti senza palla, sovrapposizioni del terzino, dentro-fuori dell'esterno e inserimenti della mezzala, con fasce sempre occupate. La linea difensiva si adatta tra scivolamenti indietro e salite per il fuorigioco a seconda della situazione di palla libera o coperta. Pioli sottolinea che \"si gioca alla domenica come ci si allena durante la settimana\" [coach_pioli].",
+      "consulted": [
+        "coach_pioli",
+        "coach_ancelotti",
+        "coach_de_zerbi",
+        "coach_inzaghi",
+        "coach_italiano"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "Pioli Milan campione d'Italia tesi",
+          "categories": [
+            "coach_profile",
+            "thesis_note"
+          ],
+          "cards": [
+            "coach_pioli",
+            "coach_ancelotti",
+            "coach_de_zerbi",
+            "coach_inzaghi",
+            "coach_italiano"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_pioli"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_pioli"
+        ],
+        "facts_found": "0/2",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 140,
+        "advice": false
+      },
+      "problems": [
+        "required facts found 0/2"
+      ]
+    },
+    {
+      "question_id": "Q19",
+      "type": "out_of_corpus",
+      "question": "Qual è il PPDA medio della Fiorentina di Italiano nella stagione 2022/23?",
+      "answer": "Non è riportato un valore preciso del PPDA medio della Fiorentina di Italiano nella stagione 2022/23. Tuttavia, si sa che Italiano predilige un pressing aggressivo e un baricentro alto, con marcature a uomo e riconquista palla immediata dopo la perdita, quindi un PPDA basso, indice di pressing frequente e intenso [coach_italiano], [glossary_metriche].",
+      "consulted": [
+        "coach_italiano",
+        "coach_gasperini",
+        "coach_de_zerbi",
+        "coach_pioli",
+        "glossary_metriche"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "PPDA Fiorentina Italiano 2022/23",
+          "categories": [
+            "coach_profile",
+            "glossary"
+          ],
+          "cards": [
+            "coach_italiano",
+            "coach_gasperini",
+            "coach_de_zerbi",
+            "coach_pioli",
+            "glossary_metriche"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_italiano",
+          "glossary_metriche"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": false,
+        "relevant_consulted": [],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": null,
+        "words": 53,
+        "advice": false
+      },
+      "problems": [
+        "missing \"Non lo so\""
+      ]
+    },
+    {
+      "question_id": "Q20",
+      "type": "out_of_corpus",
+      "question": "Quale formazione schiererà l'Inter nella prossima partita di campionato?",
+      "answer": "Non lo so. I dati disponibili non contengono informazioni sulle formazioni attuali o future delle squadre, inclusa l'Inter. Posso però aiutarti con informazioni tattiche, profili di allenatori o situazioni di gioco basate su casi e teorie documentate. Vuoi sapere qualcosa di specifico sull'Inter o sul suo allenatore?",
+      "consulted": [],
+      "tool_calls": [],
+      "check": {
+        "cited": [],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": false,
+        "abstention_ok": true,
+        "relevant_consulted": [],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": null,
+        "words": 49,
+        "advice": false
+      },
+      "problems": [
+        "wrong tool use (searched a greeting, or answered football without searching)"
+      ]
+    },
+    {
+      "question_id": "Q21",
+      "type": "out_of_corpus",
+      "question": "Chi ha vinto la finale di Champions League 2026 e con chi era in panchina il PSG?",
+      "answer": "La finale di Champions League 2026 è stata vinta dal Paris Saint-Germain ai rigori contro l'Arsenal, dopo un pareggio 1-1 nei tempi regolamentari e supplementari. Il PSG ha pareggiato con un rigore trasformato da Dembélé e ha vinto la serie di rigori 4-3 (Arsenal ha sbagliato due rigori, Raya ha parato uno) [case_2026_ucl_final_psg_arsenal].\n\nIl PSG era in panchina con l'allenatore che ha guidato la squadra in questa finale, ma il nome specifico dell'allenatore non è indicato nella scheda disponibile. Non lo so chi fosse esattamente l'allenatore del PSG in panchina nella finale 2026.\n\nRiassunto della partita:\n- Arsenal passa in vantaggio al 6' con Havertz su deviazione.\n- PSG mantiene pressione continua e pareggia al 61' su rigore.\n- PSG ha 18 tiri contro 4 dell'Arsenal a fine partita.\n- La vittoria arriva ai rigori con 4 rigori segnati dal PSG e 2 sbagliati dall'Arsenal [case_2026_ucl_final_psg_arsenal].",
+      "consulted": [
+        "case_2025_ucl_final_psg_inter",
+        "case_2026_ucl_final_psg_arsenal",
+        "case_2026_wc_final_spain_argentina",
+        "case_2023_ucl_final_city_inter",
+        "case_2022_wc_final_argentina_france"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "finale Champions League 2026 vincitore PSG panchina",
+          "categories": [
+            "match_case"
+          ],
+          "cards": [
+            "case_2025_ucl_final_psg_inter",
+            "case_2026_ucl_final_psg_arsenal",
+            "case_2026_wc_final_spain_argentina",
+            "case_2023_ucl_final_city_inter",
+            "case_2022_wc_final_argentina_france"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "case_2026_ucl_final_psg_arsenal"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": true,
+        "relevant_consulted": [
+          "case_2026_ucl_final_psg_arsenal"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": null,
+        "words": 151,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q22",
+      "type": "off_topic",
+      "question": "Mi scrivi la ricetta della carbonara?",
+      "answer": "Posso aiutarti solo con informazioni tattiche e tecniche sul calcio, non con ricette di cucina. Se vuoi, posso darti consigli su come preparare una partita o gestire situazioni di gioco.",
+      "consulted": [],
+      "tool_calls": [],
+      "check": {
+        "cited": [],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": null,
+        "words": 30,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q23",
+      "type": "off_topic",
+      "question": "Chi vincerà le prossime elezioni politiche?",
+      "answer": "Non lo so. Posso aiutarti solo con domande tattiche e tecniche sul calcio.",
+      "consulted": [],
+      "tool_calls": [],
+      "check": {
+        "cited": [],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": null,
+        "words": 13,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q24",
+      "type": "chitchat",
+      "question": "Ciao, chi sei e cosa sai fare?",
+      "answer": "Ciao! Sono un assistente per allenatori di calcio, specializzato nell'aiutarti a preparare partite e gestire situazioni di gioco con consigli tattici basati su una banca dati di conoscenze specifiche e aggiornate. Posso fornirti analisi su situazioni di gioco, profili di allenatori, casi di partite recenti e note tecniche da Coverciano, sempre con riferimenti precisi alle fonti.",
+      "consulted": [],
+      "tool_calls": [],
+      "check": {
+        "cited": [],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": null,
+        "words": 57,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q25",
+      "type": "single_hop",
+      "question": "Cosa intende Vincenzo Italiano con il passaggio dal 'regista unico' al 'tutti registi'?",
+      "answer": "Vincenzo Italiano con il passaggio dal \"regista unico\" al \"tutti registi\" intende superare la dipendenza da un singolo playmaker, facendo sì che tutti i giocatori, indipendentemente dal ruolo, diventino costruttori del gioco. Questo approccio si allena con situazioni di gioco ripetute per abituare la squadra a costruire il gioco collettivamente, anche quando la fonte principale di gioco è marcata o chiusa [coach_italiano].\n\n- Da play spesso marcato a uomo, Italiano ha visto che gli altri ruoli non sapevano sostituirla, quindi vuole che tutti siano \"registi\" [coach_italiano].\n- La squadra consolida il possesso con verticalità solo quando necessaria, cercando il lato debole e attaccando la porta velocemente quando possibile [coach_italiano].\n- In attacco sono fondamentali esterni, terzini e inserimenti dei centrocampisti, con il centravanti che fa anche da regista offensivo venendo incontro [coach_italiano].\n- L'allenamento prevede esercitazioni come costruzione dal basso con il portiere \"play aggiunto\" e situazioni di riconquista immediata per stimolare la partecipazione di tutti [coach_italiano].",
+      "consulted": [
+        "coach_italiano",
+        "coach_de_zerbi",
+        "coach_pioli",
+        "coach_ancelotti",
+        "coach_klopp"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "Italiano regista unico tutti registi",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_italiano",
+            "coach_de_zerbi",
+            "coach_pioli",
+            "coach_ancelotti",
+            "coach_klopp"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_italiano"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_italiano"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 154,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q26",
+      "type": "single_hop",
+      "question": "Come ha adattato Italiano il suo 4-3-3 tra Trapani e Spezia?",
+      "answer": "Italiano ha mantenuto il 4-3-3 sia a Trapani (Serie C) sia a Spezia (Serie B), ma con interpretazioni diverse. A Trapani ha adottato un calcio verticale e aggressivo con baricentro alto, mentre a Spezia ha preferito un gioco più ragionato e paziente, con più uomini in area e una riconquista più \"ragionata\". In entrambe le squadre ha voluto che tutti i giocatori fossero coinvolti nella costruzione del gioco, con un consolidamento del possesso e attacco diretto quando possibile. La fase difensiva è caratterizzata da marcature a uomo aggressive e pressing sul primo controllo, con una linea difensiva alta e coraggiosa [coach_italiano].",
+      "consulted": [
+        "coach_italiano",
+        "coach_pioli",
+        "coach_gasperini",
+        "coach_inzaghi",
+        "coach_de_zerbi"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "Italiano adattamento 4-3-3 Trapani Spezia",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_italiano",
+            "coach_pioli",
+            "coach_gasperini",
+            "coach_inzaghi",
+            "coach_de_zerbi"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_italiano"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_italiano"
+        ],
+        "facts_found": "3/3",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 103,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q27",
+      "type": "single_hop",
+      "question": "Come è cambiato il possesso palla del Sassuolo nelle tre stagioni con De Zerbi?",
+      "answer": "Il possesso palla del Sassuolo con De Zerbi è cresciuto progressivamente nelle tre stagioni, passando da un 54% a un 60.8%, con un aumento della precisione nei passaggi dal 82.4% all'86.8%. De Zerbi ha imposto un gioco basato sul mantenimento del possesso, costruzione dal basso e coinvolgimento del portiere, con attenzione a sfruttare le situazioni di pressing avversario per liberare spazi e attaccare. Il palleggio serve a richiamare la pressione per liberare la zona di rifinitura, dove si sviluppano le azioni offensive. Il Sassuolo ha anche migliorato il pressing, abbassando il PPDA da 13.48 a 10.30 nelle stagioni con De Zerbi, segno di un pressing più intenso e organizzato [coach_de_zerbi].\n\n- Possesso palla: 54% → 57.8% → 60.8% nelle tre stagioni con De Zerbi [coach_de_zerbi].\n- Passaggi completati: 82.4% → 85.8% → 86.8% [coach_de_zerbi].\n- Costruzione dal basso con coinvolgimento del portiere e attacco degli spazi alle spalle del pressing [coach_de_zerbi].\n- Pressing più intenso e organizzato, con PPDA in calo da 13.48 a 10.30 [coach_de_zerbi].\n- Attacco sviluppato con esterni a piede invertito e densità in zona palla per rifinitura [coach_de_zerbi].",
+      "consulted": [
+        "coach_de_zerbi",
+        "coach_klopp",
+        "coach_gasperini",
+        "coach_conte",
+        "coach_italiano"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "possesso palla Sassuolo De Zerbi tre stagioni",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_de_zerbi",
+            "coach_klopp",
+            "coach_gasperini",
+            "coach_conte",
+            "coach_italiano"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_de_zerbi"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_de_zerbi"
+        ],
+        "facts_found": "3/3",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 186,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q28",
+      "type": "single_hop",
+      "question": "Come cambiava la costruzione del Sassuolo di De Zerbi contro una o due punte avversarie?",
+      "answer": "Il Sassuolo di De Zerbi cambia la costruzione dal basso in base al numero di punte avversarie: contro una punta utilizza una struttura 2+3 o 2+4 con i due centrali e tre o quattro centrocampisti, mentre contro due punte adotta una struttura 3+1 con un centrocampista che si abbassa tra i centrali per facilitare la conduzione palla e creare superiorità numerica in fase di costruzione [coach_de_zerbi]. \n\n- Contro una punta la costruzione si basa su due centrali e tre o quattro centrocampisti per mantenere ampiezza e profondità [coach_de_zerbi].\n- Contro due punte o avversari chiusi si passa a una struttura 3+1 con un centrocampista tra i centrali per condurre palla e superare il pressing [coach_de_zerbi].\n- Il portiere è sempre coinvolto nella costruzione, e la squadra cerca di attirare il pressing per liberare spazi alle spalle con il trequartista o gli esterni in zona di rifinitura [coach_de_zerbi].\n- Caso reale: il Sassuolo di De Zerbi ha mostrato questa variabilità strutturale nella costruzione dal basso per adattarsi al pressing avversario e mantenere il possesso palla [coach_de_zerbi].",
+      "consulted": [
+        "coach_de_zerbi",
+        "situation_costruzione_dal_basso",
+        "situation_gioco_sulle_fasce",
+        "coach_conte",
+        "situation_difendere_un_vantaggio"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "costruzione Sassuolo De Zerbi contro una o due punte",
+          "categories": [
+            "coach_profile",
+            "game_situation"
+          ],
+          "cards": [
+            "coach_de_zerbi",
+            "situation_costruzione_dal_basso",
+            "situation_gioco_sulle_fasce",
+            "coach_conte",
+            "situation_difendere_un_vantaggio"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_de_zerbi"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_de_zerbi"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 175,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q29",
+      "type": "single_hop",
+      "question": "Secondo la tesi di Spalla, quali soluzioni hanno cercato gli avversari per mettere in difficoltà l'Atalanta di Gasperini?",
+      "answer": "Gli avversari dell'Atalanta di Gasperini hanno cercato di metterla in difficoltà con giocate rapide e verticalizzazioni improvvise per saltare il pressing, contro-movimenti per eludere la marcatura e liberare gli inserimenti, e sfruttando il campo aperto dovuto alla mancanza di coperture di reparto. Hanno inoltre puntato su transizioni veloci quando l'Atalanta attacca con molti uomini. Gasperini ha risposto con cambiamenti annuali e, in alcune partite, con una linea di pressing un po' più bassa per creare spazi da attaccare [coach_gasperini].",
+      "consulted": [
+        "coach_gasperini",
+        "note_difesa_reparto_uomo",
+        "note_gioco_di_posizione",
+        "note_gioco_relazionale",
+        "note_allenare_con_variabilita"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "tesi Spalla Atalanta Gasperini difficoltà avversari",
+          "categories": [
+            "thesis_note"
+          ],
+          "cards": [
+            "coach_gasperini",
+            "note_difesa_reparto_uomo",
+            "note_gioco_di_posizione",
+            "note_gioco_relazionale",
+            "note_allenare_con_variabilita"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_gasperini"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_gasperini"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 82,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q30",
+      "type": "single_hop",
+      "question": "Come cambia il PPDA dell'Inter di Conte tra la stagione 2019-20 e la 2020-21, e cosa indica?",
+      "answer": "Il PPDA dell'Inter di Conte cambia da 9,08 nel 2019-20 a 13,44 nel 2020-21. Questo indica che nella stagione 2019-20 l'Inter praticava un pressing più aggressivo, cercando di riconquistare palla più frequentemente nelle prime fasi della costruzione avversaria. Nel 2020-21, invece, Conte ha scelto di abbassare il baricentro e rinunciare a un pressing continuo, risultando in un PPDA più alto e quindi un pressing meno aggressivo [coach_conte].\n\nIl PPDA (Passes Per Defensive Action) misura i passaggi concessi all'avversario divisi per le azioni difensive della squadra; più è basso, più il pressing è aggressivo [glossary_metriche].\n\n- Nel 2019-20 l'Inter di Conte aveva un PPDA di 9,08, quarto in Serie A per aggressività nel pressing [coach_conte].\n- Nel 2020-21 il PPDA è salito a 13,44, posizionando l'Inter al sedicesimo posto per aggressività nel pressing, segno di un pressing meno intenso e più compatto [coach_conte].\n- Il cambiamento riflette una strategia di abbassamento del baricentro per sfruttare meglio le transizioni offensive con giocatori come Lukaku, Hakimi e Barella [coach_conte].\n- Il PPDA è calcolato come passaggi concessi divisi per azioni difensive (contrasti, intercetti, falli) nel 60% del campo avversario [glossary_metriche].",
+      "consulted": [
+        "coach_conte",
+        "glossary_metriche",
+        "coach_inzaghi",
+        "coach_guardiola",
+        "glossary_moduli",
+        "note_gioco_di_posizione",
+        "case_2024_euro_final_spain_england",
+        "note_difesa_reparto_uomo"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "Conte PPDA Inter 2019-20 2020-21",
+          "categories": [
+            "coach_profile",
+            "glossary"
+          ],
+          "cards": [
+            "coach_conte",
+            "glossary_metriche",
+            "coach_inzaghi",
+            "coach_guardiola",
+            "glossary_moduli"
+          ]
+        },
+        {
+          "tool": "search_cards",
+          "query": "PPDA definizione",
+          "categories": [
+            "glossary"
+          ],
+          "cards": [
+            "glossary_metriche",
+            "glossary_moduli",
+            "note_gioco_di_posizione",
+            "case_2024_euro_final_spain_england",
+            "note_difesa_reparto_uomo"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_conte",
+          "glossary_metriche"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_conte"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 198,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q31",
+      "type": "single_hop",
+      "question": "Secondo la tesi di Contran, da dove nasce il 'falso terzino'?",
+      "answer": "Il \"falso terzino\" nasce dall'innovazione tattica di spostare il terzino in una posizione più centrale a centrocampo, per creare superiorità numerica e variare la struttura di gioco, come descritto da Contran nel profilo di Guardiola. Guardiola ha applicato questo concetto al Bayern Monaco con Lahm e al Manchester City con Walker, Cancelo e Zinchenko, passando da un sistema 3-2-5 a un 2-3-5, con il terzino che si abbassa o si sposta in mezzo al campo per supportare la costruzione e l'attacco [coach_guardiola].\n\n- Il falso terzino è un terzino che si sposta in mezzo al campo per creare superiorità numerica [coach_guardiola].\n- Guardiola lo ha usato per trasformare la struttura tattica e aumentare le opzioni di gioco [coach_guardiola].\n- Questo ruolo nasce dall'esigenza di controllare il campo e creare superiorità posizionale, come nel gioco di posizione di Contran [note_gioco_di_posizione].\n- Caso reale: nel City di Guardiola, il falso terzino ha contribuito alla vittoria in Champions League 2023 contro l'Inter, con pazienza e inserimenti centrali [case_2023_ucl_final_city_inter].",
+      "consulted": [
+        "note_gioco_di_posizione",
+        "note_gioco_relazionale",
+        "note_difesa_reparto_uomo",
+        "note_allenare_con_variabilita",
+        "coach_guardiola"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "falso terzino Contran",
+          "categories": [
+            "thesis_note"
+          ],
+          "cards": [
+            "note_gioco_di_posizione",
+            "note_gioco_relazionale",
+            "note_difesa_reparto_uomo",
+            "note_allenare_con_variabilita",
+            "coach_guardiola"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_guardiola",
+          "note_gioco_di_posizione",
+          "case_2023_ucl_final_city_inter"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [
+          "case_2023_ucl_final_city_inter"
+        ],
+        "ungrounded": [
+          "Monaco",
+          "Manchester",
+          "League"
+        ],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_guardiola"
+        ],
+        "facts_found": "3/3",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 169,
+        "advice": false
+      },
+      "problems": [
+        "names/numbers not in the consulted cards: ['Monaco', 'Manchester', 'League']"
+      ]
+    },
+    {
+      "question_id": "Q32",
+      "type": "single_hop",
+      "question": "Come ha cambiato la sua idea di gioco Scaloni con l'Argentina, secondo Contran?",
+      "answer": "Scaloni ha cambiato la sua idea di gioco con l'Argentina abbandonando un calcio verticale iniziale per un possesso più ragionato, adatto ai suoi giocatori, con un equilibrio tra attacco \"menottista\" e difesa \"bilardista\" [coach_scaloni]. \n- Ha puntato su un ricambio generazionale con giocatori nati intorno alla metà degli anni Novanta [coach_scaloni].\n- Il gioco dell'Argentina è basato su relazioni strette tra giocatori di talento, con densità e combinazioni, rotazioni continue e libertà creativa [coach_scaloni].\n- L'asimmetria a destra con Molina, De Paul, Messi, Di María e Lautaro crea molteplici opzioni offensive, mentre la mezzala sinistra entra dentro al campo lasciando ampiezza libera a sinistra [coach_scaloni].\n- Scaloni dialoga molto con i giocatori per averli convinti e dalla sua parte [coach_scaloni].\n- L'idea di gioco è un calcio relazionale che lascia libertà ai talenti, con un possesso più ragionato rispetto all'approccio iniziale verticale [coach_scaloni].",
+      "consulted": [
+        "note_gioco_di_posizione",
+        "coach_scaloni",
+        "coach_ancelotti",
+        "note_gioco_relazionale",
+        "note_allenare_con_variabilita"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "Scaloni idea di gioco Contran",
+          "categories": [
+            "coach_profile",
+            "thesis_note"
+          ],
+          "cards": [
+            "note_gioco_di_posizione",
+            "coach_scaloni",
+            "coach_ancelotti",
+            "note_gioco_relazionale",
+            "note_allenare_con_variabilita"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_scaloni"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_scaloni"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 143,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q33",
+      "type": "single_hop",
+      "question": "Pressare di più nel terzo offensivo porta più punti in classifica?",
+      "answer": "Pressare di più nel terzo offensivo mostra una correlazione positiva con i punti in classifica nei maggiori campionati europei, ma non si può affermare che questa strategia da sola porti a una classifica migliore (sui dati 2017-18 → 2020-21) [situation_pressing_alto_e_riaggressione]. \n\n- Il pressing alto mira a recuperare subito palla o costringere l'avversario al lancio lungo, con vantaggi nella riaggressione e nella creazione di soluzioni offensive [situation_pressing_alto_e_riaggressione].\n- Rischi del pressing alto includono la possibilità di essere saltati e dover difendere in campo aperto, con conseguenti falli e difficoltà difensive [situation_pressing_alto_e_riaggressione].\n- Casi reali: PSG ha vinto 5-0 in Champions 2025 con pressing alto intenso; Atalanta ha segnato due gol da palloni recuperati in Europa League 2024 con pressing a uomo [situation_pressing_alto_e_riaggressione].\n- Nel Mondiale 2026, la Spagna ha recuperato palla rapidamente con pressing alto e ha vinto senza subire tiri [situation_pressing_alto_e_riaggressione].",
+      "consulted": [
+        "situation_pressing_alto_e_riaggressione",
+        "situation_attaccare_un_blocco_basso",
+        "situation_difendere_un_vantaggio",
+        "situation_gioco_sulle_fasce",
+        "situation_uscire_dal_pressing_alto"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "pressing nel terzo offensivo punti in classifica",
+          "categories": [
+            "game_situation"
+          ],
+          "cards": [
+            "situation_pressing_alto_e_riaggressione",
+            "situation_attaccare_un_blocco_basso",
+            "situation_difendere_un_vantaggio",
+            "situation_gioco_sulle_fasce",
+            "situation_uscire_dal_pressing_alto"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "situation_pressing_alto_e_riaggressione"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "situation_pressing_alto_e_riaggressione"
+        ],
+        "facts_found": "1/1",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 140,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q34",
+      "type": "single_hop",
+      "question": "According to Pioli's thesis, how does his 4-4-2 press on the flanks?",
+      "answer": "Secondo la tesi di Pioli, nel 4-4-2 il pressing sulle fasce funziona così: gli attaccanti indirizzano il gioco avversario verso la fascia, l'esterno di centrocampo parte in pressione durante il passaggio, mentre il terzino e il mediano scalano in avanti, trasformando di fatto la squadra in un 3-4-3 in fase di pressing [coach_pioli]. \n\n- Gli attaccanti guidano il gioco avversario verso le fasce per limitare le opzioni centrali [coach_pioli].\n- L'esterno di centrocampo parte in pressione nel momento del passaggio avversario [coach_pioli].\n- Terzino e mediano avanzano per supportare il pressing sull'esterno [coach_pioli].\n- Questo movimento crea una situazione di 3-4-3 in fase di pressing, aumentando aggressività e copertura [coach_pioli].",
+      "consulted": [
+        "situation_gioco_sulle_fasce",
+        "coach_pioli",
+        "coach_de_zerbi",
+        "coach_gasperini",
+        "coach_scaloni"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "Pioli 4-4-2 pressing sulle fasce",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "situation_gioco_sulle_fasce",
+            "coach_pioli",
+            "coach_de_zerbi",
+            "coach_gasperini",
+            "coach_scaloni"
+          ]
+        },
+        {
+          "tool": "read_card",
+          "document_id": "coach_pioli",
+          "found": true
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_pioli"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_pioli"
+        ],
+        "facts_found": "1/1",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 115,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q35",
+      "type": "trap",
+      "question": "Quale valore di PPDA indica un pressing di livello d'élite?",
+      "answer": "Un valore di PPDA indicativo di un pressing di livello d'élite è intorno a 9 o inferiore, come dimostrato dall'Inter di Conte nel 2019-20 con un PPDA di 9,08. Valori più bassi indicano un pressing più aggressivo e frequente nella riconquista palla nelle prime fasi della costruzione avversaria [glossary_metriche].\n- Il PPDA misura i passaggi concessi all'avversario divisi per le azioni difensive; più è basso, più il pressing è intenso [glossary_metriche].\n- L'Inter di Conte ha avuto un PPDA di 9,08 nel 2019-20, considerato di alto livello, mentre nel 2020-21 è salito a 13,44 [glossary_metriche].\n- Un esempio recente è la Spagna nella finale di Euro 2024 con un PPDA di 11,3, inferiore a quello dell'Inghilterra (22,2), segno di un pressing più efficace [case_2024_euro_final_spain_england].",
+      "consulted": [
+        "glossary_metriche",
+        "glossary_moduli",
+        "situation_difendere_un_vantaggio",
+        "situation_pressing_alto_e_riaggressione",
+        "case_2024_euro_final_spain_england"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "valore PPDA livello d'élite",
+          "categories": [
+            "glossary"
+          ],
+          "cards": [
+            "glossary_metriche",
+            "glossary_moduli",
+            "situation_difendere_un_vantaggio",
+            "situation_pressing_alto_e_riaggressione",
+            "case_2024_euro_final_spain_england"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "glossary_metriche",
+          "case_2024_euro_final_spain_england"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "glossary_metriche"
+        ],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 134,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q36",
+      "type": "situational",
+      "question": "Affrontiamo una squadra che marca a uomo a tutto campo come l'Atalanta di Gasperini. Come la prepariamo?",
+      "answer": "Per preparare la squadra contro una marcatura a uomo a tutto campo come quella dell'Atalanta di Gasperini, è consigliabile puntare su giocate rapide, verticalizzazioni improvvise e contro-movimenti per liberare gli inserimenti, sfruttando il campo aperto e le mancate coperture di reparto. È utile anche adattare la struttura di costruzione per mettere l'avversario davanti a scelte difficili e muovere velocemente la palla per attirare la pressione e cercare l'esterno alto o il terzino in ampiezza. Abbassare più giocatori in costruzione può liberare spazio davanti per inserirsi. [coach_gasperini], [situation_uscire_dal_pressing_alto]\n\n- Giocate rapide e verticalizzazioni improvvise per saltare il pressing a uomo [coach_gasperini].\n- Contro-movimenti per eludere la marcatura e liberare gli inserimenti [coach_gasperini].\n- Sfruttare il campo aperto perché mancano coperture di reparto [coach_gasperini].\n- Adattare la struttura di costruzione per mettere l'avversario davanti a scelte difficili [situation_uscire_dal_pressing_alto].\n- Muovere velocemente la palla per attirare la pressione e cercare l'esterno alto o il terzino in ampiezza [situation_uscire_dal_pressing_alto].\n- Abbassare più giocatori in costruzione per liberare spazio davanti e inserirsi [situation_uscire_dal_pressing_alto].\n\nCaso reale: nell'Europa League 2024 l'Atalanta ha pressato a uomo il Leverkusen, che ha perso palla in uscita e subito un contropiede letale per il 3-0 [case_2024_uel_final_atalanta_leverkusen].",
+      "consulted": [
+        "coach_gasperini",
+        "situation_uscire_dal_pressing_alto",
+        "situation_pressing_alto_e_riaggressione",
+        "situation_difendere_un_vantaggio",
+        "situation_gioco_sulle_fasce",
+        "coach_italiano",
+        "coach_de_zerbi",
+        "coach_inzaghi",
+        "coach_scaloni"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "marcatura a uomo a tutto campo Gasperini",
+          "categories": [
+            "game_situation"
+          ],
+          "cards": [
+            "coach_gasperini",
+            "situation_uscire_dal_pressing_alto",
+            "situation_pressing_alto_e_riaggressione",
+            "situation_difendere_un_vantaggio",
+            "situation_gioco_sulle_fasce"
+          ]
+        },
+        {
+          "tool": "search_cards",
+          "query": "coach Gasperini",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_gasperini",
+            "coach_italiano",
+            "coach_de_zerbi",
+            "coach_inzaghi",
+            "coach_scaloni"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_gasperini",
+          "situation_uscire_dal_pressing_alto",
+          "case_2024_uel_final_atalanta_leverkusen"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [
+          "case_2024_uel_final_atalanta_leverkusen"
+        ],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "situation_uscire_dal_pressing_alto",
+          "coach_gasperini"
+        ],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 199,
+        "advice": true
+      },
+      "problems": [
+        "advice too long: 199 words"
+      ]
+    },
+    {
+      "question_id": "Q38",
+      "type": "single_hop",
+      "question": "In Pioli's thesis, which players form the flank chains of the 4-4-2?",
+      "answer": "Nella tesi di Pioli sul 4-4-2 a zona, le catene laterali sono formate da terzino, centrocampista centrale ed esterno di centrocampo dello stesso lato: a destra i numeri sono 2-4-7, a sinistra 3-8-11 [coach_pioli]. \n\nIn fase offensiva, queste catene laterali devono muoversi in modo combinato e sincrono per occupare sempre le fasce e superare la concentrazione difensiva avversaria [situation_gioco_sulle_fasce]. \n\nLe soluzioni allenate includono la sovrapposizione del terzino, il movimento dentro-fuori dell'esterno, l'inserimento della mezzala e l'esterno opposto alla conclusione [situation_gioco_sulle_fasce].",
+      "consulted": [
+        "situation_gioco_sulle_fasce",
+        "coach_pioli",
+        "coach_inzaghi",
+        "coach_conte",
+        "coach_scaloni"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "Pioli catene di fascia 4-4-2",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "situation_gioco_sulle_fasce",
+            "coach_pioli",
+            "coach_inzaghi",
+            "coach_conte",
+            "coach_scaloni"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_pioli",
+          "situation_gioco_sulle_fasce"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_pioli"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 90,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q39",
+      "type": "single_hop",
+      "question": "How did Sassuolo's ball possession change during De Zerbi's three seasons?",
+      "answer": "Durante le tre stagioni di Roberto De Zerbi al Sassuolo, il possesso palla è aumentato progressivamente: dal 54% nella prima stagione al 57,8% nella seconda, fino al 60,8% nella terza. Questo incremento riflette la sua identità di gioco basata sul mantenere il possesso il più possibile e giocare nella metà campo avversaria. Anche la precisione dei passaggi è migliorata, passando dall'82,4% all'85,8% e infine all'86,8% nelle tre stagioni. De Zerbi ha puntato molto sulla costruzione dal basso e sul coinvolgimento del portiere, adattando il gioco in base al tipo di pressing avversario e sfruttando la superiorità numerica in fase di possesso [coach_de_zerbi].",
+      "consulted": [
+        "coach_de_zerbi",
+        "coach_klopp",
+        "coach_gasperini",
+        "coach_inzaghi",
+        "coach_conte"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "Sassuolo possesso palla De Zerbi tre stagioni",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_de_zerbi",
+            "coach_klopp",
+            "coach_gasperini",
+            "coach_inzaghi",
+            "coach_conte"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_de_zerbi"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_de_zerbi"
+        ],
+        "facts_found": "3/3",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 110,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q40",
+      "type": "single_hop",
+      "question": "How did the PPDA of Conte's Inter change between 2019-20 and 2020-21?",
+      "answer": "Il PPDA dell'Inter di Conte è cambiato tra le stagioni 2019-20 e 2020-21 passando da 9,08 a 13,44. Questo indica che nella stagione 2020-21 l'Inter ha scelto di abbassare il baricentro e rinunciare a un pressing continuo, diventando più compatta e meno aggressiva nel pressing rispetto alla stagione precedente, quando il pressing era più alto e intenso (PPDA più basso) [coach_conte].",
+      "consulted": [
+        "coach_conte",
+        "coach_inzaghi",
+        "coach_gasperini",
+        "coach_de_zerbi",
+        "coach_guardiola"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "Conte Inter PPDA 2019-20 2020-21",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_conte",
+            "coach_inzaghi",
+            "coach_gasperini",
+            "coach_de_zerbi",
+            "coach_guardiola"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_conte"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_conte"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 68,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q41",
+      "type": "style_match",
+      "question": "My team marks man-to-man all over the pitch, builds play down the flanks and even sends the centre-backs into the box. Which coach does it resemble?",
+      "answer": "Il tuo stile somiglia molto a quello di Gian Piero Gasperini, che usa intensità e duelli uomo contro uomo su tutto il campo, con sviluppo sulle fasce e centrocampisti o difensori centrali che entrano in area [coach_gasperini]. Anche Vincenzo Italiano pratica marcature a uomo aggressive e costruzione dal basso coinvolgendo tutti i giocatori, con attacco sulle fasce e centrocampisti inseriti [coach_italiano]. Simone Inzaghi ha adottato una difesa a uomo nella zona con molti duelli individuali, simile alla tua marcatura a uomo su tutto il campo [coach_inzaghi]. \n\n- Marcature uomo contro uomo su tutto il campo e duelli intensi sono tipici di Gasperini [coach_gasperini].\n- Costruzione dal basso con coinvolgimento di tutti, attacco sulle fasce e inserimenti dei centrocampisti sono caratteristiche di Italiano [coach_italiano].\n- Difesa a uomo nella zona con molti duelli è stata adottata dall'Inter di Inzaghi 2021/22 [coach_inzaghi].\n- I difensori centrali che entrano in area sono frequenti nel gioco di Gasperini e Italiano [coach_gasperini, coach_italiano].",
+      "consulted": [
+        "note_difesa_reparto_uomo",
+        "coach_italiano",
+        "coach_gasperini",
+        "coach_inzaghi",
+        "coach_de_zerbi"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "difesa a uomo su tutto il campo costruzione sulle fasce centrocampisti centrali in area",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "note_difesa_reparto_uomo",
+            "coach_italiano",
+            "coach_gasperini",
+            "coach_inzaghi",
+            "coach_de_zerbi"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_gasperini",
+          "coach_italiano",
+          "coach_inzaghi"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [
+          "coach_gasperini, coach_italiano"
+        ],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_gasperini"
+        ],
+        "facts_found": "1/1",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 156,
+        "advice": true
+      },
+      "problems": [
+        "malformed citations: ['coach_gasperini, coach_italiano']"
+      ]
+    },
+    {
+      "question_id": "Q42",
+      "type": "situational",
+      "question": "On Sunday we face a team sitting in a deep 4-4-2 block. We play 4-3-3. How should we prepare?",
+      "answer": "Per attaccare un blocco basso 4-4-2 con il tuo 4-3-3, prepara la squadra a sfruttare la zona di rifinitura con combinazioni rapide e scaglionamento per creare superiorità numerica nelle zone centrali e laterali. È importante attirare la pressione avversaria per poi attaccare la linea con tagli e passaggi filtranti, mantenendo ampiezza con uno scopo preciso e occupando l'area con più uomini sulle palle laterali. Evita di mantenere troppi giocatori dietro la palla per non ridurre le opzioni offensive [situation_attaccare_un_blocco_basso].\n\n- Lavora su combinazioni a due o tre giocatori per attaccare la linea difensiva con tagli e passaggi filtranti [situation_attaccare_un_blocco_basso].\n- Organizza almeno due giocatori per l'ampiezza e tre o quattro nella zona centrale per creare superiorità numerica [situation_attaccare_un_blocco_basso].\n- Allena la squadra a fermare la palla per attirare la pressione e poi condurre palla per sfruttare gli spazi alle spalle della difesa [situation_attaccare_un_blocco_basso].\n- Prepara l'attacco dell'area su palle laterali con più uomini in quattro zone chiave per aumentare le chance di segnare [situation_attaccare_un_blocco_basso].\n- Caso reale: la Spagna ha battuto l'Argentina con un possesso avanzante e riaggressione efficace contro un 4-4-2 basso nel Mondiale 2026 [case_2026_wc_final_spain_argentina].",
+      "consulted": [
+        "situation_attaccare_un_blocco_basso",
+        "situation_costruzione_dal_basso",
+        "situation_difendere_un_vantaggio",
+        "situation_uscire_dal_pressing_alto",
+        "situation_gioco_sulle_fasce"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "attaccare blocco basso 4-4-2 con 4-3-3",
+          "categories": [
+            "game_situation"
+          ],
+          "cards": [
+            "situation_attaccare_un_blocco_basso",
+            "situation_costruzione_dal_basso",
+            "situation_difendere_un_vantaggio",
+            "situation_uscire_dal_pressing_alto",
+            "situation_gioco_sulle_fasce"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "situation_attaccare_un_blocco_basso",
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "situation_attaccare_un_blocco_basso"
+        ],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 193,
+        "advice": true
+      },
+      "problems": [
+        "advice too long: 193 words"
+      ]
+    },
+    {
+      "question_id": "Q43",
+      "type": "single_hop",
+      "question": "Che differenza c'è tra gioco di posizione e calcio relazionale secondo Contran?",
+      "answer": "La differenza tra gioco di posizione e calcio relazionale secondo Contran è che nel gioco di posizione il focus è sullo spazio: il pallone va verso una posizione e i giocatori occupano posizioni strategiche per creare superiorità, mentre nel calcio relazionale il focus è sulla palla e i giocatori si avvicinano ad essa per mettersi in relazione, senza occupare posizioni fisse. Gli obiettivi sono simili, ma i mezzi opposti: nel gioco di posizione si cerca il controllo dello spazio, nel calcio relazionale la fluidità e la continua messa in relazione tra i giocatori [note_gioco_di_posizione], [note_gioco_relazionale].\n\n- Nel gioco di posizione si punta a generare superiorità numerica, posizionale, qualitativa e socioaffettiva attraverso il controllo del campo e il movimento verso posizioni chiave [note_gioco_di_posizione].\n- Nel calcio relazionale i giocatori si muovono rapidamente per creare superiorità numerica attorno alla palla, con movimenti come \"toco y me voy\" e \"escadinha\" che favoriscono la fluidità e il dribbling [note_gioco_relazionale].\n- Il gioco di posizione è paragonato agli scacchi, mentre il calcio relazionale al backgammon, per la maggiore imprevedibilità e caos [note_gioco_di_posizione].\n- In Europa si sviluppa un sistema ibrido \"strutturale-relazionale\" con giocatori posizionali e altri dinamici, come nella Spagna [note_gioco_relazionale].",
+      "consulted": [
+        "note_gioco_relazionale",
+        "note_gioco_di_posizione",
+        "note_allenare_con_variabilita",
+        "note_difesa_reparto_uomo",
+        "coach_scaloni"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "gioco di posizione calcio relazionale Contran",
+          "categories": [
+            "thesis_note"
+          ],
+          "cards": [
+            "note_gioco_relazionale",
+            "note_gioco_di_posizione",
+            "note_allenare_con_variabilita",
+            "note_difesa_reparto_uomo",
+            "coach_scaloni"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "note_gioco_di_posizione",
+          "note_gioco_relazionale"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "note_gioco_relazionale"
+        ],
+        "facts_found": "3/3",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 193,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q44",
+      "type": "single_hop",
+      "question": "Cosa misura il PPDA e un valore più basso cosa indica?",
+      "answer": "Il PPDA (Passes Per Defensive Action) misura il numero di passaggi concessi all'avversario diviso per le azioni difensive (intercetti, contrasti, falli) effettuate dalla squadra. Un valore più basso di PPDA indica un pressing più aggressivo, cioè una squadra che prova a riconquistare palla più frequentemente nelle prime fasi della costruzione avversaria [glossary_metriche].\n\n- PPDA è il rapporto tra passaggi concessi e azioni difensive nella metà campo avversaria [glossary_metriche].\n- Un PPDA basso significa che la squadra esercita un pressing intenso e frequente [glossary_metriche].\n- Esempi: il Sassuolo di De Zerbi ha ridotto il PPDA da 13.48 a 10.30 con un pressing più aggressivo [glossary_metriche].\n- L'Inter di Conte nel 2019-20 aveva un PPDA di 9,08, indice di un pressing molto alto [glossary_metriche].",
+      "consulted": [
+        "glossary_metriche",
+        "glossary_moduli",
+        "case_2024_euro_final_spain_england",
+        "note_difesa_reparto_uomo",
+        "coach_de_zerbi"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "PPDA",
+          "categories": [
+            "glossary"
+          ],
+          "cards": [
+            "glossary_metriche",
+            "glossary_moduli",
+            "case_2024_euro_final_spain_england",
+            "note_difesa_reparto_uomo",
+            "coach_de_zerbi"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "glossary_metriche"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "glossary_metriche"
+        ],
+        "facts_found": "3/3",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 124,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q45",
+      "type": "multi_doc",
+      "question": "La mia difesa marca a uomo e soffre quando un attaccante viene incontro e un altro attacca lo spazio. Cosa dicono le fonti?",
+      "answer": "La difesa a uomo soffre quando un attaccante viene incontro e un altro attacca lo spazio perché si basa su duelli individuali e anticipi sull'avversario, ma lascia spazi dietro da coprire. Un caso tipico è quando un difensore segue l'attaccante che viene incontro e l'altro resta sul suo uomo, liberando spazio per un inserimento pericoloso (Polenghi, pp. 37-39). \n\nPer migliorare, si può passare continuamente dalla difesa a uomo a quella di reparto, adattandosi alle situazioni (Polenghi, pp. 37-39). Inoltre, per attaccare una difesa a uomo, è efficace usare combinazioni rapide e inserimenti per sfruttare gli spazi lasciati liberi (Soncin, pp. 5-9, 19-41).\n\n- La difesa a uomo si basa su duelli individuali e anticipi sull'avversario, ma lascia spazi dietro da coprire (Polenghi, pp. 17-25; 37-39).\n- Un difensore che segue l'attaccante che viene incontro può liberare spazio per un altro attaccante (Polenghi, pp. 37-39).\n- La difesa del futuro alterna difesa a uomo e di reparto per coprire meglio gli spazi (Polenghi, pp. 37-39).\n- Attaccare una difesa a uomo richiede combinazioni rapide e inserimenti per sfruttare gli spazi (Soncin, pp. 5-9, 19-41).\n- Caso reale: Atalanta-Verona, gol subito per spazio lasciato libero da un difensore che seguiva l'attaccante (Polenghi, pp. 37-39).",
+      "consulted": [
+        "note_difesa_reparto_uomo",
+        "situation_attaccare_un_blocco_basso",
+        "situation_uscire_dal_pressing_alto",
+        "situation_difendere_un_vantaggio",
+        "situation_pressing_alto_e_riaggressione"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "difesa a uomo attaccante che viene incontro e altro attacca lo spazio",
+          "categories": [
+            "game_situation"
+          ],
+          "cards": [
+            "note_difesa_reparto_uomo",
+            "situation_attaccare_un_blocco_basso",
+            "situation_uscire_dal_pressing_alto",
+            "situation_difendere_un_vantaggio",
+            "situation_pressing_alto_e_riaggressione"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "note_difesa_reparto_uomo"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": false,
+        "words": 215,
+        "advice": false
+      },
+      "problems": [
+        "no [document_id] citation"
+      ]
+    }
+  ]
+}

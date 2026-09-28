@@ -1,0 +1,387 @@
+{
+  "run": "20260928-160918",
+  "questions": [
+    {
+      "question_id": "Q13",
+      "type": "situational",
+      "question": "Domenica affrontiamo una squadra che si chiude in un 4-4-2 basso. Noi giochiamo 4-3-3. Come la prepariamo?",
+      "answer": "Per affrontare una squadra che si schiera in un 4-4-2 basso, puoi adottare le seguenti strategie:\n\n1. **Occupare la zona di rifinitura**: Cerca di arrivare nelle zone intermedie tra i centrocampisti e i difensori avversari, dove puoi attaccare la linea con tagli o combinazioni rapide. Questo spazio è cruciale per creare occasioni [situation_attaccare_un_blocco_basso].\n\n2. **Scaglionamento e ampiezza**: Mantieni almeno due giocatori larghi per allargare la difesa avversaria e tre o quattro nella zona centrale per creare superiorità numerica. Questo aiuta a sfruttare gli spazi tra le linee [situation_attaccare_un_blocco_basso].\n\n3. **Combinazioni rapide**: Utilizza movimenti combinati tra terzini, mezzali e attaccanti per sovrapporre e creare situazioni di superiorità sulle fasce. Le combinazioni a tre possono essere particolarmente efficaci [situation_gioco_sulle_fasce].\n\n4. **Riaggressione**: Dopo aver perso palla, attua una riaggressione immediata per riconquistare il possesso e mantenere la pressione nella metà campo avversaria [situation_attaccare_un_blocco_basso].\n\n5. **Attacco dell'area**: Quando la palla è laterale, occupa diverse zone dell'area per aumentare le possibilità di segnare, come il secondo palo o il rimorchio [situation_attaccare_un_blocco_basso].\n\nQueste strategie possono aiutarti a scardinare il blocco basso avversario e creare opportunità di gol.",
+      "consulted": [
+        "situation_attaccare_un_blocco_basso",
+        "situation_costruzione_dal_basso",
+        "situation_difendere_un_vantaggio",
+        "situation_uscire_dal_pressing_alto",
+        "situation_giocare_in_superiorita_numerica",
+        "situation_gioco_sulle_fasce",
+        "glossary_moduli",
+        "glossary_metriche",
+        "case_2026_wc_final_spain_argentina"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "attaccare un blocco basso",
+          "categories": [
+            "game_situation"
+          ],
+          "cards": [
+            "situation_attaccare_un_blocco_basso",
+            "situation_costruzione_dal_basso",
+            "situation_difendere_un_vantaggio",
+            "situation_uscire_dal_pressing_alto",
+            "situation_giocare_in_superiorita_numerica"
+          ]
+        },
+        {
+          "tool": "search_cards",
+          "query": "4-4-2 basso",
+          "categories": [
+            "glossary"
+          ],
+          "cards": [
+            "situation_gioco_sulle_fasce",
+            "glossary_moduli",
+            "glossary_metriche",
+            "situation_attaccare_un_blocco_basso",
+            "case_2026_wc_final_spain_argentina"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "situation_attaccare_un_blocco_basso",
+          "situation_gioco_sulle_fasce"
+        ],
+        "invalid_citations": [],
+        "malformed_citations": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "situation_attaccare_un_blocco_basso",
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": true
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q15",
+      "type": "style_match",
+      "question": "La mia squadra difende a uomo a tutto campo, costruisce sulle fasce e porta anche i difensori centrali in area. A quale allenatore somiglia?",
+      "answer": "La tua squadra somiglia a Gian Piero Gasperini. Ecco alcune caratteristiche che evidenziano questa somiglianza:\n\n- **Intensità e duelli uomo contro uomo** su tutto il campo, con un forte focus sulla pressione e la riconquista della palla.\n- **Costruzione sulle fasce**, con i difensori centrali che partecipano attivamente all'attacco, invadendo l'area avversaria.\n- **Sistemi di gioco flessibili**, come il 3-4-3 o il 3-4-2-1, che permettono di adattarsi alle situazioni di gioco.\n\n--- Fonte: [coach_gasperini] · Profilo allenatore: Gian Piero Gasperini · Sistemi ---",
+      "consulted": [
+        "note_difesa_reparto_uomo",
+        "coach_inzaghi",
+        "coach_gasperini",
+        "coach_de_zerbi",
+        "coach_italiano"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "difesa a uomo a tutto campo, costruzione sulle fasce, difensori centrali in area",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "note_difesa_reparto_uomo",
+            "coach_inzaghi",
+            "coach_gasperini",
+            "coach_de_zerbi",
+            "coach_italiano"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_gasperini"
+        ],
+        "invalid_citations": [],
+        "malformed_citations": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_gasperini"
+        ],
+        "facts_found": "1/1",
+        "forbidden_found": [],
+        "cites_something": true
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q18",
+      "type": "trap",
+      "question": "Nella sua tesi Pioli spiega come giocava il suo Milan campione d'Italia?",
+      "answer": "Nella sua tesi, Pioli descrive un sistema di gioco 4-4-2 a zona, utilizzato con la Primavera del Chievo, evidenziando alcuni principi che possono essere applicati anche al suo Milan campione d'Italia.\n\n- **Compattezza ed equilibrio:** il 4-4-2 offre una squadra corta e un'aggressione costante, sfruttando le fasce [Pioli, p. 4].\n- **Catene laterali:** il gioco si basa su interazioni tra terzino, centrocampista centrale ed esterno, creando sovrapposizioni e movimenti coordinati [Pioli, p. 6].\n- **Pressing sulle fasce:** gli attaccanti indirizzano il gioco avversario, mentre i centrocampisti e terzini scalano in avanti per pressare [Pioli, pp. 8-11].\n- **Movimento senza palla:** enfatizza il contro-movimento per smarcarsi e occupare sempre le fasce [Pioli, pp. 16-23].\n- **Idea di fondo:** \"si gioca alla domenica come ci si allena durante la settimana\" [Pioli, p. 25].\n\n--- Fonte: [coach_pioli] · Profilo allenatore: Stefano Pioli · scheda intera ---",
+      "consulted": [
+        "coach_pioli",
+        "note_difesa_reparto_uomo",
+        "note_gioco_di_posizione",
+        "note_allenare_con_variabilita",
+        "note_gioco_relazionale"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "tesi Pioli Milan campione d'Italia",
+          "categories": [
+            "thesis_note"
+          ],
+          "cards": [
+            "coach_pioli",
+            "note_difesa_reparto_uomo",
+            "note_gioco_di_posizione",
+            "note_allenare_con_variabilita",
+            "note_gioco_relazionale"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_pioli"
+        ],
+        "invalid_citations": [],
+        "malformed_citations": [],
+        "author_citations": [
+          "[Pioli, p. 4]",
+          "[Pioli, p. 6]",
+          "[Pioli, pp. 8-11]",
+          "[Pioli, pp. 16-23]",
+          "[Pioli, p. 25]"
+        ],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_pioli"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": true
+      },
+      "problems": [
+        "uses card-internal references as citations: ['[Pioli, p. 4]', '[Pioli, p. 6]', '[Pioli, pp. 8-11]']"
+      ]
+    },
+    {
+      "question_id": "Q19",
+      "type": "out_of_corpus",
+      "question": "Qual è il PPDA medio della Fiorentina di Italiano nella stagione 2022/23?",
+      "answer": "Non lo so. Non ho trovato informazioni specifiche sul PPDA medio della Fiorentina di Italiano nella stagione 2022/23. Tuttavia, il PPDA è una metrica che indica quanto spesso una squadra prova a riconquistare palla nelle prime fasi della costruzione avversaria: più è basso, più il pressing è aggressivo [glossary_metriche].",
+      "consulted": [
+        "coach_italiano",
+        "glossary_metriche",
+        "glossary_moduli",
+        "coach_gasperini",
+        "situation_gioco_sulle_fasce"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "PPDA Fiorentina Italiano 2022/23",
+          "categories": [
+            "glossary"
+          ],
+          "cards": [
+            "coach_italiano",
+            "glossary_metriche",
+            "glossary_moduli",
+            "coach_gasperini",
+            "situation_gioco_sulle_fasce"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "glossary_metriche"
+        ],
+        "invalid_citations": [],
+        "malformed_citations": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": true,
+        "relevant_consulted": [],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": null
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q21",
+      "type": "out_of_corpus",
+      "question": "Chi ha vinto la finale di Champions League 2026 e con chi era in panchina il PSG?",
+      "answer": "Il Paris Saint-Germain ha vinto la finale di Champions League 2026 contro l'Arsenal, con un punteggio di 1-1 (4-3 ai rigori) dopo una partita in cui ha dominato il possesso. L'Arsenal era passato in vantaggio al 6' con un gol di Havertz, ma il PSG ha pareggiato su rigore con Dembélé al 61' [case_2026_ucl_final_psg_arsenal].\n\nNon lo so riguardo a chi fosse in panchina il PSG durante quella finale.",
+      "consulted": [
+        "case_2023_ucl_final_city_inter",
+        "case_2026_ucl_final_psg_arsenal",
+        "case_2026_wc_final_spain_argentina",
+        "situation_pressing_alto_e_riaggressione",
+        "case_2025_ucl_final_psg_inter"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "finale Champions League 2026",
+          "categories": null,
+          "cards": [
+            "case_2023_ucl_final_city_inter",
+            "case_2026_ucl_final_psg_arsenal",
+            "case_2026_wc_final_spain_argentina",
+            "situation_pressing_alto_e_riaggressione",
+            "case_2025_ucl_final_psg_inter"
+          ]
+        },
+        {
+          "tool": "search_cards",
+          "query": "PSG panchina finale Champions League 2026",
+          "categories": null,
+          "cards": [
+            "case_2025_ucl_final_psg_inter",
+            "situation_pressing_alto_e_riaggressione",
+            "case_2026_ucl_final_psg_arsenal",
+            "case_2026_wc_final_spain_argentina",
+            "case_2023_ucl_final_city_inter"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "case_2026_ucl_final_psg_arsenal"
+        ],
+        "invalid_citations": [],
+        "malformed_citations": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": true,
+        "relevant_consulted": [
+          "case_2026_ucl_final_psg_arsenal"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": null
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q24",
+      "type": "chitchat",
+      "question": "Ciao, chi sei e cosa sai fare?",
+      "answer": "Ciao! Sono un assistente per allenatori di calcio. Posso aiutarti a preparare partite e prendere decisioni tattiche basate su una vasta conoscenza del calcio, comprese situazioni di gioco, profili di allenatori e tesi di Coverciano.",
+      "consulted": [],
+      "tool_calls": [],
+      "check": {
+        "cited": [],
+        "invalid_citations": [],
+        "malformed_citations": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": null
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q31",
+      "type": "single_hop",
+      "question": "Secondo la tesi di Contran, da dove nasce il 'falso terzino'?",
+      "answer": "Il concetto di \"falso terzino\" nasce dall'idea di utilizzare i terzini in modo più dinamico, spostandoli in posizioni centrali per creare superiorità numerica e posizionale. Questo approccio è stato innovato da Pep Guardiola, che ha chiesto ai suoi terzini di muoversi verso il centro del campo, trasformando la formazione in un 2-3-5 durante le fasi offensive.\n\n--- Fonte: [coach_guardiola] · Profilo allenatore: Pep Guardiola · Innovazioni sui ruoli ---",
+      "consulted": [
+        "note_gioco_di_posizione",
+        "note_gioco_relazionale",
+        "note_difesa_reparto_uomo",
+        "note_allenare_con_variabilita",
+        "coach_guardiola"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "falso terzino Contran",
+          "categories": [
+            "thesis_note"
+          ],
+          "cards": [
+            "note_gioco_di_posizione",
+            "note_gioco_relazionale",
+            "note_difesa_reparto_uomo",
+            "note_allenare_con_variabilita",
+            "coach_guardiola"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_guardiola"
+        ],
+        "invalid_citations": [],
+        "malformed_citations": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_guardiola"
+        ],
+        "facts_found": "1/3",
+        "forbidden_found": [],
+        "cites_something": true
+      },
+      "problems": [
+        "required facts found 1/3"
+      ]
+    },
+    {
+      "question_id": "Q41",
+      "type": "style_match",
+      "question": "My team marks man-to-man all over the pitch, builds play down the flanks and even sends the centre-backs into the box. Which coach does it resemble?",
+      "answer": "La tua squadra somiglia molto all'Atalanta di Gian Piero Gasperini. Ecco alcune caratteristiche che la identificano:\n\n- **Marcatura a uomo**: Gasperini utilizza un'intensità e duelli uomo contro uomo su tutto il campo, favorendo un approccio aggressivo [coach_gasperini].\n- **Gioco sulle fasce**: Sviluppa il gioco principalmente sulle corsie laterali, creando triangoli e rombi mobili, con i difensori centrali che spesso invadono l'area [situation_gioco_sulle_fasce].\n- **Area invasa**: La sua filosofia prevede che molti giocatori, inclusi i difensori centrali, partecipino all'attacco, aumentando la densità in area avversaria [coach_gasperini].\n\nQueste caratteristiche rendono il tuo stile di gioco simile a quello di Gasperini.",
+      "consulted": [
+        "situation_gioco_sulle_fasce",
+        "coach_italiano",
+        "coach_gasperini",
+        "coach_de_zerbi",
+        "coach_pioli"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "marcatura a uomo, gioco sulle fasce, difensori centrali in area",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "situation_gioco_sulle_fasce",
+            "coach_italiano",
+            "coach_gasperini",
+            "coach_de_zerbi",
+            "coach_pioli"
+          ]
+        }
+      ],
+      "check": {
+        "cited": [
+          "coach_gasperini",
+          "situation_gioco_sulle_fasce"
+        ],
+        "invalid_citations": [],
+        "malformed_citations": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "relevant_consulted": [
+          "coach_gasperini"
+        ],
+        "facts_found": "1/1",
+        "forbidden_found": [],
+        "cites_something": true
+      },
+      "problems": []
+    }
+  ]
+}
