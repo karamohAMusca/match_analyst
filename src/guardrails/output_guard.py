@@ -30,12 +30,19 @@ LANGUAGE_NAMES = {"it": "Italian", "en": "English"}
 
 
 def citation_ids(bracketed: str) -> list[str]:
-    """'coach_pioli', 'coach_pioli, p. 4' -> ['coach_pioli']; 'coach_a, coach_b' -> both; else []."""
-    match = ID_WITH_PAGE_RE.fullmatch(bracketed)
-    if match:
-        return [match.group(1)]
-    parts = [p.strip() for p in bracketed.split(",")]
-    return parts if all(ID_RE.fullmatch(p) for p in parts) else []
+    """'coach_pioli', 'coach_pioli, p. 4' -> ['coach_pioli']; 'coach_a, coach_b' and
+    'coach_a, p. 51; coach_b' -> both; anything else -> []."""
+    ids: list[str] = []
+    for segment in (s.strip() for s in bracketed.split(";")):
+        match = ID_WITH_PAGE_RE.fullmatch(segment)
+        if match:
+            ids.append(match.group(1))
+            continue
+        parts = [p.strip() for p in segment.split(",")]
+        if not all(ID_RE.fullmatch(p) for p in parts):
+            return []
+        ids.extend(parts)
+    return ids
 
 
 def cited_ids(answer: str) -> list[str]:

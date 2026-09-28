@@ -70,6 +70,10 @@ def test_several_ids_in_one_bracket_are_citations():
     check = check_answer(answer, FOOTBALL, ["coach_klopp", "coach_italiano"], 1)
     assert check["cited"] == ["coach_klopp", "coach_italiano"] and check["malformed_citations"] == []
     assert check_answer("Pressing [coach_klopp, Pioli]", FOOTBALL, ["coach_klopp"], 1)["malformed_citations"]
+    # Run agent_20260928-180737: ids separated by ";", with pages.
+    check = check_answer("PPDA 9,08 [coach_conte, p. 51; glossary_metriche].", FOOTBALL,
+                         ["coach_conte", "glossary_metriche"], 1)
+    assert check["cited"] == ["coach_conte", "glossary_metriche"] and check["malformed_citations"] == []
 
 
 def test_answer_language_must_match_the_question():
