@@ -22,7 +22,7 @@ references/data/fifa/
 # Tooling
 .pytest_cache/
 
-# Course material (not part of the project)
+# Project guide PDF (not part of the project)
 AITHO_Progetto_Personale.pdf
 S12_Coding_Agent.pdf
 
