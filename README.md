@@ -5,9 +5,9 @@ The coach describes their own team and the opponent; the assistant helps prepare
 in-game situations, with advice **grounded in cited sources** (Coverciano theses, recent finals,
 match data), giving priority to recent (2022–2026) winning tactics. Questions in Italian or English.
 
-> **Status:** knowledge base, evaluation set, hybrid retrieval and the agent with its corpus
-> tools are ready. Guardrail, observability, full evaluation and UI are being built (course
-> milestones S12–S15).
+> **Status:** knowledge base, evaluation set, hybrid retrieval, the agent with its corpus tools
+> and the input/output guardrails are ready. Observability, full evaluation and UI are being
+> built (course milestones S12–S15).
 
 ---
 
@@ -30,10 +30,11 @@ match_analyst/
 │   ├── corpus/             # read cards and manifest, split cards into chunks (offline)
 │   ├── rag/                # Qdrant store, ingestion, hybrid retrieval (dense + BM25)
 │   ├── evaluation/         # metrics against the gold set
+│   ├── guardrails/         # input guard (off-topic, injection) and output guard (language, grounding, citations)
 │   ├── tools/              # agent tools: search_cards, read_card
 │   └── agent/              # datapizza-ai agent and system prompt
-├── scripts/                # ingest, eval_retrieval, build_manifest, check_corpus, sb_match_report
-├── tests/                  # offline checks (corpus, gold set, retrieval, tools, agent loop)
+├── scripts/                # ingest, eval_retrieval, eval_agent, build_manifest, check_corpus, sb_match_report
+├── tests/                  # offline checks (corpus, gold set, retrieval, tools, guardrails, agent loop)
 ├── docker-compose.yml      # Qdrant vector store
 └── interactive_cli.py      # chat with the agent from the terminal
 ```
@@ -108,13 +109,25 @@ python interactive_cli.py                                   # conversation, foll
 python interactive_cli.py "Come preparo una partita contro un 4-4-2 basso?"   # one question
 ```
 
-After each answer the CLI lists the cards the agent consulted.
+After each answer the CLI lists the cards the agent consulted and, when they intervened, what the
+guardrails did.
+
+**Guardrails** (`src/guardrails/`, code that prevents instead of a prompt that asks):
+- *input*: prompt-injection attempts, off-topic and oversized questions get a fixed reply and
+  never reach the model; greetings get the presentation without a model call;
+- *output*: the answer must be in the language of the question, its names and numbers must appear
+  in the consulted cards, and it must cite `[card_id]`s it actually consulted. On a problem the
+  model gets a precise note and rewrites the answer once; the rewrite is kept only if it is not
+  worse, and what happened is always reported.
 
 To check answers automatically on a set of gold questions (citations only to consulted cards,
-correct tool use, "Non lo so" when required, required facts; ~$0.02 for the default 8 questions):
+grounding, language, correct tool use, "Non lo so" when required, required facts; ~$0.02 for
+the default 8 questions):
 
 ```bash
-python -m scripts.eval_agent            # or --ids Q13,Q18, or --all; --model gpt-4.1-mini to compare models
+python -m scripts.eval_agent            # or --ids Q13,Q18, or --all
+python -m scripts.eval_agent --all --no-guardrails     # bare agent, to measure the guardrails
+python -m scripts.eval_agent --all --model gpt-4.1-mini   # another model
 ```
 
 ---

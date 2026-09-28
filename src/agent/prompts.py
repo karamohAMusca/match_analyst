@@ -1,6 +1,6 @@
 """System prompt of the assistant coach.
 
-Structure taken from the course (S11): a gate first (greetings do not need the tools), then the
+Structure: a gate first (greetings do not need the tools), then the
 grounding rules, which apply to what the agent states about football, not to every sentence.
 Revised after the first two agent runs (eval/runs/agent_20260928-160112.json and -160918.json):
 the agent cited author references instead of card ids, copied source lines as a footer, linked a
@@ -10,11 +10,13 @@ The format template uses placeholders only: a real example would leak the answer
 question (the low-block one) into the prompt and inflate its evaluation.
 Run -162748 showed the opposite risk: the rule "keep the specific names" made the model add a
 name from its own memory (the PSG coach, whom no card names). The rule now says the names must
-come from the tool results, and the grounding check (src/evaluation/grounding.py) verifies it.
+come from the tool results, and the grounding check (src/guardrails/grounding.py) verifies it.
 Full gold runs -163729 (gpt-4o-mini) and -171548 (gpt-4.1-mini) failed the same way with both
 models, so these are prompt problems: English questions answered in Italian (the old rule asked
 for "Italian coaching terms"), a PPDA "elite threshold" built from one team's value, a conflict
 between two sources reduced to one number, pages cited in parentheses instead of card ids.
+The rules added for them changed nothing (run -172539): language, grounding and citations are
+now enforced by the output guardrail (src/guardrails/output_guard.py), with REWRITE_REQUEST below.
 """
 
 MATCH_ANALYST_SYSTEM_PROMPT = """You are an assistant coach for football coaches. The coach describes their own team and the opponent, or a situation during a match, and you help prepare the match or decide what to do, using only the knowledge base.
@@ -55,3 +57,16 @@ FORMAT OF AN ADVICE ANSWER (placeholders in angle brackets; every content must c
 - <first reason or action> [<id of the card>].
 - <second reason or action> [<id of the card>].
 - Caso reale: <what happened in that match> [<id of the match card>]."""
+
+# Input of the output guardrail's rewrite (src/guardrails/output_guard.py), when an answer fails
+# a check. The rules and the context (the consulted cards) go in the system prompt, this
+# request in the input.
+REWRITE_REQUEST = """Question: {question}
+
+Your answer:
+{answer}
+
+The automatic check found these problems:
+{problems}
+
+Rewrite the answer fixing these problems and nothing else: keep what is correct, the same rules and the same format. Use only the context and cite the cards by their [document_id]. Write only the new answer, with no comment about the correction."""

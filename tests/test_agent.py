@@ -50,7 +50,7 @@ def test_conversation_memory_only_when_stateful(retriever):
 
 def test_prompt_rules():
     p = MATCH_ANALYST_SYSTEM_PROMPT
-    assert "without tools" in p                            # greetings: no search (course S11)
+    assert "without tools" in p                            # greetings: no search
     assert "call search_cards before answering" in p
     assert "Those ids are the only valid citations" in p and "Never write a list of sources" in p
     assert 'begin with the exact words "Non lo so."' in p and "not \"non ho trovato informazioni\"" in p
@@ -78,3 +78,57 @@ def test_model_option_overrides_the_default(retriever, monkeypatch):
     assert MatchAnalyst(retriever=retriever).model == "gpt-4o-mini"
     assert MatchAnalyst(retriever=retriever, model="gpt-4.1-mini").model == "gpt-4.1-mini"
     assert [c["model"] for c in created] == ["gpt-4o-mini", "gpt-4.1-mini"]
+
+
+ENGLISH_QUESTION = "In Pioli's thesis, how does the 4-4-2 press on the flanks?"
+ENGLISH_REWRITE = "The thesis describes the zonal 4-4-2 of Chievo's youth team [coach_pioli]."
+
+
+def test_off_topic_never_reaches_the_model(retriever):
+    llm = ScriptedLLM()
+    analyst = MatchAnalyst(client=llm, retriever=retriever)
+    assert analyst.analyze("Mi scrivi la ricetta della carbonara?").startswith("Posso aiutarti solo")
+    assert llm.system_prompts == [] and analyst.consulted_cards == []          # no model call at all
+    assert "fuori tema" in analyst.guard_note
+
+
+def test_wrong_language_is_rewritten_once(retriever):
+    llm = ScriptedLLM(rewrite=ENGLISH_REWRITE)
+    analyst = MatchAnalyst(client=llm, retriever=retriever)
+    assert analyst.analyze(ENGLISH_QUESTION) == ENGLISH_REWRITE       # the fake agent answers in Italian
+    assert analyst.last_guard["issues"] == ["language: it instead of en"]
+    assert analyst.last_guard["rewritten"] and analyst.last_guard["remaining"] == []
+    [request] = llm.rewrite_requests                     # the request...
+    assert request.startswith(f"Question: {ENGLISH_QUESTION}") and "write the whole answer in English" in request
+    system = llm.system_prompts[-1]                       # ...and rules + context in the system prompt
+    assert system.startswith(MATCH_ANALYST_SYSTEM_PROMPT + "\n\nContext:\n[") and "[coach_pioli]\n" in system
+    assert "lingua della risposta" in analyst.guard_note
+
+
+def test_worse_rewrite_is_discarded(retriever):
+    llm = ScriptedLLM(rewrite="Luis Enrique lo spiega così.")    # Italian again, invented name, no citation
+    analyst = MatchAnalyst(client=llm, retriever=retriever)
+    answer = analyst.analyze(ENGLISH_QUESTION)
+    assert answer.startswith("Dalle schede:") and not analyst.last_guard["rewritten"]
+    assert analyst.last_guard["remaining"] == ["language: it instead of en"]
+    assert "da verificare" in analyst.guard_note
+
+
+def test_failed_rewrite_keeps_the_first_answer(retriever):
+    analyst = MatchAnalyst(client=ScriptedLLM(), retriever=retriever)   # the rewrite call raises
+    assert analyst.analyze(ENGLISH_QUESTION).startswith("Dalle schede:")
+    assert "ConnectionError" in analyst.last_guard["error"]
+    assert "non completato" in analyst.guard_note
+
+
+def test_follow_up_goes_through_in_a_chat(retriever):
+    chat = MatchAnalyst(client=ScriptedLLM(), retriever=retriever, stateless=False)
+    chat.analyze(QUESTION)
+    chat.analyze("E perché?")
+    assert chat.last_guard["input"] == "follow_up"
+
+
+def test_guardrails_can_be_switched_off_to_measure_them(retriever):
+    analyst = MatchAnalyst(client=ScriptedLLM(), retriever=retriever, guardrails=False)
+    assert analyst.analyze("Mi scrivi la ricetta della carbonara?").startswith("Dalle schede:")
+    assert analyst.guard_note is None

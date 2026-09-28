@@ -21,7 +21,7 @@ from src.rag.ingest import sync_corpus
 from src.rag.retrieval import Retriever
 from src.rag.store import embedding_dimensions, make_embedder, make_vector_store
 
-PRICE_PER_MILLION_TOKENS = 0.02  # text-embedding-3-small, USD (course price list, Aug 2026)
+PRICE_PER_MILLION_TOKENS = 0.02  # text-embedding-3-small, USD (price list, Aug 2026)
 
 
 def preview(cards) -> None:

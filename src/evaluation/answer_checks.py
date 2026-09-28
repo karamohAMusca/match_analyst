@@ -3,11 +3,13 @@
 - citations: ids cited as [document_id], [document_id, p. N] or [id_a, id_b] must be cards the
   agent consulted, or cards named inside a consulted card (indirect: the claim is in the card read);
 - author_citations: the card-internal references ([Soncin, p. 19]) must not be used as citations;
-- grounding: names and numbers must appear in the consulted cards (see grounding.py);
+- grounding: names and numbers must appear in the consulted cards (src/guardrails/grounding.py);
 - tool use: greetings/off-topic without tools, football questions with tools;
 - abstention: "Non lo so" when the gold set requires it;
 - language: the answer is written in the language of the question (English questions exist);
 - required facts / forbidden claims: accent-insensitive substring match, as in the gold set.
+Citation parsing, grounding and language detection are the ones of the guardrails
+(src/guardrails/): the evaluation measures exactly what the running agent enforces.
 """
 
 from __future__ import annotations
@@ -16,20 +18,13 @@ import re
 import unicodedata
 from typing import Any
 
-from src.evaluation.grounding import ungrounded_terms
+from src.guardrails.grounding import ungrounded_terms
+from src.guardrails.language import detect_language
+from src.guardrails.output_guard import ABSTENTION, BRACKETS_RE, CARD_MENTION_RE, citation_ids
 
-BRACKETS_RE = re.compile(r"\[([^\[\]\n]{1,80})\]")
-ID_RE = re.compile(r"[a-z0-9]+(?:_[a-z0-9]+)+")
-ID_WITH_PAGE_RE = re.compile(r"([a-z0-9]+(?:_[a-z0-9]+)+)\s*,\s*pp?\.\s*[\d\s,\-–]+")
-CARD_MENTION_RE = re.compile(r"\b(?:case|situation|coach|note|glossary)_[a-z0-9_]+")
 AUTHOR_CITATION_RE = re.compile(r"\[(?:Soncin|Spalla|Dileo|Pioli|Italiano|Contran|Polenghi|Wikipedia|FIFA|StatsBomb)[^\]]*\]")
-ABSTENTION = ("non lo so", "i don't know", "i do not know")
 ADVICE_TYPES = {"situational", "style_match"}
 MAX_ADVICE_WORDS = 180   # the prompt asks for at most 150 words of text; citations add a few
-# Function words that tell Italian from English (run agent_20260928-163729: English questions got
-# Italian answers). Words common to both ("a", "in", "e") are left out.
-ITALIAN_WORDS = frozenset("il lo gli della delle dei degli che per con non sono una nel nella del alla dal più anche".split())
-ENGLISH_WORDS = frozenset("the and of is are with that for this from which their its was were an be by to on".split())
 # A tool header copied into the answer as a "source" line instead of citing inline.
 COPIED_HEADER_RE = re.compile(r"^\s*(?:-{3}\s*Fonte\b.*|\[[a-z0-9_]+\]\s+[^\n]*·[^\n]*)$", re.M | re.I)
 
@@ -37,23 +32,6 @@ COPIED_HEADER_RE = re.compile(r"^\s*(?:-{3}\s*Fonte\b.*|\[[a-z0-9_]+\]\s+[^\n]*�
 def normalize(text: str) -> str:
     text = unicodedata.normalize("NFKD", text.replace("’", "'")).encode("ascii", "ignore").decode()
     return re.sub(r"\s+", " ", text.lower())
-
-
-def _citation_ids(bracketed: str) -> list[str]:
-    """'coach_pioli', 'coach_pioli, p. 4' -> ['coach_pioli']; 'coach_a, coach_b' -> both; else []."""
-    match = ID_WITH_PAGE_RE.fullmatch(bracketed)
-    if match:
-        return [match.group(1)]
-    parts = [p.strip() for p in bracketed.split(",")]
-    return parts if all(ID_RE.fullmatch(p) for p in parts) else []
-
-
-def answer_language(answer: str) -> str:
-    """'en' or 'it', from the function words of the answer (citations excluded)."""
-    words = re.findall(r"[^\W\d_]+", BRACKETS_RE.sub(" ", answer.lower()))
-    english = sum(w in ENGLISH_WORDS for w in words)
-    italian = sum(w in ITALIAN_WORDS for w in words)
-    return "en" if english > italian else "it"
 
 
 def check_answer(
@@ -69,15 +47,15 @@ def check_answer(
     body = COPIED_HEADER_RE.sub("", answer)            # citations only count inside the answer text
     authors = AUTHOR_CITATION_RE.findall(body)
     bracketed = [b.strip() for b in BRACKETS_RE.findall(body) if f"[{b}]" not in authors]
-    cited = list(dict.fromkeys(i for b in bracketed for i in _citation_ids(b)))
-    malformed = list(dict.fromkeys(b for b in bracketed if not _citation_ids(b)))
+    cited = list(dict.fromkeys(i for b in bracketed for i in citation_ids(b)))
+    malformed = list(dict.fromkeys(b for b in bracketed if not citation_ids(b)))
     mentioned = set(CARD_MENTION_RE.findall(source_text or ""))
     facts = question.get("required_facts") or []
     found = [group for group in facts if any(normalize(alt) in text for alt in group)]
     expects_tools = question["expected_tool_use"] != "none"
     abstained = any(a in text for a in ABSTENTION)
     grounding_applies = source_text is not None and expects_tools and bool(consulted)
-    language = answer_language(body)
+    language = detect_language(body)
     return {
         "cited": cited,
         "invalid_citations": [c for c in cited if c not in consulted and c not in mentioned],

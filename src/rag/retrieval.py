@@ -1,10 +1,10 @@
 """Hybrid retrieval: dense (Qdrant) + lexical (BM25), fused into one ranking.
 
-Same architecture as the course (lesson 9, "Hybrid Search"): dense search understands
+Hybrid search: dense search understands
 paraphrases and English questions; BM25 catches exact terms ("falso terzino", "palla coperta",
 "4-4-2") that dense embeddings blur.
 
-Fusion: the default is `interleave` (1st dense, 1st BM25, 2nd dense, ...), not the course's RRF.
+Fusion: the default is `interleave` (1st dense, 1st BM25, 2nd dense, ...), not RRF.
 Measured on the gold set (eval/runs/retrieval_20260928-154042.json): RRF rewards chunks found by
 both searches and buries a chunk that only one search ranks first ("falso terzino": BM25 1st,
 8th after RRF). Interleave keeps the best hit of each search and has no parameter to tune:
@@ -32,7 +32,7 @@ Fusion = Literal["rrf", "interleave"]
 # context. Measured on the gold set (eval/runs/retrieval_20260928-153546.json and -154042.json):
 # with hybrid retrieval, 1 per card beats 2 per card on every metric.
 DEFAULT_MAX_PER_CARD = 1
-RRF_K0 = 60   # standard RRF constant, as in the course
+RRF_K0 = 60   # standard RRF constant
 POOL = 20     # candidates taken from each ranking before fusion
 
 # Words present in almost every chunk: they add noise to BM25 without discriminating.

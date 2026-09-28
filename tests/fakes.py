@@ -38,15 +38,24 @@ class FakeEmbedder(BaseEmbedder):
 class ScriptedLLM(MockClient):
     """Fake chat model with the agent's expected behaviour, to test the loop without the API:
     a greeting is answered directly; any other question triggers search_cards with the question,
-    and the final answer quotes the passages the tool returned.
+    and the final answer quotes the passages the tool returned (so it is in Italian, like the cards).
+    A call without tools is the output guardrail asking for a rewrite: it returns `rewrite`, or
+    fails like a network error when no rewrite is scripted.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, rewrite: str | None = None) -> None:
         super().__init__(model_name="scripted-llm")
         self.system_prompts: list[str | None] = []
+        self.rewrite = rewrite
+        self.rewrite_requests: list[str] = []
 
     def _invoke(self, input, tools=None, memory=None, system_prompt=None, **kwargs):
         self.system_prompts.append(system_prompt)
+        if not tools:
+            self.rewrite_requests.append(next((b.content for b in input if isinstance(b, TextBlock)), ""))
+            if self.rewrite is None:
+                raise ConnectionError("no rewrite scripted")
+            return ClientResponse(content=[TextBlock(content=self.rewrite)])
         if memory and isinstance(memory[-1].blocks[-1], FunctionCallResultBlock):
             return ClientResponse(content=[TextBlock(content="Dalle schede:\n" + memory[-1].blocks[-1].result)])
         question = next((b.content for b in input if isinstance(b, TextBlock)), "")

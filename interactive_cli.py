@@ -21,6 +21,8 @@ def show(analyst: MatchAnalyst, question: str) -> None:
     print(analyst.analyze(question))
     if analyst.consulted_cards:
         print("\nSchede consultate: " + ", ".join(analyst.consulted_cards))
+    if analyst.guard_note:   # what the guardrails did: never silent
+        print(f"\n[{analyst.guard_note}]")
 
 
 def main() -> None:

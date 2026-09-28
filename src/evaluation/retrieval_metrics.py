@@ -1,6 +1,6 @@
 """Retrieval metrics on the gold set.
 
-Same definitions as the course (s08_evals / evals_s11):
+Definitions:
 - recall@k: share of questions whose expected card is among the first k chunks;
   for questions with several expected cards, the first one listed (entry point of the chain);
 - MRR: mean of 1/position of the first chunk from the expected card, over the first 10 chunks.

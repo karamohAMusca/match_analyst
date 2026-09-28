@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from src.evaluation.answer_checks import check_answer, problems
-from src.evaluation.grounding import ungrounded_terms
+from src.guardrails.grounding import ungrounded_terms
 
 CARD = ("Finale Champions League 2026: Paris Saint-Germain 1-1 Arsenal (4-3 d.c.r.). "
         "0-1 al 6', con Havertz; al 61' Dembélé trasforma il rigore.")
@@ -64,6 +64,12 @@ def test_page_citation_and_indirect_citation_are_accepted():
     check = check_answer(answer, q, ["situation_a"], 1, source_text=source)
     assert check["cited"] == ["situation_a", "case_2026_wc"]
     assert check["indirect_citations"] == ["case_2026_wc"] and problems(check) == []
+
+
+def test_english_answer_may_translate_countries_and_competitions():
+    card = "Finale del Mondiale 2026: la Spagna batte l'Argentina."
+    assert ungrounded_terms("In the 2026 World Cup final, Spain beat Argentina.", card) == []
+    assert ungrounded_terms("In the final, Spain beat Brazil.", card) == ["Brazil"]
 
 
 def test_hyphenated_chain_of_names():

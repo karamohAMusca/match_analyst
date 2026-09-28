@@ -1,6 +1,6 @@
 """Qdrant vector store, OpenAI embedder and similarity search (datapizza-ai components).
 
-Qdrant runs as a Docker service (see docker-compose.yml), as in the course: the index survives
+Qdrant runs as a Docker service (see docker-compose.yml): the index survives
 restarts, so the corpus is ingested once and re-synced only when cards change.
 """
 
@@ -34,7 +34,7 @@ def embedding_dimensions(model: str) -> int:
 def make_vector_store(settings: Settings | None = None) -> QdrantVectorstore:
     """Connect to the Qdrant Docker service and fail fast with a clear message if it is down."""
     settings = settings or load_settings()
-    # The course pins the Qdrant server at v1.11 while the installed client is newer: the calls
+    # The Qdrant server is pinned at v1.11 while the installed client is newer: the calls
     # used here (collections, upsert, query_points, scroll, delete by filter) all exist in v1.11,
     # so the client's version warning is disabled instead of being printed at every run.
     store = QdrantVectorstore(

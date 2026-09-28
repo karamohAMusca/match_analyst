@@ -8,9 +8,11 @@ or season labels the cards never state (run -163729: "2020/21").
 Numbers are compared as whole numbers, with comma and dot as the same decimal separator
 ("10" is not grounded by "10.30"; "13,48" is grounded by "13.48"). Names are compared as
 substrings, accent-insensitive, each part of a hyphenated chain on its own
-("Vitinha-Doué-Hakimi" is grounded when the card names the three players).
+("Vitinha-Doué-Hakimi" is grounded when the card names the three players). An English answer
+may translate the Italian names of countries and competitions ("Spain" for "Spagna").
 Limit: a term is checked, not the claim around it. An invented threshold built from a number
 the cards use elsewhere ("PPDA inferiore a 10", run -163729) passes.
+Used by the output guardrail (output_guard.py) and by the answer evaluation.
 """
 
 from __future__ import annotations
@@ -24,6 +26,15 @@ _BULLET_RE = re.compile(r"^\s*(?:[-•]|\d+[.)])\s+")
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?:;])\s+")
 _TOKEN_RE = re.compile(r"[^\W\d_][\w-]*|\d+(?:[.,]\d+)?", re.UNICODE)
 _NUMBER_RE = re.compile(r"\d+(?:[.,]\d+)?")
+# English names of the countries and competitions in the cards (written in Italian).
+ENGLISH_EQUIVALENTS = {
+    "spain": ("spagna",), "spanish": ("spagna",), "england": ("inghilterra",),
+    "english": ("inghilterra", "ingles"), "france": ("francia",), "french": ("francia",),
+    "italy": ("italia",), "italian": ("italia",), "germany": ("germania",), "german": ("germania",),
+    "argentine": ("argentina",), "argentinian": ("argentina",), "world": ("mondial",),
+    "cup": ("mondial", "coppa"), "european": ("euro",), "championship": ("euro", "campionat"),
+    "sunday": ("domenica",),
+}
 
 
 def _normalize(text: str) -> str:
@@ -33,6 +44,14 @@ def _normalize(text: str) -> str:
 
 def _number(token: str) -> str:
     return token.replace(",", ".")
+
+
+def _known_name(token: str, known_text: str) -> bool:
+    for part in filter(None, token.split("-")):
+        word = _normalize(part)
+        if word not in known_text and not any(t in known_text for t in ENGLISH_EQUIVALENTS.get(word, ())):
+            return False
+    return True
 
 
 def ungrounded_terms(answer: str, source_text: str, question: str = "") -> list[str]:
@@ -60,7 +79,6 @@ def ungrounded_terms(answer: str, source_text: str, question: str = "") -> list[
                                   and sentence[match.end():nxt.start()].isspace())
                     if not opens_name:
                         continue
-                known = all(_normalize(part) in known_text for part in token.split("-") if part)
-                if not known and token not in missing:
+                if not _known_name(token, known_text) and token not in missing:
                     missing.append(token)
     return missing

@@ -1,6 +1,6 @@
 """Corpus tools for the agent: search the cards, read a whole card.
 
-As in the course (S11), the search tool returns PASSAGES with their source, not a written
+The search tool returns PASSAGES with their source, not a written
 answer: the agent sees what the corpus says and what is missing, and cites `[document_id]`.
 The tool descriptions are the contract with the model: they state what the corpus covers,
 so the agent can tell when a question is outside it. Errors never raise: they come back as

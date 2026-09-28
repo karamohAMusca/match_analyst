@@ -5,15 +5,14 @@
 #
 services:
 
-  # Vector store, same setup as the course (S11): Qdrant as a service, not in-memory, so the
+  # Vector store, Qdrant as a service, not in-memory, so the
   # index survives restarts and the corpus is ingested once, then re-synced only when cards change.
   # Dashboard: http://localhost:6337/dashboard
   qdrant:
     image: qdrant/qdrant:v1.11.0
     container_name: qdrant-match-analyst
     ports:
-      # Host port 6337, as in the course. If the course container (qdrant-aitho-s11) is running,
-      # stop it first: docker stop qdrant-aitho-s11
+      # Host port 6337. If another container already uses it, stop that one first.
       - "6337:6333"
     volumes:
       - ./qdrant_storage:/qdrant/storage

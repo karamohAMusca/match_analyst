@@ -1,0 +1,251 @@
+{
+  "run": "20260928-175811",
+  "model": "gpt-4o-mini",
+  "guardrails": true,
+  "questions": [
+    {
+      "question_id": "Q10",
+      "type": "single_hop",
+      "question": "Chi ha deciso la finale di Champions League 2023 tra Manchester City e Inter e come?",
+      "answer": "Il Manchester City ha vinto la finale di Champions League 2023 contro l'Inter con un punteggio di 1-0, grazie a un gol di Rodri.\n\n- La partita è stata bloccata, con il City che ha mostrato pazienza contro una difesa organizzata dell'Inter, tirando solo due volte nel primo tempo [case_2023_ucl_final_city_inter].\n- Il gol è arrivato dopo un errore dell'Inter, quando Silva ha servito Rodri, il quale ha segnato con un destro di prima [case_2023_ucl_final_city_inter].\n- Ederson, portiere del City, è stato decisivo nel finale, parando due colpi di testa ravvicinati di Lukaku e Gosens [case_2023_ucl_final_city_inter]. \n\nQuesta vittoria ha segnato il primo trionfo del City nella competizione.",
+      "consulted": [
+        "case_2023_ucl_final_city_inter",
+        "coach_guardiola",
+        "coach_inzaghi",
+        "case_2025_ucl_final_psg_inter",
+        "situation_difendere_un_vantaggio"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "finale Champions League 2023 Manchester City Inter",
+          "categories": null,
+          "cards": [
+            "case_2023_ucl_final_city_inter",
+            "coach_guardiola",
+            "coach_inzaghi",
+            "case_2025_ucl_final_psg_inter",
+            "situation_difendere_un_vantaggio"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [
+          "ungrounded: 68"
+        ],
+        "rewritten": true,
+        "remaining": []
+      },
+      "check": {
+        "cited": [
+          "case_2023_ucl_final_city_inter"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "answer_language": "it",
+        "language_ok": true,
+        "relevant_consulted": [
+          "case_2023_ucl_final_city_inter"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 107,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q21",
+      "type": "out_of_corpus",
+      "question": "Chi ha vinto la finale di Champions League 2026 e con chi era in panchina il PSG?",
+      "answer": "Il Paris Saint-Germain ha vinto la finale di Champions League 2026 contro l'Arsenal, con un punteggio di 1-1 (4-3 ai rigori) [case_2026_ucl_final_psg_arsenal]. \n\nNon lo so riguardo a chi fosse in panchina per il PSG. Tuttavia, il PSG ha mostrato una pressione continua durante la partita, con 18 tiri contro 4 dell'Arsenal [case_2026_ucl_final_psg_arsenal].",
+      "consulted": [
+        "case_2023_ucl_final_city_inter",
+        "case_2026_ucl_final_psg_arsenal",
+        "case_2026_wc_final_spain_argentina",
+        "situation_pressing_alto_e_riaggressione",
+        "case_2025_ucl_final_psg_inter"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "finale Champions League 2026",
+          "categories": null,
+          "cards": [
+            "case_2023_ucl_final_city_inter",
+            "case_2026_ucl_final_psg_arsenal",
+            "case_2026_wc_final_spain_argentina",
+            "situation_pressing_alto_e_riaggressione",
+            "case_2025_ucl_final_psg_inter"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [],
+        "rewritten": false,
+        "remaining": []
+      },
+      "check": {
+        "cited": [
+          "case_2026_ucl_final_psg_arsenal"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": true,
+        "answer_language": "it",
+        "language_ok": true,
+        "relevant_consulted": [
+          "case_2026_ucl_final_psg_arsenal"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": null,
+        "words": 57,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q27",
+      "type": "single_hop",
+      "question": "Come è cambiato il possesso palla del Sassuolo nelle tre stagioni con De Zerbi?",
+      "answer": "Nelle tre stagioni con Roberto De Zerbi, il possesso palla del Sassuolo è aumentato progressivamente:\n\n- **Possesso 2017/18:** 54% [coach_de_zerbi].\n- **Possesso 2018/19:** 57.8% [coach_de_zerbi].\n- **Possesso 2019/20:** 60.8% [coach_de_zerbi].\n\nInoltre, la percentuale di passaggi completati è migliorata da 82.4% a 86.8% nel corso delle tre stagioni [coach_de_zerbi]. Questo incremento nel possesso palla riflette l'identità di gioco di De Zerbi, che enfatizza il mantenimento del pallone e la costruzione dal basso [coach_de_zerbi].",
+      "consulted": [
+        "coach_de_zerbi",
+        "situation_costruzione_dal_basso",
+        "glossary_metriche",
+        "situation_uscire_dal_pressing_alto",
+        "glossary_moduli"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "possesso palla Sassuolo De Zerbi",
+          "categories": null,
+          "cards": [
+            "coach_de_zerbi",
+            "situation_costruzione_dal_basso",
+            "glossary_metriche",
+            "situation_uscire_dal_pressing_alto",
+            "glossary_moduli"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [
+          "ungrounded: 2018"
+        ],
+        "rewritten": true,
+        "remaining": [
+          "ungrounded: 2018"
+        ]
+      },
+      "check": {
+        "cited": [
+          "coach_de_zerbi"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [
+          "2018"
+        ],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "answer_language": "it",
+        "language_ok": true,
+        "relevant_consulted": [
+          "coach_de_zerbi"
+        ],
+        "facts_found": "3/3",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 77,
+        "advice": false
+      },
+      "problems": [
+        "names/numbers not in the consulted cards: ['2018']"
+      ]
+    },
+    {
+      "question_id": "Q31",
+      "type": "single_hop",
+      "question": "Secondo la tesi di Contran, da dove nasce il 'falso terzino'?",
+      "answer": "Il 'falso terzino' nasce dall'innovazione di Pep Guardiola, che ha utilizzato questo concetto per ottimizzare il gioco di posizione. In particolare, al Bayern ha chiesto a un terzino di spostarsi in mezzo al campo; al City ha impiegato terzini per trasformare la formazione da un 3-2-5 a un 2-3-5, creando superiorità numerica e posizionale [coach_guardiola, pp. 90, 183].",
+      "consulted": [
+        "note_gioco_di_posizione",
+        "note_gioco_relazionale",
+        "note_difesa_reparto_uomo",
+        "note_allenare_con_variabilita",
+        "coach_guardiola"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "falso terzino tesi Contran",
+          "categories": [
+            "thesis_note"
+          ],
+          "cards": [
+            "note_gioco_di_posizione",
+            "note_gioco_relazionale",
+            "note_difesa_reparto_uomo",
+            "note_allenare_con_variabilita",
+            "coach_guardiola"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [
+          "ungrounded: Monaco, Philipp, Manchester, Kyle, João, Oleksandr"
+        ],
+        "rewritten": true,
+        "remaining": []
+      },
+      "check": {
+        "cited": [
+          "coach_guardiola"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "answer_language": "it",
+        "language_ok": true,
+        "relevant_consulted": [
+          "coach_guardiola"
+        ],
+        "facts_found": "2/3",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 63,
+        "advice": false
+      },
+      "problems": [
+        "required facts found 2/3"
+      ]
+    }
+  ]
+}

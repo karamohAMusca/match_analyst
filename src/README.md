@@ -7,6 +7,10 @@ corpus/*.md ──► corpus/cards.py ──► corpus/chunking.py ──► rag
 user question ──► agent/analyst_agent.py ──► tools/corpus_tools.py ──► rag/retrieval.py
                   (Agent + prompts.py)        search_cards, read_card    Retriever ◄─────┘
                                                                  (dense + BM25 → fusion → max 1 per card)
+guardrails around the agent:
+  question ──► guardrails/input_guard.py ──(football only)──► agent ──► guardrails/output_guard.py ──► answer
+               off-topic, injection: fixed reply, no model call        language, names/numbers, citations:
+                                                                       on a problem, one rewrite
 ```
 
 | File | What it does | Needs |
@@ -19,11 +23,14 @@ user question ──► agent/analyst_agent.py ──► tools/corpus_tools.py �
 | `rag/retrieval.py` | `Retriever`: the search used by the app. Hybrid as in the course: dense (Qdrant) + BM25 keywords, fused by interleaving (1st dense, 1st BM25, 2nd dense, ...; the course's RRF is kept for comparison), then at most 1 chunk per card (`DEFAULT_MAX_PER_CARD`). Modes `dense`, `bm25`, `hybrid` for comparisons. | Docker, key (not for BM25) |
 | `rag/embedding_cache.py` | `CachedEmbedder`: saves embeddings in `.cache/` so the same text is never paid twice; works offline on cached texts. | key only for new texts |
 | `evaluation/retrieval_metrics.py` | Retrieval metrics on the gold set: recall@1, recall@5, MRR@10 (course definitions) plus multi-card checks. Used by `scripts/eval_retrieval.py`. | — |
-| `evaluation/answer_checks.py` | Automatic checks on agent answers: citations only to consulted cards, no card-internal author references as citations, tool use, "Non lo so", answer language, required facts, length of advice. Used by `scripts/eval_agent.py`. | — |
-| `evaluation/grounding.py` | Grounding check: every proper noun and number of an answer must appear in the consulted cards (catches facts from the model's memory). Candidate for the output guardrail. | — |
+| `evaluation/answer_checks.py` | Automatic checks on agent answers against the gold set: citations only to consulted cards, no card-internal author references as citations, grounding, tool use, "Non lo so", answer language, required facts, length of advice. Reuses the guardrails' checks, so it measures what the agent enforces. Used by `scripts/eval_agent.py`. | — |
+| `guardrails/input_guard.py` | Before any model call: prompt-injection attempts, off-topic questions and questions over 2000 characters get a fixed reply (Italian or English); greetings get the presentation. The football test is a generous vocabulary check (words, stems, formations like 4-3-3); in a chat, follow-ups go through. | — |
+| `guardrails/output_guard.py` | After the answer: language of the question, names/numbers present in the consulted cards, at least one `[card_id]` and only consulted ones. Each problem comes with a precise instruction for the one rewrite. Also parses citations for the evaluation. | — |
+| `guardrails/grounding.py` | Grounding check: every proper noun and number of an answer must appear in the consulted cards or in the question (catches facts from the model's memory); English names of countries and competitions accepted. | — |
+| `guardrails/language.py` | Italian or English, from function words. | — |
 | `tools/corpus_tools.py` | The agent's tools. `search_cards`: up to 5 results, one per card, each headed by its `[document_id]` (the only bracketed text: card-internal references become parentheses); the first 2 are whole cards; an optional card-type filter is a preference (the best overall result is always kept). `read_card`: a whole card. Errors come back as text, never as exceptions. The descriptions state what the corpus covers. | as the Retriever |
-| `agent/analyst_agent.py` | `MatchAnalyst`: the datapizza `Agent` (gpt-4o-mini, or the model passed as `model`) with the two tools. `stateless=False` keeps the conversation (chat); `consulted_cards` lists the cards used for the last answer. Client and retriever can be injected (tests use a scripted fake LLM). | key, Docker |
-| `agent/prompts.py` | System prompt: greetings without tools; football questions always searched; answers only from passages, each claim cited with `[document_id]`; conflicts reported; "Non lo so" when the cards do not cover it. | — |
+| `agent/analyst_agent.py` | `MatchAnalyst`: the datapizza `Agent` (gpt-4o-mini, or the model passed as `model`) with the two tools, between the input and output guardrails (one rewrite at most, kept only if it is not worse). The rewrite puts rules + cards (`card_context()`) in the `system_prompt` and the request in the `input`. `last_guard` / `guard_note` say what the guardrails did (never silent); `guardrails=False` runs the bare agent for comparison. `stateless=False` keeps the conversation (chat); `consulted_cards` lists the cards used for the last answer. Client and retriever can be injected (tests use a scripted fake LLM). | key, Docker |
+| `agent/prompts.py` | System prompt: greetings without tools; football questions always searched; answers only from passages, each claim cited with `[document_id]`; conflicts reported; "Non lo so" when the cards do not cover it. `REWRITE_REQUEST`: the message of the output guardrail. | — |
 
-`corpus/` and `evaluation/` work on files only (no network); `rag/`, `tools/` and `agent/` talk to external services.
+`corpus/`, `evaluation/` and `guardrails/` work on text only (no network); `rag/`, `tools/` and `agent/` talk to external services.
 Commands that use these modules are in `scripts/` (see the main README).
