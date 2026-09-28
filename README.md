@@ -105,8 +105,12 @@ $0.001), later runs are free, and `python -m scripts.eval_retrieval --offline` n
 ### The app (uses the OpenAI API)
 
 ```bash
-streamlit run app.py              # opens http://localhost:8501
+python -m scripts.start           # Qdrant + Phoenix (Docker), wait until ready, then the app
+python -m scripts.start --stop    # stop Qdrant and Phoenix (index and traces are kept)
+streamlit run app.py              # only the app, if the services are already running
 ```
+
+The app opens at http://localhost:8501.
 
 Three tabs. **Chat**: the conversation with the assistant coach (follow-up questions work);
 citations appear as badges with the card title, the cards of the answer can be read in full next
