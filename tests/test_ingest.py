@@ -1,45 +1,17 @@
-"""Incremental ingestion and search, with an in-memory Qdrant and a fake embedder.
-
-No API key, no Docker, no network: the fake embedder turns text into a deterministic
-bag-of-words vector, enough to test the sync logic and the category filter.
-"""
+"""Incremental ingestion into an in-memory Qdrant with a fake embedder (no key, no network)."""
 
 from __future__ import annotations
 
-import hashlib
-import math
-import re
 import shutil
 
 import pytest
-from datapizza.core.embedder import BaseEmbedder
 from datapizza.vectorstores.qdrant import QdrantVectorstore
 
-from src.corpus.chunking import chunk_card
 from src.corpus.cards import load_cards, parse_card
+from src.corpus.chunking import chunk_card
 from src.rag.ingest import sync_corpus
-from src.rag.store import ensure_collection, search
-
-DIM = 64
-MODEL = "fake-embedding"
-COLLECTION = "test_cards"
-
-
-class FakeEmbedder(BaseEmbedder):
-    def __init__(self) -> None:
-        self.model_name = MODEL
-        self.calls = 0
-
-    def _vector(self, text: str) -> list[float]:
-        v = [0.0] * DIM
-        for word in re.findall(r"\w+", text.lower()):
-            v[int(hashlib.md5(word.encode()).hexdigest(), 16) % DIM] += 1.0
-        norm = math.sqrt(sum(x * x for x in v)) or 1.0
-        return [x / norm for x in v]
-
-    def embed(self, text, model_name=None):
-        self.calls += 1
-        return self._vector(text) if isinstance(text, str) else [self._vector(t) for t in text]
+from src.rag.store import ensure_collection
+from tests.fakes import COLLECTION, DIM, MODEL, FakeEmbedder
 
 
 def sync(store, embedder, cards, **kwargs):
@@ -114,13 +86,3 @@ def test_dimension_mismatch_is_refused(store):
     ensure_collection(store, COLLECTION, DIM)
     with pytest.raises(RuntimeError, match="--reset"):
         ensure_collection(store, COLLECTION, DIM * 2)
-
-
-def test_search_and_category_filter(store):
-    embedder = FakeEmbedder()
-    sync(store, embedder, load_cards())
-    query = "Primavera del Chievo: si gioca alla domenica come ci si allena durante la settimana"
-    hits = search(store, embedder, query, COLLECTION, k=3)
-    assert hits and hits[0].metadata["document_id"] == "coach_pioli"
-    only_cases = search(store, embedder, query, COLLECTION, k=5, categories=["match_case"])
-    assert only_cases and all(h.metadata["category"] == "match_case" for h in only_cases)

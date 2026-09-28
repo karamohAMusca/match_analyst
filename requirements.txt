@@ -9,6 +9,7 @@ openai>=1.40.0
 pydantic>=2.7.0
 python-dotenv>=1.0.0
 PyYAML>=6.0
+rank-bm25>=0.2.2          # lexical half of the hybrid retrieval (as in the course, lesson 9)
 
 # Observability (Arize Phoenix via OpenTelemetry)
 opentelemetry-sdk>=1.25.0

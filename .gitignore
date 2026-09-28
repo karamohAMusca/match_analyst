@@ -25,3 +25,9 @@ references/data/fifa/
 # Course material (not part of the project)
 AITHO_Progetto_Personale.pdf
 S12_Coding_Agent.pdf
+
+# Personal notes (Italian, not published)
+src/LEGGIMI.md
+
+# Local caches (embeddings of the gold questions, ...)
+.cache/

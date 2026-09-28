@@ -23,11 +23,12 @@ match_analyst/
 │   └── manifest.json       #   catalogue: ids, metadata, SHA-256 (generated)
 ├── references/             # upstream sources, NOT ingested (theses, Wikipedia, StatsBomb, FIFA)
 │   └── SOURCES.md          #   provenance, licences and card-writing rules
-├── eval/gold_set.json      # 45 evaluation questions (it + paired en)
-├── src/
+├── eval/                   # gold_set.json (45 questions, it + paired en) and runs/ (results)
+├── src/                    # application code — file-by-file guide in src/README.md
 │   ├── core/               # paths and settings from .env
 │   ├── corpus/             # read cards and manifest, split cards into chunks (offline)
-│   ├── rag/                # Qdrant store, embeddings, search, ingestion
+│   ├── rag/                # Qdrant store, ingestion, hybrid retrieval (dense + BM25)
+│   ├── evaluation/         # metrics against the gold set
 │   └── agent/              # datapizza-ai agent and system prompt
 ├── scripts/                # ingest, build_manifest, check_corpus, sb_match_report
 ├── tests/                  # offline checks (corpus, gold set, chunking, ingestion)
@@ -81,6 +82,18 @@ python -m scripts.ingest --query "Come si attacca un 4-4-2 basso?"   # retrieval
 
 `python -m scripts.ingest --reset` rebuilds the collection from scratch.
 Qdrant dashboard: http://localhost:6337/dashboard
+
+### Measuring retrieval on the gold set
+
+```bash
+python -m scripts.eval_retrieval
+```
+
+Retrieval is hybrid: dense search (Qdrant) + BM25 keyword search, fused into one ranking, at most
+1 chunk per card. The script compares dense, BM25 and hybrid variants on recall@1, recall@5 and
+MRR@10 (course definitions), also by question type and language; each run is saved in `eval/runs/`.
+Question vectors are cached in `.cache/`: the first run embeds them in one call (well under
+$0.001), later runs are free, and `python -m scripts.eval_retrieval --offline` needs no API key.
 
 ### Chat with the agent (uses the OpenAI API)
 

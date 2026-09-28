@@ -18,7 +18,8 @@ from src.core.config import load_settings
 from src.corpus.cards import load_manifest_cards, stale_cards
 from src.corpus.chunking import chunk_card
 from src.rag.ingest import sync_corpus
-from src.rag.store import embedding_dimensions, make_embedder, make_vector_store, search
+from src.rag.retrieval import Retriever
+from src.rag.store import embedding_dimensions, make_embedder, make_vector_store
 
 PRICE_PER_MILLION_TOKENS = 0.02  # text-embedding-3-small, USD (course price list, Aug 2026)
 
@@ -81,10 +82,12 @@ def main() -> int:
     print(f"  chunks embedded now: {report.embedded_chunks}  points in the collection: {report.total_points}")
 
     if args.query:
-        print(f"\nTop {args.k} chunks for: {args.query}")
-        for i, chunk in enumerate(search(store, embedder, args.query, settings.qdrant_collection, k=args.k), 1):
+        print(f"\nTop {args.k} chunks for: {args.query}  (hybrid: dense + BM25)")
+        retriever = Retriever(store, embedder, settings.qdrant_collection)
+        for i, chunk in enumerate(retriever.retrieve(args.query, k=args.k), 1):
             md = chunk.metadata
-            print(f"  {i}. {md['document_id']}  [{md['section']}]")
+            print(f"  {i}. {md['document_id']}  [{md['section']}]  "
+                  f"dense {md.get('dense_score', 0):.3f}  bm25 {md.get('bm25_score', 0):.1f}")
     return 0
 
 

@@ -36,6 +36,7 @@ This document defines the architectural rules, coding standards, and operational
   - `src/core/`: paths and settings (`config.py`).
   - `src/corpus/`: reading cards and manifest, splitting cards into chunks. Offline only: no API keys, no network.
   - `src/rag/`: Qdrant store, embeddings, search, and ingestion. Ingest only the cards listed in `corpus/manifest.json`; the YAML front matter goes into the payload, not into the embedded text.
+  - `src/evaluation/`: metrics against `eval/gold_set.json` (retrieval now, answers later). Runs are saved in `eval/runs/`.
   - `src/agent/`: Only agent initialization, loop orchestration, and system prompts.
   - `src/tools/`: Clean, typed `@tool` functions with explicit docstrings explaining inputs and outputs.
   - `src/guardrails/`: Strict input/output validation; non-football queries MUST be intercepted before reaching the LLM.

@@ -6,7 +6,6 @@ restarts, so the corpus is ingested once and re-synced only when cards change.
 
 from __future__ import annotations
 
-from datapizza.core.embedder import BaseEmbedder
 from datapizza.core.vectorstore import VectorConfig
 from datapizza.embedders.openai import OpenAIEmbedder
 from datapizza.type import Chunk
@@ -83,20 +82,32 @@ def category_filter(categories: list[str] | None) -> models.Filter | None:
     )
 
 
-def search(
+def search_vector(
     store: QdrantVectorstore,
-    embedder: BaseEmbedder,
-    query: str,
+    vector: list[float],
     collection: str,
     k: int = 5,
     categories: list[str] | None = None,
 ) -> list[Chunk]:
-    """Return the `k` chunks closest to `query`, optionally only from some card categories."""
-    vector = embedder.embed(query)
-    return store.search(
+    """Dense search: the `k` chunks nearest to an embedded query, similarity in `metadata["score"]`.
+
+    Queries Qdrant directly instead of `QdrantVectorstore.search`, which drops the score: the
+    score is needed to inspect retrieval and is what Phoenix shows for retrieved documents.
+    Full retrieval (dense + BM25 + per-card limit) is in `src/rag/retrieval.py`.
+    """
+    response = store.get_client().query_points(
         collection_name=collection,
-        query_vector=vector,
-        k=k,
-        vector_name=EMBEDDING_NAME,
+        query=vector,
+        using=EMBEDDING_NAME,
+        limit=k,
         query_filter=category_filter(categories),
+        with_payload=True,
     )
+    return [
+        Chunk(
+            id=str(point.id),
+            text=point.payload["text"],
+            metadata={**{key: v for key, v in point.payload.items() if key != "text"}, "score": point.score},
+        )
+        for point in response.points
+    ]
