@@ -10,8 +10,8 @@ from __future__ import annotations
 import datetime as dt
 import json
 
-from src.config import MANIFEST_PATH
-from src.rag.corpus import load_cards
+from src.core.config import MANIFEST_PATH
+from src.corpus.cards import load_cards
 
 OPTIONAL_FIELDS = ("themes", "coach", "coaches", "formations", "phase", "winner", "date", "note")
 
@@ -75,9 +75,16 @@ def build_manifest() -> dict:
         doc.update({k: m[k] for k in OPTIONAL_FIELDS if m.get(k)})
         documents.append(doc)
 
+    # Keep the previous date when nothing changed, so a rebuild does not produce a spurious diff.
+    generated = dt.date.today().isoformat()
+    if MANIFEST_PATH.exists():
+        previous = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+        if previous.get("documents") == documents:
+            generated = previous.get("generated", generated)
+
     return {
         **HEADER,
-        "generated": dt.date.today().isoformat(),
+        "generated": generated,
         "stats": {"documents": len(cards), "total_chars": sum(len(c.raw.decode("utf-8")) for c in cards)},
         "documents": documents,
     }

@@ -8,7 +8,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[2]   # src/core/config.py -> project root
 CORPUS_DIR = PROJECT_ROOT / "corpus"
 MANIFEST_PATH = CORPUS_DIR / "manifest.json"
 REFERENCES_DIR = PROJECT_ROOT / "references"

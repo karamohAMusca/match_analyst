@@ -8,8 +8,8 @@ import unicodedata
 
 import pytest
 
-from src.config import GOLD_SET_PATH
-from src.rag.corpus import load_cards
+from src.core.config import GOLD_SET_PATH
+from src.corpus.cards import load_cards
 
 TEXT_BY_ID = {card.document_id: card.body for card in load_cards()}
 GOLD = json.loads(GOLD_SET_PATH.read_text(encoding="utf-8"))

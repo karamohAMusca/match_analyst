@@ -17,7 +17,7 @@ from typing import Any
 
 import yaml
 
-from src.config import CORPUS_DIR, MANIFEST_PATH, PROJECT_ROOT
+from src.core.config import CORPUS_DIR, MANIFEST_PATH, PROJECT_ROOT
 
 # Folder order used for the manifest (and therefore for document order everywhere).
 CARD_FOLDERS: tuple[str, ...] = (
@@ -56,7 +56,11 @@ class Card:
 
     @property
     def relative_path(self) -> str:
-        return self.path.relative_to(PROJECT_ROOT).as_posix()
+        """Path relative to the project root (absolute for cards outside it, e.g. in tests)."""
+        try:
+            return self.path.relative_to(PROJECT_ROOT).as_posix()
+        except ValueError:
+            return self.path.as_posix()
 
     @property
     def sha256(self) -> str:
@@ -112,3 +116,11 @@ def load_manifest_cards(path: Path = MANIFEST_PATH) -> list[Card]:
         for doc in manifest["documents"]
         for record in doc["file_records"]
     ]
+
+
+def stale_cards(cards: list[Card], path: Path = MANIFEST_PATH) -> list[str]:
+    """Cards whose content changed since the last manifest build (run scripts.build_manifest)."""
+    records = {
+        rec["path"]: rec["sha256"] for doc in load_manifest(path)["documents"] for rec in doc["file_records"]
+    }
+    return [c.relative_path for c in cards if records.get(c.relative_path) != c.sha256]

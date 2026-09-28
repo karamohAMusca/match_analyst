@@ -1,1 +1,1 @@
-"""Corpus loading, ingestion and retrieval for Match Analyst AI."""
+"""Vector store (Qdrant), embeddings, search and ingestion of the card corpus."""

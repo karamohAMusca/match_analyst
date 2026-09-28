@@ -25,11 +25,13 @@ match_analyst/
 │   └── SOURCES.md          #   provenance, licences and card-writing rules
 ├── eval/gold_set.json      # 45 evaluation questions (it + paired en)
 ├── src/
-│   ├── config.py           # paths and settings from .env
-│   ├── agent/              # datapizza-ai agent and system prompt
-│   └── rag/corpus.py       # card / manifest loading
-├── scripts/                # maintenance: build_manifest, check_corpus, sb_match_report
-├── tests/                  # offline checks (corpus, manifest, gold set)
+│   ├── core/               # paths and settings from .env
+│   ├── corpus/             # read cards and manifest, split cards into chunks (offline)
+│   ├── rag/                # Qdrant store, embeddings, search, ingestion
+│   └── agent/              # datapizza-ai agent and system prompt
+├── scripts/                # ingest, build_manifest, check_corpus, sb_match_report
+├── tests/                  # offline checks (corpus, gold set, chunking, ingestion)
+├── docker-compose.yml      # Qdrant vector store
 └── interactive_cli.py      # chat with the agent from the terminal
 ```
 
@@ -37,7 +39,8 @@ match_analyst/
 
 ## Getting started
 
-Prerequisites: Python ≥ 3.10; an OpenAI API key only for the agent (not for tests and scripts).
+Prerequisites: Python ≥ 3.10; Docker Desktop (for Qdrant); an OpenAI API key for ingestion and
+the agent (not for tests and maintenance scripts).
 
 ```bash
 python -m venv .venv
@@ -63,6 +66,21 @@ python -m pytest
 ```
 
 Writing rules for cards are in [`references/SOURCES.md`](references/SOURCES.md).
+
+### Building the index (Qdrant + OpenAI embeddings)
+
+Each card is split into one chunk per `##` section (about 110 chunks); the front matter is stored
+as payload, not embedded. The sync is incremental: only new or changed cards are embedded again.
+
+```bash
+docker compose up -d                       # start Qdrant on localhost:6337
+python -m scripts.ingest --dry-run         # preview chunks and cost (no key, no Qdrant)
+python -m scripts.ingest                   # embed and store the cards (about $0.0003)
+python -m scripts.ingest --query "Come si attacca un 4-4-2 basso?"   # retrieval check
+```
+
+`python -m scripts.ingest --reset` rebuilds the collection from scratch.
+Qdrant dashboard: http://localhost:6337/dashboard
 
 ### Chat with the agent (uses the OpenAI API)
 

@@ -8,7 +8,7 @@ from datapizza.agents import Agent
 from datapizza.clients.openai import OpenAIClient
 
 from src.agent.prompts import MATCH_ANALYST_SYSTEM_PROMPT
-from src.config import load_settings, require_openai_key
+from src.core.config import load_settings, require_openai_key
 
 
 class MatchAnalyst:
@@ -52,8 +52,3 @@ class MatchAnalyst:
         """Answer a coaching question and return the text of the final step."""
         response = self.agent.run(query)
         return response.text if hasattr(response, "text") else str(response)
-
-
-def create_default_analyst() -> MatchAnalyst:
-    """Build a MatchAnalyst with default settings."""
-    return MatchAnalyst()

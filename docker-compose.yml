@@ -1,0 +1,24 @@
+# Local services for Match Analyst AI.
+#
+#   docker compose up -d        # start
+#   docker compose down         # stop (the index stays in ./qdrant_storage)
+#
+services:
+
+  # Vector store, same setup as the course (S11): Qdrant as a service, not in-memory, so the
+  # index survives restarts and the corpus is ingested once, then re-synced only when cards change.
+  # Dashboard: http://localhost:6337/dashboard
+  qdrant:
+    image: qdrant/qdrant:v1.11.0
+    container_name: qdrant-match-analyst
+    ports:
+      # Host port 6337, as in the course. If the course container (qdrant-aitho-s11) is running,
+      # stop it first: docker stop qdrant-aitho-s11
+      - "6337:6333"
+    volumes:
+      - ./qdrant_storage:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/127.0.0.1/6333' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12

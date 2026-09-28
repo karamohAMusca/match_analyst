@@ -19,8 +19,8 @@ from pathlib import Path
 
 import pymupdf
 
-from src.config import REFERENCES_DIR
-from src.rag.corpus import load_cards
+from src.core.config import REFERENCES_DIR
+from src.corpus.cards import load_cards
 
 THESIS_AUTHORS = ("Soncin", "Spalla", "Dileo", "Pioli", "Italiano", "Contran", "Polenghi")
 

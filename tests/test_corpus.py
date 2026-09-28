@@ -6,8 +6,8 @@ import re
 
 import pytest
 
-from src.config import PROJECT_ROOT
-from src.rag.corpus import ID_PREFIXES, load_cards, load_manifest
+from src.core.config import PROJECT_ROOT
+from src.corpus.cards import ID_PREFIXES, load_cards, load_manifest, stale_cards
 
 CARDS = load_cards()
 MANIFEST = load_manifest()
@@ -38,10 +38,7 @@ def test_manifest_lists_exactly_the_cards():
 
 
 def test_manifest_is_up_to_date():
-    records = {
-        rec["path"]: rec["sha256"] for doc in MANIFEST["documents"] for rec in doc["file_records"]
-    }
-    stale = [c.relative_path for c in CARDS if records.get(c.relative_path) != c.sha256]
+    stale = stale_cards(CARDS)
     assert not stale, f"cards changed since the last manifest build: {stale}"
 
 

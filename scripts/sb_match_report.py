@@ -11,7 +11,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from src.config import REFERENCES_DIR
+from src.core.config import REFERENCES_DIR
 
 SB = REFERENCES_DIR / "data" / "statsbomb"
 PERIOD_NAMES = {1: "1st half", 2: "2nd half", 3: "ET 1st half", 4: "ET 2nd half"}

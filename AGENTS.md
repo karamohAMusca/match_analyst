@@ -20,22 +20,24 @@ This document defines the architectural rules, coding standards, and operational
 - **Language**: Python 3.10+ with strict type hints.
 - **Language Convention**: All code, comments, docstrings, prompts, and documentation MUST BE IN ENGLISH.
   Exceptions: the corpus cards (`corpus/`) and the answers shown to the user are in Italian (the users are Italian coaches); English questions are supported.
-- **Vector Store**: Qdrant running locally via Docker on port `6337` (collection: `match_analyst_tactics`).
+- **Vector Store**: Qdrant running locally via Docker (`docker-compose.yml`) on port `6337` (collection: `match_analyst_tactics`, named vector `content_embedding`).
 - **Embeddings**: `text-embedding-3-small`.
 - **LLM Engine**: `gpt-4o-mini`.
 - **Observability**: OpenTelemetry bridge exporting traces to Arize Phoenix on `http://localhost:6006/v1/traces`.
 - **Frontend**: Streamlit.
-- **Secrets**: read the API key only through `src.config.require_openai_key()`, right before the call that needs it. Never load `.env` files outside the project root.
+- **Secrets**: read the API key only through `src.core.config.require_openai_key()`, right before the call that needs it. Never load `.env` files outside the project root.
 
 ---
 
 ## 3. Architecture & Conventions
 
 - **Separation of Concerns**:
-  - `src/config.py`: paths and settings.
+  - One folder per responsibility, no loose modules in `src/`:
+  - `src/core/`: paths and settings (`config.py`).
+  - `src/corpus/`: reading cards and manifest, splitting cards into chunks. Offline only: no API keys, no network.
+  - `src/rag/`: Qdrant store, embeddings, search, and ingestion. Ingest only the cards listed in `corpus/manifest.json`; the YAML front matter goes into the payload, not into the embedded text.
   - `src/agent/`: Only agent initialization, loop orchestration, and system prompts.
   - `src/tools/`: Clean, typed `@tool` functions with explicit docstrings explaining inputs and outputs.
-  - `src/rag/`: Corpus loading, ingestion, chunking, and Qdrant client interactions. Ingest only the cards listed in `corpus/manifest.json`; the YAML front matter goes into the payload, not into the embedded text.
   - `src/guardrails/`: Strict input/output validation; non-football queries MUST be intercepted before reaching the LLM.
   - `scripts/`: maintenance scripts, run as `python -m scripts.<name>`.
   - `tests/`: offline tests (no API keys, no network), run with `python -m pytest`.
@@ -47,5 +49,5 @@ This document defines the architectural rules, coding standards, and operational
 ## 4. Corpus Rules
 
 - Cards follow the writing rules in `references/SOURCES.md` (facts only from cited sources, verbatim quotes, labelled interpretation).
-- After editing a card: `python -m scripts.build_manifest`, then `python -m pytest` and `python -m scripts.check_corpus`.
+- After editing a card: `python -m scripts.build_manifest`, then `python -m pytest` and `python -m scripts.check_corpus`, then re-sync the index with `python -m scripts.ingest` (only changed cards are embedded).
 - `eval/gold_set.json` is the evaluation yardstick: do not edit it while tuning prompts or retrieval.
