@@ -41,6 +41,7 @@ This document defines the architectural rules, coding standards, and operational
   - `src/tools/`: Clean, typed `@tool` functions with explicit docstrings explaining inputs and outputs.
   - `src/guardrails/`: Strict input/output validation; non-football queries MUST be intercepted before reaching the LLM.
   - `src/observability/`: tracing to Arize Phoenix (OpenTelemetry spans translated to OpenInference); optional at runtime.
+  - `src/ui/`: logic of the Streamlit app (`app.py` at the root only renders): `backend.py` (a conversation and the numbers of each answer), `view.py` (pure formatting functions, tested offline). The app is tested with Streamlit's `AppTest` and the scripted fake model.
   - `scripts/`: maintenance scripts, run as `python -m scripts.<name>`.
   - `tests/`: offline tests (no API keys, no network), run with `python -m pytest`.
 - **Error Handling**: Tools must handle network/API errors gracefully and return structured failure explanations instead of crashing.

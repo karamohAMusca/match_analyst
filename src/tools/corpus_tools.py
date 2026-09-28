@@ -108,6 +108,13 @@ class CorpusTools:
         self.full_cards = full_cards
         self.calls: list[dict] = []
 
+    def __deepcopy__(self, memo: dict) -> "CorpusTools":
+        """Shared, never copied. In a conversation datapizza deep-copies the agent's memory at every
+        run, and the memory holds the tool calls, which point back to these tools and so to the
+        Qdrant client, whose thread locks cannot be copied: the second question of a chat failed
+        with "cannot pickle '_thread.RLock' object". The tools are a service, not conversation state."""
+        return self
+
     @tool(description=SEARCH_DESCRIPTION)
     def search_cards(
         self,

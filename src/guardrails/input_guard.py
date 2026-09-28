@@ -6,8 +6,11 @@ presentation without spending a call. Every verdict carries its reason, so the c
 it: "a silent guardrail is indistinguishable from a broken one".
 The football test is a vocabulary check (words, stems and formations such as 4-3-3), generous on
 purpose: a football question wrongly blocked is worse than an off-topic one let through, which the
-system prompt still turns away. In a conversation, a question with no football word ("e perché?")
-is a follow-up and goes through.
+system prompt still turns away. In a conversation, a question with no football word goes through
+as a follow-up only if it looks like one: short ("e perché?", "come mai?"), opening like a
+continuation ("e...", "ma...", "quindi..."), or pointing back ("questo", "un esempio", "spiegami
+meglio"). Anything else is off topic even mid-conversation (found while building the app: an
+off-topic request after a first question used to reach the model).
 """
 
 from __future__ import annotations
@@ -52,6 +55,13 @@ FOOTBALL_WORDS = frozenset(
     "liverpool chelsea manchester barcellona barcelona bayern leverkusen dortmund".split()
 )
 GREETING_WORDS = frozenset("ciao salve buongiorno buonasera hey hello hi".split())
+# What a follow-up looks like when it has no football word (accents removed, as in _words()).
+MAX_FOLLOW_UP_WORDS = 4
+FOLLOW_UP_START = frozenset("e ma and but quindi allora ok okay invece perche why so".split())
+FOLLOW_UP_WORDS = frozenset(
+    "questo questa quello quella questi quelli cosi esempio esempi spiega spiegami spiegare meglio "
+    "dettagli dettaglio riassumi this that these those example examples explain detail details".split()
+)
 THANKS_WORDS = frozenset("grazie thanks thank".split())
 ABOUT_YOU_RE = re.compile(r"\b(?:chi sei|cosa sai fare|cosa fai|who are you|what can you do)\b")
 
@@ -124,6 +134,12 @@ def check_question(question: str, in_conversation: bool = False) -> InputVerdict
         return blocked("thanks")
     if words & GREETING_WORDS or ABOUT_YOU_RE.search(text.lower()):
         return blocked("greeting")
-    if in_conversation:
+    if in_conversation and looks_like_follow_up(_words(text)):
         return InputVerdict(True, "follow_up", language)
     return blocked("off_topic")
+
+
+def looks_like_follow_up(words: list[str]) -> bool:
+    """Short, opening like a continuation, or pointing back to the previous answer."""
+    return (len(words) <= MAX_FOLLOW_UP_WORDS or words[0] in FOLLOW_UP_START
+            or bool(set(words) & FOLLOW_UP_WORDS))

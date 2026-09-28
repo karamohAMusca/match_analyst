@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import threading
 from types import SimpleNamespace
 
 import src.agent.analyst_agent as analyst_module
@@ -126,6 +127,17 @@ def test_follow_up_goes_through_in_a_chat(retriever):
     chat.analyze(QUESTION)
     chat.analyze("E perché?")
     assert chat.last_guard["input"] == "follow_up"
+
+
+def test_second_question_of_a_chat_with_a_real_qdrant_client(retriever, monkeypatch):
+    # Found in the app: datapizza deep-copies the conversation memory at every run, the memory holds
+    # the tool calls, and they lead to the Qdrant client, whose thread locks cannot be copied
+    # ("cannot pickle '_thread.RLock' object"). The in-memory test client has no lock: add one.
+    monkeypatch.setattr(retriever, "lock", threading.RLock(), raising=False)
+    chat = MatchAnalyst(client=ScriptedLLM(), retriever=retriever, stateless=False)
+    chat.analyze(QUESTION)
+    assert chat.analyze("E se invece ci pressano alti a uomo?").startswith("Dalle schede:")
+    assert len(chat.agent._memory) > 2                                      # both turns remembered
 
 
 def test_guardrails_can_be_switched_off_to_measure_them(retriever):

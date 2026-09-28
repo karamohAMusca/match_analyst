@@ -49,8 +49,17 @@ def test_empty_too_long_and_thanks():
 
 def test_follow_up_goes_through_only_in_a_conversation():
     assert check_question("E perché?").reason == "off_topic"
-    assert check_question("E perché?", in_conversation=True).reason == "follow_up"
-    assert check_question("Mi scrivi la ricetta della carbonara?", in_conversation=True).allowed  # the prompt gate answers
+    for follow_up in ("E perché?", "Come mai?", "Ma quanto dura in media?", "Puoi farmi un esempio concreto?",
+                      "Quindi cosa cambieresti durante la settimana?", "Can you explain that better?"):
+        assert check_question(follow_up, in_conversation=True).reason == "follow_up", follow_up
+
+
+def test_off_topic_is_stopped_even_in_a_conversation():
+    # Found while building the app: after a first question, this used to reach the model.
+    for off_topic in ("Mi scrivi la ricetta della carbonara?", "Mi scrivi la ricetta della pasta e fagioli?",
+                      "Can you write me a birthday poem for my sister?"):
+        verdict = check_question(off_topic, in_conversation=True)
+        assert (verdict.allowed, verdict.reason) == (False, "off_topic"), off_topic
 
 
 def test_off_topic_reply_in_the_language_of_the_question():

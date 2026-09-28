@@ -1,0 +1,6 @@
+# Theme of the Streamlit app (app.py): pitch green as the accent colour.
+[theme]
+primaryColor = "#2fa84f"
+
+[browser]
+gatherUsageStats = false

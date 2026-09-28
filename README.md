@@ -6,8 +6,8 @@ in-game situations, with advice **grounded in cited sources** (Coverciano theses
 match data), giving priority to recent (2022–2026) winning tactics. Questions in Italian or English.
 
 > **Status:** knowledge base, evaluation set, hybrid retrieval, the agent with its corpus tools,
-> the input/output guardrails and tracing in Phoenix are ready. Full evaluation and UI are being
-> built (course milestones S12–S15).
+> the input/output guardrails, tracing in Phoenix and the Streamlit app are ready. The validation
+> of the LLM judge is in progress (course milestones S12–S15).
 
 ---
 
@@ -33,10 +33,13 @@ match_analyst/
 │   ├── guardrails/         # input guard (off-topic, injection) and output guard (language, grounding, citations)
 │   ├── observability/      # traces in Arize Phoenix (OpenTelemetry → OpenInference)
 │   ├── tools/              # agent tools: search_cards, read_card
-│   └── agent/              # datapizza-ai agent and system prompt
+│   ├── agent/              # datapizza-ai agent and system prompt
+│   └── ui/                 # Streamlit app logic: the conversation backend and the formatting
 ├── scripts/                # ingest, eval_retrieval, eval_agent, gold_run, build_manifest, check_corpus, sb_match_report
-├── tests/                  # offline checks (corpus, gold set, retrieval, tools, guardrails, agent loop)
+├── tests/                  # offline checks (corpus, gold set, retrieval, tools, guardrails, agent loop, app)
+├── .streamlit/config.toml  # app theme
 ├── docker-compose.yml      # Qdrant vector store + Phoenix (traces)
+├── app.py                  # Streamlit app: chat, cards, evaluation results
 └── interactive_cli.py      # chat with the agent from the terminal
 ```
 
@@ -99,7 +102,21 @@ MRR@10 (course definitions), also by question type and language; each run is sav
 Question vectors are cached in `.cache/`: the first run embeds them in one call (well under
 $0.001), later runs are free, and `python -m scripts.eval_retrieval --offline` needs no API key.
 
-### Chat with the agent (uses the OpenAI API)
+### The app (uses the OpenAI API)
+
+```bash
+streamlit run app.py              # opens http://localhost:8501
+```
+
+Three tabs. **Chat**: the conversation with the assistant coach (follow-up questions work);
+citations appear as badges with the card title, the cards of the answer can be read in full next
+to it, and every answer shows what the guardrails did and, under "Dettagli", its time, tokens,
+cost and the searches the agent made. The sidebar starts a new conversation, switches model and
+guardrails (to show them at work) and has example questions, one in English and one off topic.
+**Schede**: the 31 cards by category. **Valutazione**: the measured results of the saved runs
+(no API call). With Phoenix running, every question is also a trace.
+
+### Chat with the agent from the terminal (uses the OpenAI API)
 
 The agent (gpt-4o-mini) searches the cards with its tools (`search_cards`, `read_card`), answers
 only from the passages it retrieved, cites every claim with its `[document_id]`, and says
