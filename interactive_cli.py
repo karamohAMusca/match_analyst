@@ -4,7 +4,8 @@
     python interactive_cli.py "your question"      # single question
 
 Needs Qdrant running (docker compose up -d), the index built (python -m scripts.ingest)
-and OPENAI_API_KEY in .env.
+and OPENAI_API_KEY in .env. With Phoenix running (same docker compose), every question is
+also a trace at http://localhost:6006.
 """
 
 import os
@@ -13,6 +14,8 @@ import sys
 os.environ.setdefault("DATAPIZZA_AGENT_LOG_LEVEL", "WARNING")   # no agent log panels in the chat
 
 from src.agent.analyst_agent import MatchAnalyst  # noqa: E402
+from src.core.config import load_settings  # noqa: E402
+from src.observability.tracing import flush, setup_tracing  # noqa: E402
 
 EXIT_COMMANDS = {"esci", "quit", "exit"}
 
@@ -30,6 +33,8 @@ def main() -> None:
     if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
         sys.stdout.reconfigure(encoding="utf-8")
 
+    settings = load_settings()
+    print(setup_tracing(settings.phoenix_endpoint, settings.phoenix_project))
     single_question = len(sys.argv) > 1
     try:
         analyst = MatchAnalyst(stateless=single_question)
@@ -39,6 +44,7 @@ def main() -> None:
 
     if single_question:
         show(analyst, " ".join(sys.argv[1:]))
+        flush()   # send the trace before the program ends
         return
 
     print("MATCH ANALYST AI - descrivi la tua squadra, l'avversario o la situazione di gara.")
@@ -56,6 +62,7 @@ def main() -> None:
             show(analyst, user_input)
         except Exception as e:  # keep the session alive on API/network errors
             print(f"Errore durante l'analisi: {e}")
+    flush()
     print("Buon lavoro, Mister!")
 
 

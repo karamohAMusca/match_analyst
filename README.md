@@ -5,8 +5,8 @@ The coach describes their own team and the opponent; the assistant helps prepare
 in-game situations, with advice **grounded in cited sources** (Coverciano theses, recent finals,
 match data), giving priority to recent (2022–2026) winning tactics. Questions in Italian or English.
 
-> **Status:** knowledge base, evaluation set, hybrid retrieval, the agent with its corpus tools
-> and the input/output guardrails are ready. Observability, full evaluation and UI are being
+> **Status:** knowledge base, evaluation set, hybrid retrieval, the agent with its corpus tools,
+> the input/output guardrails and tracing in Phoenix are ready. Full evaluation and UI are being
 > built (course milestones S12–S15).
 
 ---
@@ -31,11 +31,12 @@ match_analyst/
 │   ├── rag/                # Qdrant store, ingestion, hybrid retrieval (dense + BM25)
 │   ├── evaluation/         # metrics against the gold set
 │   ├── guardrails/         # input guard (off-topic, injection) and output guard (language, grounding, citations)
+│   ├── observability/      # traces in Arize Phoenix (OpenTelemetry → OpenInference)
 │   ├── tools/              # agent tools: search_cards, read_card
 │   └── agent/              # datapizza-ai agent and system prompt
 ├── scripts/                # ingest, eval_retrieval, eval_agent, build_manifest, check_corpus, sb_match_report
 ├── tests/                  # offline checks (corpus, gold set, retrieval, tools, guardrails, agent loop)
-├── docker-compose.yml      # Qdrant vector store
+├── docker-compose.yml      # Qdrant vector store + Phoenix (traces)
 └── interactive_cli.py      # chat with the agent from the terminal
 ```
 
@@ -129,6 +130,16 @@ python -m scripts.eval_agent            # or --ids Q13,Q18, or --all
 python -m scripts.eval_agent --all --no-guardrails     # bare agent, to measure the guardrails
 python -m scripts.eval_agent --all --model gpt-4.1-mini   # another model
 ```
+
+### Tracing with Phoenix
+
+`docker compose up -d` also starts [Arize Phoenix](http://localhost:6006). With Phoenix running,
+the CLI and `eval_agent` turn every question into one trace: input guardrail, each agent step,
+the searches with the chunks found (card id and score), every model call with its messages and
+tokens, the output guardrail and the rewrite with the cards it was given. datapizza-ai emits
+OpenTelemetry spans with its own attribute names; `src/observability/tracing.py` translates them
+to the OpenInference names Phoenix reads. If Phoenix is not running, tracing is switched off and
+the scripts say so; `eval_agent --no-trace` switches it off on purpose.
 
 ---
 

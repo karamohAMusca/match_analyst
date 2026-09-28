@@ -1,7 +1,7 @@
-# Local services for Match Analyst AI.
+# Local services for Match Analyst AI: Qdrant (vector store) and Phoenix (traces).
 #
 #   docker compose up -d        # start
-#   docker compose down         # stop (the index stays in ./qdrant_storage)
+#   docker compose down         # stop (the index stays in ./qdrant_storage, traces in phoenix_data)
 #
 services:
 
@@ -21,3 +21,25 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
+
+  # Observability: every question of the agent becomes a trace (src/observability/tracing.py).
+  # UI and OTLP/HTTP collector on the same port: http://localhost:6006 (traces: /v1/traces).
+  # Traces are kept in the named volume phoenix_data (outside the project folder).
+  phoenix:
+    image: arizephoenix/phoenix:version-11.31.0
+    container_name: phoenix-match-analyst
+    ports:
+      # Host port 6006. If another Phoenix container already uses it, stop that one first.
+      - "6006:6006"
+    environment:
+      - PHOENIX_WORKING_DIR=/data
+    volumes:
+      - phoenix_data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:6006')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  phoenix_data:

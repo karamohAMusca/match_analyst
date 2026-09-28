@@ -10,6 +10,8 @@ guardrail is indistinguishable from a broken one.
 
 from __future__ import annotations
 
+import json
+import uuid
 from typing import Any
 
 from datapizza.agents import Agent
@@ -20,6 +22,7 @@ from src.agent.prompts import MATCH_ANALYST_SYSTEM_PROMPT, REWRITE_REQUEST
 from src.core.config import load_settings, require_openai_key
 from src.guardrails.input_guard import check_question
 from src.guardrails.output_guard import Issue, review_answer
+from src.observability.tracing import set_output, span
 from src.rag.embedding_cache import CachedEmbedder
 from src.rag.retrieval import Retriever
 from src.rag.store import make_embedder, make_vector_store
@@ -89,6 +92,7 @@ class MatchAnalyst:
         self.guardrails = guardrails
         self.stateless = stateless
         self.last_guard: dict[str, Any] = {}
+        self.session_id = uuid.uuid4().hex   # one per conversation: Phoenix groups its traces
         self.corpus_tools = CorpusTools(retriever or build_retriever(), k=k)
         self.agent = Agent(
             name="match_analyst",
@@ -101,18 +105,38 @@ class MatchAnalyst:
         )
 
     def analyze(self, question: str) -> str:
-        """Answer one question; the cards used are then in `consulted_cards`, the guards' work in `last_guard`."""
+        """Answer one question; the cards used are then in `consulted_cards`, the guards' work in `last_guard`.
+
+        With tracing on (src/observability), the question is one trace: this span, with the
+        guardrails, the agent's steps, the searches and the model calls inside it.
+        """
+        with span("match_analyst", "CHAIN", question, **{"session.id": self.session_id}) as root:
+            answer = self._answer(question)
+            set_output(root, answer)
+            root.set_attribute("metadata", json.dumps(
+                {"model": self.model, "consulted_cards": self.consulted_cards, "guardrails": self.last_guard},
+                ensure_ascii=False))
+        return answer
+
+    def _answer(self, question: str) -> str:
         self.corpus_tools.calls.clear()
         self.last_guard = {"input": None, "issues": [], "rewritten": False, "remaining": []}
         if self.guardrails:
             in_conversation = not self.stateless and len(self.agent._memory) > 0
-            verdict = check_question(question, in_conversation=in_conversation)
+            with span("input_guard", "GUARDRAIL", question) as guard:
+                verdict = check_question(question, in_conversation=in_conversation)
+                set_output(guard, verdict.reason if verdict.allowed else f"{verdict.reason}: {verdict.reply}")
             self.last_guard["input"] = verdict.reason
             if not verdict.allowed:
                 return verdict.reply or ""
         response = self.agent.run(question)
         answer = response.text if hasattr(response, "text") else str(response)
-        return self._review(question, answer) if self.guardrails else answer
+        if not self.guardrails:
+            return answer
+        with span("output_guard", "GUARDRAIL", answer) as guard:
+            final = self._review(question, answer)
+            set_output(guard, json.dumps(self.last_guard, ensure_ascii=False))
+        return final
 
     def _review(self, question: str, answer: str) -> str:
         """Output guard: check the answer; on problems, one rewrite, kept unless it is worse."""
@@ -137,13 +161,15 @@ class MatchAnalyst:
         return rewritten
 
     def _rewrite(self, question: str, answer: str, issues: list[Issue], cards: dict[str, str]) -> str:
-        """One rewrite, rules + context in the
-        system prompt, the request in the input."""
+        """One rewrite: rules + context in the system prompt, the request in the input."""
         problems = "\n".join(f"- {issue.instruction}" for issue in issues)
-        return self.client.invoke(
-            input=REWRITE_REQUEST.format(question=question, answer=answer, problems=problems),
-            system_prompt=MATCH_ANALYST_SYSTEM_PROMPT + "\n\nContext:\n" + card_context(cards),
-        ).text.strip()
+        request = REWRITE_REQUEST.format(question=question, answer=answer, problems=problems)
+        system_prompt = MATCH_ANALYST_SYSTEM_PROMPT + "\n\nContext:\n" + card_context(cards)
+        # The trace shows what the model read: the request, then the context it was given.
+        with span("rewrite", "CHAIN", f"{request}\n\n--- context ---\n{card_context(cards)}") as current:
+            rewritten = self.client.invoke(input=request, system_prompt=system_prompt).text.strip()
+            set_output(current, rewritten)
+        return rewritten
 
     @property
     def consulted_cards(self) -> list[str]:

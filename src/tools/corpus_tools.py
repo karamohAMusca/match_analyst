@@ -10,12 +10,14 @@ No `from __future__ import annotations` here: datapizza builds the tool schema f
 parameter annotations, and postponed (string) annotations would break it.
 """
 
+import json
 import re
 from typing import Annotated, Literal
 
 from datapizza.tools import tool
 from datapizza.type import Chunk
 
+from src.observability.tracing import record_documents, set_output, span
 from src.rag.retrieval import Retriever
 
 Category = Literal["match_case", "game_situation", "coach_profile", "thesis_note", "glossary"]
@@ -109,13 +111,16 @@ class CorpusTools:
             "Optional: prefer these card types, e.g. ['coach_profile'] to compare coaches (the best overall result is always included)",
         ] = None,
     ) -> str:
-        try:
-            hits = self.retriever.retrieve(query, k=self.k)
-            if categories:   # same query vector, served by the embedding cache: no extra cost
-                hits = merge_filtered(self.retriever.retrieve(query, k=self.k, categories=categories), hits, self.k)
-        except Exception as e:  # network, Qdrant or API errors: explain instead of crashing
-            self.calls.append({"tool": "search_cards", "query": query, "error": str(e)})
-            return f"Search failed ({type(e).__name__}: {e}). Tell the user the knowledge base is unavailable."
+        with span("retrieve", "RETRIEVER", query, metadata=json.dumps({"categories": categories})) as current:
+            try:
+                hits = self.retriever.retrieve(query, k=self.k)
+                if categories:   # same query vector, served by the embedding cache: no extra cost
+                    hits = merge_filtered(self.retriever.retrieve(query, k=self.k, categories=categories), hits, self.k)
+            except Exception as e:  # network, Qdrant or API errors: explain instead of crashing
+                self.calls.append({"tool": "search_cards", "query": query, "error": str(e)})
+                set_output(current, f"error: {e}")
+                return f"Search failed ({type(e).__name__}: {e}). Tell the user the knowledge base is unavailable."
+            record_documents(current, hits)   # in Phoenix: the chunks found, with card id and score
         self.calls.append({
             "tool": "search_cards",
             "query": query,

@@ -5,6 +5,7 @@
     python -m scripts.eval_agent --all            # whole gold set (~$0.1 with gpt-4o-mini)
     python -m scripts.eval_agent --all --model gpt-4.1-mini   # same questions, another model
     python -m scripts.eval_agent --all --no-guardrails        # bare agent, to measure the guardrails
+    python -m scripts.eval_agent --no-trace                   # do not send traces to Phoenix
 
 Checks per answer (no LLM judge): citations only to consulted cards, no author references used
 as citations, names and numbers present in the consulted cards (grounding), correct tool use,
@@ -13,7 +14,8 @@ claims, length of advice.
 The checks run on the final answer, after the guardrails; what the guardrails did (input
 verdict, problems found, rewrite) is saved with it. Answers, checks, guardrails and model name
 are saved to eval/runs/agent_<time>.json.
-Needs Qdrant running, the index built and OPENAI_API_KEY.
+Needs Qdrant running, the index built and OPENAI_API_KEY. With Phoenix running, every question
+is also a trace (project from PHOENIX_PROJECT_NAME).
 """
 
 from __future__ import annotations
@@ -51,12 +53,15 @@ def main() -> int:
     parser.add_argument("--all", action="store_true", help="every gold question except the follow-up")
     parser.add_argument("--model", help="OpenAI chat model (default: OPENAI_CHAT_MODEL, else gpt-4o-mini)")
     parser.add_argument("--no-guardrails", action="store_true", help="run the bare agent, without input/output guards")
+    parser.add_argument("--no-trace", action="store_true", help="do not send traces to Phoenix")
     args = parser.parse_args()
     if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
         sys.stdout.reconfigure(encoding="utf-8")
     os.environ.setdefault("DATAPIZZA_AGENT_LOG_LEVEL", "WARNING")   # no agent log panels
 
     from src.agent.analyst_agent import MatchAnalyst   # after the log level is set
+    from src.core.config import load_settings
+    from src.observability.tracing import flush, setup_tracing
 
     questions = json.loads(GOLD_SET_PATH.read_text(encoding="utf-8"))["questions"]
     if args.all:
@@ -65,6 +70,9 @@ def main() -> int:
         wanted = args.ids.split(",") if args.ids else DEFAULT_IDS
         selected = [q for q in questions if q["question_id"] in wanted]
 
+    if not args.no_trace:
+        settings = load_settings()
+        print(setup_tracing(settings.phoenix_endpoint, settings.phoenix_project))
     try:
         analyst = MatchAnalyst(model=args.model, guardrails=not args.no_guardrails)
     except (ValueError, RuntimeError) as e:
@@ -103,6 +111,7 @@ def main() -> int:
     kinds = Counter(p.split(":")[0] for r in rows for p in r["problems"])
     for kind, n in kinds.most_common():
         print(f"  {n:3}  {kind}")
+    flush()
     RUNS_DIR.mkdir(parents=True, exist_ok=True)
     stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     out = RUNS_DIR / f"agent_{stamp}.json"
