@@ -9,7 +9,7 @@ from datapizza.vectorstores.qdrant import QdrantVectorstore
 from src.corpus.cards import load_cards
 from src.rag.retrieval import Retriever
 from src.rag.store import ensure_collection
-from src.tools.corpus_tools import CorpusTools
+from src.tools.corpus_tools import CorpusTools, card_context
 from tests.fakes import COLLECTION, DIM, FakeEmbedder
 
 QUERY = "catene laterali del 4-4-2: terzino, centrocampista centrale ed esterno"
@@ -99,3 +99,8 @@ def test_tool_schemas_for_the_model(retriever):
     assert set(enum) == {"match_case", "game_situation", "coach_profile", "thesis_note", "glossary"}
     assert "Gasperini" in search.description and "No live data" in search.description
     assert read.name == "read_card" and read.required == ["document_id"]
+
+
+def test_card_context_gives_whole_cards_with_their_id():
+    context = card_context({"coach_pioli": "Tesi [Pioli, p. 4].", "coach_klopp": "", "note_x": "Testo."})
+    assert context == "[coach_pioli]\nTesi (Pioli, p. 4).\n\n[note_x]\nTesto."   # empty cards left out

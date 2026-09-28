@@ -8,8 +8,9 @@ import re
 
 from datapizza.clients.mock_client import MockClient
 from datapizza.core.clients import ClientResponse
+from datapizza.core.clients.models import TokenUsage
 from datapizza.core.embedder import BaseEmbedder
-from datapizza.type import FunctionCallBlock, FunctionCallResultBlock, TextBlock
+from datapizza.type import FunctionCallBlock, FunctionCallResultBlock, StructuredBlock, TextBlock
 
 DIM = 64
 MODEL = "fake-embedding"
@@ -65,3 +66,46 @@ class ScriptedLLM(MockClient):
         return ClientResponse(
             content=[FunctionCallBlock(id="call-1", name=search.name, arguments={"query": question}, tool=search)]
         )
+
+
+class FakeJudge(MockClient):
+    """Fake LLM judge, 100 + 20 tokens per call; `fail=True` makes every judgement raise.
+
+    - one-score judges (`Verdict`): `faithfulness` or `relevancy`, chosen by the system prompt;
+    - claim-by-claim faithfulness: the answer is split into sentences (the statements), and a
+      statement is supported unless it contains one of the `unsupported` markers.
+    """
+
+    def __init__(self, faithfulness: float = 0.9, relevancy: float = 0.8, fail: bool = False,
+                 unsupported: tuple[str, ...] = ()) -> None:
+        super().__init__(model_name="fake-judge")
+        self.scores = {"FAITHFULNESS": faithfulness, "RELEVANCY": relevancy}
+        self.fail = fail
+        self.unsupported = unsupported
+        self.inputs: list[str] = []
+        self.temperatures: list[float | None] = []
+        self.max_tokens: list[int | None] = []
+
+    def _structured_response(self, input, output_cls, memory=None, temperature=None, max_tokens=None,
+                             system_prompt=None, tools=None, tool_choice="auto", **kwargs):
+        text = input[0].content
+        self.inputs.append(text)
+        self.temperatures.append(temperature)
+        self.max_tokens.append(max_tokens)
+        if self.fail:
+            raise TimeoutError("judge unavailable")
+        if output_cls.__name__ == "Statements":
+            answer = re.sub(r"\[[^\]]*\]", "", text.split("ANSWER:\n", 1)[1])
+            sentences = [s.strip(" .") for s in re.split(r"(?<=\.)\s+|\n+", answer)]
+            content = output_cls(statements=[s for s in sentences if s and not s.lower().startswith("non lo so")])
+        elif output_cls.__name__ == "StatementVerdicts":
+            statements = re.findall(r"^\d+\. (.+)$", text.split("STATEMENTS:\n", 1)[1], re.M)
+            content = output_cls(verdicts=[
+                {"statement": s, "supported": not any(m in s for m in self.unsupported),
+                 "evidence": "not in the context" if any(m in s for m in self.unsupported) else "scripted"}
+                for s in statements])
+        else:
+            score = next(v for key, v in self.scores.items() if key in (system_prompt or ""))
+            content = output_cls(score=score, reason="scripted")
+        return ClientResponse(content=[StructuredBlock(content=content)],
+                              usage=TokenUsage(prompt_tokens=100, completion_tokens=20))

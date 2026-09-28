@@ -89,6 +89,12 @@ def format_passages(chunks: list[Chunk], full_texts: dict[str, str] | None = Non
     return "\n\n".join(blocks)
 
 
+def card_context(cards: dict[str, str]) -> str:
+    """Whole cards as one context block of "[card_id]\\ntext" blocks: what the output guardrail
+    gives the model for its rewrite, and what the judge checks an answer against."""
+    return "\n\n".join(f"[{card}]\n{unbracket(text)}" for card, text in cards.items() if text)
+
+
 class CorpusTools:
     """The agent's tools, bound to one Retriever; `calls` logs what each tool returned.
 

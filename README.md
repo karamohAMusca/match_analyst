@@ -34,7 +34,7 @@ match_analyst/
 │   ├── observability/      # traces in Arize Phoenix (OpenTelemetry → OpenInference)
 │   ├── tools/              # agent tools: search_cards, read_card
 │   └── agent/              # datapizza-ai agent and system prompt
-├── scripts/                # ingest, eval_retrieval, eval_agent, build_manifest, check_corpus, sb_match_report
+├── scripts/                # ingest, eval_retrieval, eval_agent, gold_run, build_manifest, check_corpus, sb_match_report
 ├── tests/                  # offline checks (corpus, gold set, retrieval, tools, guardrails, agent loop)
 ├── docker-compose.yml      # Qdrant vector store + Phoenix (traces)
 └── interactive_cli.py      # chat with the agent from the terminal
@@ -130,6 +130,28 @@ python -m scripts.eval_agent            # or --ids Q13,Q18, or --all
 python -m scripts.eval_agent --all --no-guardrails     # bare agent, to measure the guardrails
 python -m scripts.eval_agent --all --model gpt-4.1-mini   # another model
 ```
+
+### Gold run: the whole system judged by an LLM
+
+```bash
+python -m scripts.gold_run --tag baseline              # ~$0.2 with gpt-4o-mini
+python -m scripts.gold_run --tag gpt41 --model gpt-4.1-mini
+python -m scripts.gold_run --rejudge eval/runs/agent_20260928-180737.json --judge-model gpt-4.1-mini
+```
+
+The same gold set, one table of metrics: recall@1, recall@5 and MRR of the first expected card,
+faithfulness and relevancy given by an LLM judge with typed outputs, abstention on out-of-corpus
+questions, latency p50/p95, cost per query and of the run, and one score,
+(faithfulness + relevancy) / 2. Faithfulness is judged claim by claim, as in RAGAS: the answer is
+split into statements, each is checked against the cards the agent consulted, and the score is
+the share of supported statements; the statements that are not supported are listed. (A single
+score per answer, `--faithfulness holistic`, gave 1.0 to answers we know are wrong.) The detail
+marks the questions below 0.7, and a reminder maps each low metric to what to try. Off-topic, greeting and follow-up questions test the
+guardrails and the conversation and stay in `eval_agent`. With Phoenix running, the run is one
+trace, `gold_run <tag>`, with every question inside. Runs are saved as `eval/runs/gold_<time>.json`.
+`--rejudge` judges the saved answers of an earlier run again (on the cards that run consulted), to
+compare judges on exactly the same answers: a judge is trusted only if it catches the answers we
+know are wrong.
 
 ### Tracing with Phoenix
 

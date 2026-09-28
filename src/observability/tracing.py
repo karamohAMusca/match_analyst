@@ -175,6 +175,12 @@ def span(name: str, kind: str, input_value: str = "", **attributes: Any) -> Iter
         yield current
 
 
+def tag_run(name: str) -> Any:
+    """One span around a whole gold run, so in Phoenix each run is one comparable trace
+    (the questions are inside it) instead of being mixed with the others."""
+    return span(f"gold_run {name}", "CHAIN", **{"run.tag": name})
+
+
 def set_output(current: Any, value: str) -> None:
     current.set_attribute("output.value", value[:MAX_CHARS])
 

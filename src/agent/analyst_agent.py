@@ -26,7 +26,7 @@ from src.observability.tracing import set_output, span
 from src.rag.embedding_cache import CachedEmbedder
 from src.rag.retrieval import Retriever
 from src.rag.store import make_embedder, make_vector_store
-from src.tools.corpus_tools import CorpusTools, unbracket
+from src.tools.corpus_tools import CorpusTools, card_context
 
 INPUT_NOTES = {
     "off_topic": "domanda fuori tema, fermata prima del modello",
@@ -39,11 +39,6 @@ ISSUE_NOTES = {
     "unknown_citation": "citazioni di schede non consultate",
     "no_citation": "nessuna scheda citata",
 }
-
-
-def card_context(cards: dict[str, str]) -> str:
-    """The consulted cards as one context block of "[card_id]\\ntext"."""
-    return "\n\n".join(f"[{card}]\n{unbracket(text)}" for card, text in cards.items() if text)
 
 
 def build_retriever() -> Retriever:

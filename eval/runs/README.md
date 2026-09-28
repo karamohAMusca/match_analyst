@@ -1,0 +1,37 @@
+# Evaluation runs
+
+Every run is measured on the frozen `eval/gold_set.json`. Newest last in each table.
+
+## Retrieval (`scripts/eval_retrieval.py`, 40 questions with an expected card)
+
+| Run | What it compares | Result |
+|---|---|---|
+| `retrieval_20260928-152736` | dense search, with 0 / 2 / 1 chunk per card | recall@5 0.85, MRR 0.79–0.81: the per-card limit adds variety, not recall |
+| `retrieval_20260928-153546` | dense, BM25, hybrid RRF (2 and 1 per card) | BM25 0.90 but fails English questions; hybrid RRF 1/card 0.90 |
+| `retrieval_20260928-154042` | RRF variants and interleave fusion | interleave: recall@1 0.75, recall@5 0.95, MRR 0.84 (RRF k0=60 0.90 / 0.80) |
+| `retrieval_20260928-154233` | final comparison, offline (cached vectors) | chosen default: hybrid interleave, 1 chunk per card |
+
+## Agent, deterministic checks (`scripts/eval_agent.py`)
+
+"Pass" = answers passing every automatic check, with the checks of that day (later checks, e.g. the
+answer language, are stricter).
+
+| Run | Model | Questions | Pass | What it shows |
+|---|---|---|---|---|
+| `agent_20260928-160112` | gpt-4o-mini | 8 | 4 | first agent: category filter hid the right card, citations copied as headers |
+| `agent_20260928-160918` | gpt-4o-mini | 8 | 6 | filter as a preference; author references used as citations |
+| `agent_20260928-162748` | gpt-4o-mini | 8 | 5 | a coach name from the model's memory → grounding check |
+| `agent_20260928-163729` | gpt-4o-mini | 44 | 27 | first full run (30 after fixing checker false alarms); English questions answered in Italian |
+| `agent_20260928-171548` | gpt-4.1-mini | 44 | 29 | model A/B: more complete facts, worse on traps and format |
+| `agent_20260928-172539` | gpt-4o-mini | 44 | 25 | last prompt round: no gain (English still 0/6) |
+| `agent_20260928-175508` | gpt-4o-mini + guardrails | 44 | 31 | guardrails: English 6/6, 12 answers rewritten |
+| `agent_20260928-175811` | gpt-4o-mini + guardrails | 4 | 2 | targeted check of the "Non lo so" instruction of the rewrite |
+| `agent_20260928-180737` | gpt-4.1-mini + guardrails | 44 | 34 | 35 with multi-card citations accepted; fails the trap Q18 |
+
+## Gold runs (`scripts/gold_run.py`, 41 questions, LLM judge)
+
+| Run | Answers from | Judge | Faithfulness method | Result |
+|---|---|---|---|---|
+| `gold_20260928-215839` | live gpt-4o-mini + guardrails | gpt-4o-mini | holistic | recall@5 0.95, MRR 0.84, abstention 3/3, p50 5.0 s / p95 10.1 s, 0.05 $ + 0.027 $ judge; faithfulness 1.00 on all 38, known-wrong answers included |
+| `gold_20260928-220924` | replay of `agent_20260928-180737` | gpt-4.1-mini | holistic | faithfulness 1.00 on all 38 again: the one-score judge does not work |
+| `gold_20260928-222641` | replay of `agent_20260928-180737` | gpt-4o-mini | claims | faithfulness 0.91; catches the invented PPDA threshold (Q35) and a wrong attribution (Q12), misses Q18; false alarms on the coach's own premise |
