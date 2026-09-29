@@ -57,8 +57,9 @@ def test_details_and_searches():
 
 def test_saved_runs_summary():
     runs = view.run_summaries(PROJECT_ROOT / "eval" / "runs")
-    assert len(runs["agent"]) == 5 and all(r["domande"] == 44 for r in runs["agent"])
-    assert runs["agent"][-1]["run"] == "gpt-4.1-mini + guardrail (18:07)"
+    assert len(runs["agent"]) == 6 and [r["domande"] for r in runs["agent"]] == [44] * 5 + [45]   # + two turns
+    assert runs["agent"][-2]["run"] == "gpt-4.1-mini + guardrail (18:07)"
+    assert runs["agent"][-1]["run"] == "gpt-4o-mini + guardrail (11:20)" and runs["agent"][-1]["passano"] == 34
     assert runs["gold_live"]["file"] == "gold_20260928-215839.json"
     final = {r["agente"]: r for r in runs["final"]}                     # the numbers of the README
     assert round(final["gpt-4o-mini"]["fedeltà"], 3) == 0.910 and round(final["gpt-4.1-mini"]["pertinenza"], 2) == 0.98

@@ -27,6 +27,9 @@ ADVICE_TYPES = {"situational", "style_match"}
 MAX_ADVICE_WORDS = 180   # the prompt asks for at most 150 words of text; citations add a few
 # A tool header copied into the answer as a "source" line instead of citing inline.
 COPIED_HEADER_RE = re.compile(r"^\s*(?:-{3}\s*Fonte\b.*|\[[a-z0-9_]+\]\s+[^\n]*·[^\n]*)$", re.M | re.I)
+FORMATION_RE = re.compile(r"\b\d-\d-\d(?:-\d)?\b")
+# Typographic dashes a model may write in "4–3–3" (en dash, em dash, non-breaking hyphen, minus...).
+DASHES_RE = re.compile(r"[‐-―−]")
 
 
 def normalize(text: str) -> str:
@@ -40,8 +43,10 @@ def check_answer(
     consulted: list[str],
     tool_calls: int,
     source_text: str | None = None,
+    earlier_questions: str = "",
 ) -> dict[str, Any]:
-    """`source_text`: text of the consulted cards; enables the grounding and indirect-citation checks."""
+    """`source_text`: text of the consulted cards; enables the grounding and indirect-citation checks.
+    `earlier_questions`: in a conversation, the coach's previous questions (known text for grounding)."""
     text = normalize(answer)
     copied_headers = [line.strip() for line in COPIED_HEADER_RE.findall(answer)]
     body = COPIED_HEADER_RE.sub("", answer)            # citations only count inside the answer text
@@ -60,7 +65,8 @@ def check_answer(
         "cited": cited,
         "invalid_citations": [c for c in cited if c not in consulted and c not in mentioned],
         "indirect_citations": [c for c in cited if c not in consulted and c in mentioned],
-        "ungrounded": ungrounded_terms(body, source_text, question["question"]) if grounding_applies else [],
+        "ungrounded": (ungrounded_terms(body, source_text, f"{question['question']}\n{earlier_questions}")
+                       if grounding_applies else []),
         "malformed_citations": malformed,
         "copied_headers": copied_headers,
         "author_citations": authors,
@@ -69,12 +75,28 @@ def check_answer(
         "answer_language": language,
         "language_ok": language == question.get("language", "it"),
         "relevant_consulted": [s for s in question["relevant_sources"] if s in consulted],
+        "expected_sources": list(question["relevant_sources"]),
         "facts_found": f"{len(found)}/{len(facts)}" if facts else None,
         "forbidden_found": [c for c in question.get("forbidden_claims", []) if normalize(c) in text],
         "cites_something": bool(cited) if expects_tools and not question["requires_abstention"] else None,
         "words": len(re.findall(r"\w+", body)),
         "advice": question["type"] in ADVICE_TYPES,
     }
+
+
+def follow_up_problems(answer: str, previous_question: str, check: dict[str, Any]) -> list[str]:
+    """Two-turn checks for a follow-up question ("E se invece ci pressano alti?" after "noi
+    giochiamo 4-3-3..."): the expected card was consulted, and the previous turn was used, seen from
+    the formations it named, whatever dash the answer writes (a heuristic: an answer can use the
+    context without repeating them)."""
+    out = []
+    if check.get("expected_sources") and not check["relevant_consulted"]:
+        out.append(f"expected card not consulted: {check['expected_sources']}")
+    formations = FORMATION_RE.findall(DASHES_RE.sub("-", previous_question))
+    plain_answer = DASHES_RE.sub("-", answer)
+    if formations and not any(f in plain_answer for f in formations):
+        out.append(f"previous turn not used (no {', '.join(formations)})")
+    return out
 
 
 def problems(check: dict[str, Any]) -> list[str]:

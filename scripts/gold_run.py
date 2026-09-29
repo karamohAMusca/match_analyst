@@ -8,13 +8,19 @@
     python -m scripts.gold_run --rejudge eval/runs/agent_20260928-175508.json --judge-model gpt-4.1-mini
                                                         # same saved answers, another judge (judge cost only)
     python -m scripts.gold_run --faithfulness holistic  # one faithfulness score per answer, not per statement
+    python -m scripts.gold_run --rejudge <run> --no-judge-cache   # ask the judge again, even for saved verdicts
 
 Prints the metrics table, the detail per question (`<` = faithfulness or relevancy below 0.7)
 and what to try for each low metric; saves everything to eval/runs/gold_<time>.json.
 With Phoenix running, the whole run is one trace ("gold_run <tag>") with every question inside.
 The judge is a separate client, gpt-4.1-mini unless --judge-model says otherwise, and the same for
 every run whatever the agent's model: scores are comparable only with the same judge. Its cost is
-reported apart from the cost of the answers.
+reported apart from the cost of the answers. Both clients are built by datapizza's ClientFactory:
+--judge-provider picks another provider for the judge (its datapizza client package installed and
+its key in .env as <PROVIDER>_API_KEY; the timeout and retries are the OpenAI client's options).
+The judge's verdicts are saved in .cache/ (src/core/disk_cache.py): a re-judge stopped halfway
+starts again without paying the verdicts it already has, and the same answers get the same
+verdicts; --no-judge-cache asks the judge again (e.g. to see how much its verdicts vary).
 --rejudge replays the answers of a saved run (a gold run or an eval_agent run) instead of asking
 the agent: faithfulness is judged on the cards that run consulted, so two judges can be compared
 on exactly the same answers. Latency and cost of the answers are not re-measured.
@@ -31,7 +37,7 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace
 
-from src.core.config import PROJECT_ROOT
+from src.core.config import CACHE_DIR, PROJECT_ROOT
 
 RUNS_DIR = PROJECT_ROOT / "eval" / "runs"
 
@@ -46,18 +52,24 @@ def main() -> int:
     parser.add_argument("--rejudge", help="saved run to judge again (eval/runs/gold_*.json or agent_*.json)")
     parser.add_argument("--faithfulness", choices=["claims", "holistic"], default="claims",
                         help="judge faithfulness statement by statement (default) or with one score")
+    parser.add_argument("--judge-provider", default="openai",
+                        help="provider of the judge for datapizza's ClientFactory (default: openai)")
+    parser.add_argument("--no-judge-cache", action="store_true",
+                        help="ask the judge again even for the verdicts saved in .cache/")
     args = parser.parse_args()
     if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
         sys.stdout.reconfigure(encoding="utf-8")
     os.environ.setdefault("DATAPIZZA_AGENT_LOG_LEVEL", "WARNING")   # no agent log panels
 
-    from datapizza.clients.openai import OpenAIClient
+    from datapizza.clients import ClientFactory
 
     from src.agent.analyst_agent import MatchAnalyst, build_retriever
-    from src.core.config import load_settings, require_openai_key
-    from src.evaluation.cost import TokenMeter, estimate_cost
+    from src.core.config import load_settings, require_api_key
+    from src.core.disk_cache import DiskCache
+    from src.evaluation.cost import PRICES, TokenMeter, estimate_cost
     from src.evaluation.gold_run import REMINDER, detail, load_gold, replay, run, score, summary, table, unsupported
-    from src.evaluation.judge import DEFAULT_JUDGE_MODEL, JUDGE_MAX_RETRIES, JUDGE_TEMPERATURE, JUDGE_TIMEOUT_S
+    from src.evaluation.judge import (DEFAULT_JUDGE_MODEL, JUDGE_MAX_RETRIES, JUDGE_OUTPUTS, JUDGE_TEMPERATURE,
+                                      JUDGE_TIMEOUT_S)
     from src.observability.tracing import flush, setup_tracing, tag_run
     from src.tools.corpus_tools import card_context
 
@@ -73,9 +85,11 @@ def main() -> int:
             retriever = build_retriever()
             agent_model, guardrails_on = source.get("model") or "gpt-4o-mini", source.get("guardrails", True)
         judge_model = args.judge_model or DEFAULT_JUDGE_MODEL   # never the agent's model by accident
-        judge = OpenAIClient(api_key=require_openai_key(), model=judge_model, temperature=JUDGE_TEMPERATURE,
-                             timeout=JUDGE_TIMEOUT_S, max_retries=JUDGE_MAX_RETRIES)
-    except (ValueError, RuntimeError) as e:
+        cache = None if args.no_judge_cache else DiskCache(CACHE_DIR / f"judge_{judge_model}.json", JUDGE_OUTPUTS)
+        judge = ClientFactory.create(provider=args.judge_provider, api_key=require_api_key(args.judge_provider),
+                                     model=judge_model, temperature=JUDGE_TEMPERATURE, cache=cache,
+                                     timeout=JUDGE_TIMEOUT_S, max_retries=JUDGE_MAX_RETRIES)
+    except (ValueError, RuntimeError, ImportError) as e:   # ImportError: provider package not installed
         print(e)
         return 1
     judged = TokenMeter(judge)
@@ -103,8 +117,9 @@ def main() -> int:
 
     guardrails = "on" if guardrails_on else "off"
     origin = f" | answers replayed from {Path(args.rejudge).name}" if source else ""
+    judge_name = judge_model if args.judge_provider == "openai" else f"{args.judge_provider}/{judge_model}"
     print(f"Gold run '{args.tag}': {len(gold)} questions {summary(gold)} | model {agent_model} | "
-          f"judge {judge_model} ({args.faithfulness}) | guardrails {guardrails}{origin}\n")
+          f"judge {judge_name} ({args.faithfulness}) | guardrails {guardrails}{origin}\n")
     with tag_run(args.tag):
         metrics, rows = run(answer_fn, retrieve_fn, gold, judge, model=agent_model, faithfulness=args.faithfulness,
                             progress=lambda f: print(f"\r  {f * 100:5.1f}%", end=""))
@@ -112,19 +127,22 @@ def main() -> int:
     if source is not None:
         metrics["replayed"] = True
     judge_cost = estimate_cost(*judged.take(), judge_model)
+    cached = cache.hits if cache else 0
+    notes = ([f"{cached} judge calls answered by the cache, not paid"] if cached else []) + (
+        [] if judge_model in PRICES else ["model not in the price list of src/evaluation/cost.py"])
 
     print("\n\n" + table(metrics))
-    print(f"{'judge cost':24s} : ${judge_cost:.4f}\n")
+    print(f"{'judge cost':24s} : ${judge_cost:.4f}" + (f" ({'; '.join(notes)})" if notes else "") + "\n")
     print(detail(rows) + "\n")
     print(unsupported(rows) + "\n")
     print(REMINDER)
     RUNS_DIR.mkdir(parents=True, exist_ok=True)
     stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     out = RUNS_DIR / f"gold_{stamp}.json"
-    record = {"run": stamp, "tag": args.tag, "model": agent_model, "judge_model": judge_model,
-              "faithfulness_method": args.faithfulness,
+    record = {"run": stamp, "tag": args.tag, "model": agent_model, "judge_provider": args.judge_provider,
+              "judge_model": judge_model, "faithfulness_method": args.faithfulness,
               "guardrails": guardrails_on, "rejudged_from": args.rejudge, "metrics": metrics,
-              "score": score(metrics), "judge_cost_usd": judge_cost, "rows": rows}
+              "score": score(metrics), "judge_cost_usd": judge_cost, "judge_cache_hits": cached, "rows": rows}
     out.write_text(json.dumps(record, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"\nRun saved to {out.relative_to(PROJECT_ROOT).as_posix()}")
     return 0

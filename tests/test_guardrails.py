@@ -89,6 +89,18 @@ def test_instructions_name_the_exact_problem():
     assert 'write "Non lo so"' in issue.instruction
 
 
+def test_earlier_questions_of_a_chat_count_as_known_text():
+    # Found reviewing the two-turn test: the opponent named in turn 1 was "ungrounded" in turn 2.
+    card = "Uscire dal pressing alto: cercare la verticale e il terzo uomo."
+    answer = "Contro la Juventus cerca subito la verticale [situation_uscire_dal_pressing_alto]."
+    follow_up = "E se invece ci pressano alti a uomo?"
+    assert [i.kind for i in review_answer(answer, follow_up, ["situation_uscire_dal_pressing_alto"], card)] == ["ungrounded"]
+    earlier = "Domenica affrontiamo la Juventus, noi giochiamo 4-3-3. Come la prepariamo?"
+    assert review_answer(answer, follow_up, ["situation_uscire_dal_pressing_alto"], card, earlier) == []
+    english = review_answer(answer, "And if they press high?", ["situation_uscire_dal_pressing_alto"], card, earlier)
+    assert [i.kind for i in english] == ["language"]              # the language is the current question's
+
+
 def test_no_consulted_cards_only_language_is_checked():
     assert review_answer("Non ci sono informazioni.", "Who will win the league?", [], "")[0].kind == "language"
     assert review_answer("Non ci sono informazioni.", "Chi vincerà lo scudetto?", [], "") == []

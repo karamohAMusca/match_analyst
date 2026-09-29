@@ -5,6 +5,9 @@ from __future__ import annotations
 import threading
 from types import SimpleNamespace
 
+import datapizza.clients.openai as openai_clients
+from datapizza.type import ROLE, TextBlock
+
 import src.agent.analyst_agent as analyst_module
 from src.agent.analyst_agent import MatchAnalyst
 from src.agent.prompts import MATCH_ANALYST_SYSTEM_PROMPT
@@ -68,17 +71,22 @@ def test_prompt_rules():
     assert "[coach_pioli, p. 4]" in p and "Never cite with parentheses alone" in p
     assert "report every value with its source" in p
     assert "Never turn an example into a general rule, threshold or ranking" in p
+    assert "or in what the coach wrote about their own team and the opponent" in p
+    assert "Tailor the advice to what the coach said" in p and "follow-up questions of the same conversation" in p
+    assert "4-3-3" not in p                          # a placeholder, not the formation of a gold question
 
 
 def test_model_option_overrides_the_default(retriever, monkeypatch):
-    # No key and no .env: settings, key and OpenAI client are replaced by stand-ins.
+    # No key and no .env: settings, key and OpenAI client are replaced by stand-ins; datapizza's
+    # ClientFactory is the real one, and picks the OpenAI client.
     created = []
     monkeypatch.setattr(analyst_module, "load_settings", lambda: SimpleNamespace(chat_model="gpt-4o-mini"))
-    monkeypatch.setattr(analyst_module, "require_openai_key", lambda: "test-key")
-    monkeypatch.setattr(analyst_module, "OpenAIClient", lambda **kw: created.append(kw) or ScriptedLLM())
+    monkeypatch.setattr(analyst_module, "require_api_key", lambda provider: f"test-key-{provider}")
+    monkeypatch.setattr(openai_clients, "OpenAIClient", lambda **kw: created.append(kw) or ScriptedLLM())
     assert MatchAnalyst(retriever=retriever).model == "gpt-4o-mini"
     assert MatchAnalyst(retriever=retriever, model="gpt-4.1-mini").model == "gpt-4.1-mini"
     assert [c["model"] for c in created] == ["gpt-4o-mini", "gpt-4.1-mini"]
+    assert created[0]["api_key"] == "test-key-openai" and created[0]["temperature"] == 0.1
 
 
 ENGLISH_QUESTION = "In Pioli's thesis, how does the 4-4-2 press on the flanks?"
@@ -106,6 +114,17 @@ def test_wrong_language_is_rewritten_once(retriever):
     assert "lingua della risposta" in analyst.guard_note
 
 
+def test_chat_memory_holds_the_rewritten_answer(retriever):
+    # The agent stores its draft in datapizza's memory before the output guard rewrites it.
+    chat = MatchAnalyst(client=ScriptedLLM(rewrite=ENGLISH_REWRITE), retriever=retriever, stateless=False)
+    assert chat.analyze(ENGLISH_QUESTION) == ENGLISH_REWRITE
+    answers = [b.content for t in chat.agent._memory if t.role == ROLE.ASSISTANT for b in t if isinstance(b, TextBlock)]
+    assert answers[-1] == ENGLISH_REWRITE                     # the next turn builds on what the coach saw
+    assert not any(a.startswith("Dalle schede:") for a in answers)
+    single = MatchAnalyst(client=ScriptedLLM(rewrite=ENGLISH_REWRITE), retriever=retriever)
+    assert single.analyze(ENGLISH_QUESTION) == ENGLISH_REWRITE and len(single.agent._memory) == 0
+
+
 def test_worse_rewrite_is_discarded(retriever):
     llm = ScriptedLLM(rewrite="Luis Enrique lo spiega così.")    # Italian again, invented name, no citation
     analyst = MatchAnalyst(client=llm, retriever=retriever)
@@ -127,6 +146,22 @@ def test_follow_up_goes_through_in_a_chat(retriever):
     chat.analyze(QUESTION)
     chat.analyze("E perché?")
     assert chat.last_guard["input"] == "follow_up"
+
+
+def test_chat_questions_come_from_datapizza_memory(retriever, monkeypatch):
+    seen = []
+    real_review = analyst_module.review_answer
+    monkeypatch.setattr(analyst_module, "review_answer",
+                        lambda *a: seen.append(a[4] if len(a) > 4 else "") or real_review(*a))
+    chat = MatchAnalyst(client=ScriptedLLM(), retriever=retriever, stateless=False)
+    chat.analyze(QUESTION)
+    chat.analyze("Mi scrivi la ricetta della carbonara?")        # stopped at the input: not a turn
+    chat.analyze("E perché?")
+    assert chat.coach_questions == [QUESTION, "E perché?"]                # the USER turns of the memory
+    assert seen[0] == "" and seen[-1] == QUESTION                  # turn 2 is checked knowing turn 1
+    single = MatchAnalyst(client=ScriptedLLM(), retriever=retriever)
+    single.analyze(QUESTION)
+    assert single.coach_questions == []                            # one question at a time: no history
 
 
 def test_second_question_of_a_chat_with_a_real_qdrant_client(retriever, monkeypatch):

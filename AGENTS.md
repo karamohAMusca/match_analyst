@@ -22,10 +22,10 @@ This document defines the architectural rules, coding standards, and operational
   Exceptions: the corpus cards (`corpus/`) and the answers shown to the user are in Italian (the users are Italian coaches); English questions are supported.
 - **Vector Store**: Qdrant running locally via Docker (`docker-compose.yml`) on port `6337` (collection: `match_analyst_tactics`, named vector `content_embedding`).
 - **Embeddings**: `text-embedding-3-small`.
-- **LLM Engine**: `gpt-4o-mini`.
+- **LLM Engine**: `gpt-4o-mini`; clients are built by datapizza's `ClientFactory` (`LLM_PROVIDER` in `src/core/config.py`).
 - **Observability**: OpenTelemetry bridge exporting traces to Arize Phoenix on `http://localhost:6006/v1/traces`.
 - **Frontend**: Streamlit.
-- **Secrets**: read the API key only through `src.core.config.require_openai_key()`, right before the call that needs it. Never load `.env` files outside the project root.
+- **Secrets**: read an API key only through `src.core.config.require_api_key(provider)`, right before the call that needs it. Never load `.env` files outside the project root.
 
 ---
 
@@ -33,10 +33,10 @@ This document defines the architectural rules, coding standards, and operational
 
 - **Separation of Concerns**:
   - One folder per responsibility, no loose modules in `src/`:
-  - `src/core/`: paths and settings (`config.py`).
+  - `src/core/`: paths and settings (`config.py`); the disk cache with datapizza's `Cache` interface (`disk_cache.py`: embeddings and judge verdicts already paid for, in `.cache/`).
   - `src/corpus/`: reading cards and manifest, splitting cards into chunks. Offline only: no API keys, no network.
   - `src/rag/`: Qdrant store, embeddings, search, and ingestion. Ingest only the cards listed in `corpus/manifest.json`; the YAML front matter goes into the payload, not into the embedded text.
-  - `src/evaluation/`: measuring the system against `eval/gold_set.json` (frozen): retrieval metrics, deterministic answer checks, LLM judge, gold run, cost. Two entry points: `scripts/eval_agent.py` (fast deterministic checks, guardrail questions included) and `scripts/gold_run.py` (all metrics with the LLM judge; `--rejudge` re-judges a saved run). Runs are saved in `eval/runs/` and listed in `eval/runs/README.md`.
+  - `src/evaluation/`: measuring the system against `eval/gold_set.json` (frozen): retrieval metrics, deterministic answer checks, LLM judge, gold run, cost. Two entry points: `scripts/eval_agent.py` (fast deterministic checks, guardrail questions included) and `scripts/gold_run.py` (all metrics with the LLM judge; `--rejudge` re-judges a saved run; verdicts already given are read from `.cache/`, `--no-judge-cache` asks again). Runs are saved in `eval/runs/` and listed in `eval/runs/README.md`.
   - `src/agent/`: Only agent initialization, loop orchestration, and system prompts.
   - `src/tools/`: Clean, typed `@tool` functions with explicit docstrings explaining inputs and outputs.
   - `src/guardrails/`: Strict input/output validation; non-football queries MUST be intercepted before reaching the LLM.

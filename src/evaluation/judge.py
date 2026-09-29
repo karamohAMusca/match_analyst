@@ -120,6 +120,10 @@ class StatementVerdicts(BaseModel):
     verdicts: list[StatementVerdict] = Field(description="One verdict per statement, in order")
 
 
+# The typed answers of the judge: its disk cache (scripts/gold_run.py) can rebuild these.
+JUDGE_OUTPUTS = (Verdict, Statements, StatementVerdicts)
+
+
 def _structured(llm: Any, output_cls: type[BaseModel], system: str, user: str) -> Any:
     out = llm.structured_response(input=user, output_cls=output_cls, system_prompt=system,
                                   temperature=JUDGE_TEMPERATURE, max_tokens=JUDGE_MAX_TOKENS)

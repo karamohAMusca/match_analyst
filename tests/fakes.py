@@ -49,9 +49,11 @@ class ScriptedLLM(MockClient):
         self.system_prompts: list[str | None] = []
         self.rewrite = rewrite
         self.rewrite_requests: list[str] = []
+        self.seen: list[tuple[str, int]] = []   # (question, turns already in memory) for every call
 
     def _invoke(self, input, tools=None, memory=None, system_prompt=None, **kwargs):
         self.system_prompts.append(system_prompt)
+        self.seen.append((next((b.content for b in input if isinstance(b, TextBlock)), ""), len(memory or [])))
         if not tools:
             self.rewrite_requests.append(next((b.content for b in input if isinstance(b, TextBlock)), ""))
             if self.rewrite is None:

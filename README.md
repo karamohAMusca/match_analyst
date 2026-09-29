@@ -26,7 +26,7 @@ match_analyst/
 │   └── SOURCES.md          #   provenance, licences and card-writing rules
 ├── eval/                   # gold_set.json (45 questions, it + paired en) and runs/ (results)
 ├── src/                    # application code — file-by-file guide in src/README.md
-│   ├── core/               # paths and settings from .env
+│   ├── core/               # paths and settings from .env, disk cache (embeddings, judge verdicts)
 │   ├── corpus/             # read cards and manifest, split cards into chunks (offline)
 │   ├── rag/                # Qdrant store, ingestion, hybrid retrieval (dense + BM25)
 │   ├── evaluation/         # metrics against the gold set
@@ -150,7 +150,17 @@ the default 8 questions):
 python -m scripts.eval_agent            # or --ids Q13,Q18, or --all
 python -m scripts.eval_agent --all --no-guardrails     # bare agent, to measure the guardrails
 python -m scripts.eval_agent --all --model gpt-4.1-mini   # another model
+python -m scripts.eval_agent --follow-up                  # two turns: conversation memory
 ```
+
+`--follow-up` measures the conversation memory: a follow-up question of the gold set ("E se invece
+ci pressano alti a uomo?") is asked right after its previous turn ("...noi giochiamo 4-3-3, come
+la prepariamo?") in the same conversation; besides the usual checks, the expected card must be
+consulted and the answer must use the previous turn.
+Result (run `agent_20260929-112013`): the memory works, the follow-up is understood and the expected
+card is found. The prompt now tailors the advice to what the coach wrote about their own team, so
+the first turn builds on "your 4-3-3". **Known limit:** in the second turn, facing a new situation,
+the model reasons about that situation and does not always bring back the coach's formation.
 
 ### Gold run: the whole system judged by an LLM
 
@@ -174,6 +184,12 @@ trace, `gold_run <tag>`, with every question inside. Runs are saved as `eval/run
 compare judges on exactly the same answers: a judge is trusted only if it catches the answers we
 know are wrong. The default judge is gpt-4.1-mini; a judge error is left out of the averages and
 counted. Every run is listed in [`eval/runs/README.md`](eval/runs/README.md).
+The judge's verdicts are saved in `.cache/`: its client gets a disk cache with datapizza's `Cache`
+interface (`src/core/disk_cache.py`), and datapizza looks every call up there before asking the
+model. Judging the same answer again with the same judge costs nothing, so a `--rejudge` stopped
+halfway starts again without paying what it already judged; the "judge cost" line says how many
+calls the cache answered, and `--no-judge-cache` asks the judge again (e.g. to see how much its
+verdicts vary). The clients of the agent and of the judge are built by datapizza's `ClientFactory`.
 
 #### Results (41 questions, answers with guardrails on, judge gpt-4.1-mini)
 
@@ -201,7 +217,8 @@ gpt-4.1 is the best judge but costs about six times more: routine runs use gpt-4
 limits are known. Two more limits of the judge: an omission (a source conflict left out, Q17) is
 not seen statement by statement, and it is covered by the required-facts check of `eval_agent`;
 gpt-4.1-mini judging its own answers may favour them slightly, which would only overrate the model
-we did not choose.
+we did not choose. A judge from another provider (`--judge-provider`, e.g. `anthropic`) would
+remove that doubt: not tried, it needs that provider's datapizza client package and its key in `.env`.
 
 ### Tracing with Phoenix
 

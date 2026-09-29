@@ -15,11 +15,12 @@ import uuid
 from typing import Any
 
 from datapizza.agents import Agent
-from datapizza.clients.openai import OpenAIClient
+from datapizza.clients import ClientFactory
 from datapizza.core.clients.client import Client
+from datapizza.type import ROLE, TextBlock
 
 from src.agent.prompts import MATCH_ANALYST_SYSTEM_PROMPT, REWRITE_REQUEST
-from src.core.config import load_settings, require_openai_key
+from src.core.config import LLM_PROVIDER, load_settings, require_api_key
 from src.guardrails.input_guard import check_question
 from src.guardrails.output_guard import Issue, review_answer
 from src.observability.tracing import set_output, span
@@ -65,7 +66,8 @@ class MatchAnalyst:
         """Create the agent.
 
         Args:
-            client: LLM client; defaults to OpenAI with OPENAI_CHAT_MODEL (tests pass a mock).
+            client: LLM client; defaults to the one datapizza's ClientFactory builds for LLM_PROVIDER
+                (OpenAI) and OPENAI_CHAT_MODEL (tests pass a mock).
             retriever: corpus search; defaults to the Qdrant index (tests pass an in-memory one).
             temperature: low, for consistent and grounded answers.
             max_steps: model/tool steps per question (searches, card reads, final answer).
@@ -81,7 +83,8 @@ class MatchAnalyst:
         """
         if client is None:
             model = model or load_settings().chat_model
-            client = OpenAIClient(api_key=require_openai_key(), model=model, temperature=temperature)
+            client = ClientFactory.create(provider=LLM_PROVIDER, api_key=require_api_key(LLM_PROVIDER),
+                                          model=model, temperature=temperature)
         self.model = model
         self.client = client
         self.guardrails = guardrails
@@ -126,19 +129,29 @@ class MatchAnalyst:
                 return verdict.reply or ""
         response = self.agent.run(question)
         answer = response.text if hasattr(response, "text") else str(response)
-        if not self.guardrails:
-            return answer
-        with span("output_guard", "GUARDRAIL", answer) as guard:
-            final = self._review(question, answer)
-            set_output(guard, json.dumps(self.last_guard, ensure_ascii=False))
-        return final
+        if self.guardrails:
+            with span("output_guard", "GUARDRAIL", answer) as guard:
+                answer = self._review(question, answer)
+                set_output(guard, json.dumps(self.last_guard, ensure_ascii=False))
+        return answer
+
+    @property
+    def coach_questions(self) -> list[str]:
+        """The coach's questions of this conversation so far, read from datapizza's memory (its USER
+        turns): only the ones that reached the agent, as a question stopped by the input guard never
+        enters the memory. Empty for a stateless agent, which forgets after every question."""
+        return [block.content for turn in self.agent._memory if turn.role == ROLE.USER
+                for block in turn if isinstance(block, TextBlock)]
 
     def _review(self, question: str, answer: str) -> str:
-        """Output guard: check the answer; on problems, one rewrite, kept unless it is worse."""
+        """Output guard: check the answer; on problems, one rewrite, kept unless it is worse.
+        In a chat, the coach's earlier questions count as known text for the names and numbers
+        (the opponent named in turn 1 is not an invention in turn 2)."""
         consulted = self.consulted_cards
         cards = {c: self.corpus_tools.retriever.card_text(c) or "" for c in consulted}
         source_text = "\n".join(cards.values())
-        issues = review_answer(answer, question, consulted, source_text)
+        earlier = "\n".join(self.coach_questions[:-1])   # the memory already holds the current question
+        issues = review_answer(answer, question, consulted, source_text, earlier)
         self.last_guard["issues"] = [i.describe() for i in issues]
         self.last_guard["remaining"] = list(self.last_guard["issues"])
         if not issues:
@@ -148,12 +161,26 @@ class MatchAnalyst:
         except Exception as e:  # network/API error: keep the first answer, say it in the report
             self.last_guard["error"] = f"{type(e).__name__}: {e}"
             return answer
-        remaining = review_answer(rewritten, question, consulted, source_text) if rewritten else issues
+        remaining = review_answer(rewritten, question, consulted, source_text, earlier) if rewritten else issues
         if not rewritten or len(remaining) > len(issues):
             return answer
         self.last_guard["rewritten"] = True
         self.last_guard["remaining"] = [i.describe() for i in remaining]
+        self._remember(rewritten)
         return rewritten
+
+    def _remember(self, answer: str) -> None:
+        """In a chat, make datapizza's memory hold the answer the coach saw: the agent stored its
+        draft before the output guard rewrote it, and the next turn would build on the draft."""
+        if self.stateless:
+            return
+        for turn in reversed(self.agent._memory.memory):
+            if turn.role == ROLE.ASSISTANT:
+                for i, block in enumerate(turn):
+                    if isinstance(block, TextBlock):
+                        turn[i] = TextBlock(content=answer)
+                        return
+                return
 
     def _rewrite(self, question: str, answer: str, issues: list[Issue], cards: dict[str, str]) -> str:
         """One rewrite: rules + context in the system prompt, the request in the input."""

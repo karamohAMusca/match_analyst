@@ -1,0 +1,74 @@
+{
+  "run": "20260929-104445",
+  "model": "gpt-4o-mini",
+  "guardrails": true,
+  "questions": [
+    {
+      "question_id": "Q37",
+      "type": "follow_up",
+      "question": "E se invece ci pressano alti a uomo?",
+      "answer": "Per affrontare una squadra che pressa alta a uomo, puoi adottare diverse strategie per uscire dalla pressione e mantenere il possesso.\n\n- **Giocare in verticale**: Sfrutta gli spazi liberati dal pressing avversario per cercare passaggi diretti verso gli attaccanti, creando duelli in parità numerica [situation_uscire_dal_pressing_alto].\n- **Movimenti rapidi**: Muovi la palla velocemente per attirare più avversari e cercare di liberare l'esterno alto o il terzino in ampiezza, rendendo il gioco più verticale [situation_uscire_dal_pressing_alto].\n- **Adattare la struttura di costruzione**: Cambia la tua formazione in base al numero di avversari che pressano, per mettere l'avversario di fronte a una scelta: pressare in parità o concedere spazio [situation_uscire_dal_pressing_alto].\n\n## Caso reale\nEuropa League 2024: il Leverkusen ha subito un gol a causa di un errore in uscita contro il pressing a uomo dell'Atalanta, che ha portato a un possesso sterile nel secondo tempo [situation_uscire_dal_pressing_alto].",
+      "consulted": [
+        "situation_uscire_dal_pressing_alto",
+        "situation_pressing_alto_e_riaggressione",
+        "situation_costruzione_dal_basso",
+        "situation_difendere_un_vantaggio",
+        "situation_rimontare_uno_svantaggio"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "uscire dal pressing alto",
+          "categories": [
+            "game_situation"
+          ],
+          "cards": [
+            "situation_uscire_dal_pressing_alto",
+            "situation_pressing_alto_e_riaggressione",
+            "situation_costruzione_dal_basso",
+            "situation_difendere_un_vantaggio",
+            "situation_rimontare_uno_svantaggio"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [],
+        "rewritten": false,
+        "remaining": []
+      },
+      "check": {
+        "cited": [
+          "situation_uscire_dal_pressing_alto"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "answer_language": "it",
+        "language_ok": true,
+        "relevant_consulted": [
+          "situation_uscire_dal_pressing_alto"
+        ],
+        "expected_sources": [
+          "situation_uscire_dal_pressing_alto"
+        ],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 141,
+        "advice": false
+      },
+      "problems": [
+        "previous turn not used (no 4-4-2, 4-3-3)"
+      ],
+      "previous_turn": "Q13",
+      "previous_question": "Domenica affrontiamo una squadra che si chiude in un 4-4-2 basso. Noi giochiamo 4-3-3. Come la prepariamo?",
+      "previous_answer": "Per affrontare una squadra che si chiude in un 4-4-2 basso, puoi adottare diverse strategie per massimizzare le tue possibilità di successo.\n\n- **Attaccare le zone intermedie**: Cerca di arrivare nella zona di rifinitura, sfruttando gli spazi tra i centrocampisti e i difensori avversari per effettuare tagli e combinazioni rapide [situation_attaccare_un_blocco_basso].\n- **Scaglionamento e ampiezza**: Mantieni almeno due giocatori larghi per fissare la difesa avversaria e crea sovrapposizioni con i terzini per allargare il blocco difensivo [situation_attaccare_un_blocco_basso].\n- **Combinazioni rapide**: Utilizza movimenti combinati e il terzo uomo per superare la densità difensiva avversaria, cercando di attaccare la linea con passaggi filtranti [situation_gioco_sulle_fasce].\n\n## Caso reale\nMondiale 2026: la Spagna ha battuto l'Argentina, schierata in 4-4-2, con un possesso avanzato e riaggressione, riuscendo a rompere il blocco difensivo avversario [case_2026_wc_final_spain_argentina]."
+    }
+  ]
+}

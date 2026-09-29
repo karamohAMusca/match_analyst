@@ -27,6 +27,8 @@ answer language, are stricter).
 | `agent_20260928-175508` | gpt-4o-mini + guardrails | 44 | 31 | guardrails: English 6/6, 12 answers rewritten |
 | `agent_20260928-175811` | gpt-4o-mini + guardrails | 4 | 2 | targeted check of the "Non lo so" instruction of the rewrite |
 | `agent_20260928-180737` | gpt-4.1-mini + guardrails | 44 | 34 | 35 with multi-card citations accepted; fails the trap Q18 |
+| `agent_20260929-104445` | gpt-4o-mini + guardrails | 1 (two turns) | 0 | `--follow-up`: Q37 asked right after Q13 in one conversation; it consulted the expected card, but did not use the previous turn (no 4-3-3 in the answer) |
+| `agent_20260929-112013` | gpt-4o-mini + guardrails | 44 + two turns | 34 + 0/1 | prompt: advice tailored to the coach's own description. Q13 now builds on "la tua formazione 4-3-3"; Q37 still does not name it. +Q01, Q02, Q21, Q34, −Q38 (mostly required-facts variance); 10 answers rewritten, no invented name left |
 
 ## Gold runs (`scripts/gold_run.py`, 41 questions, LLM judge)
 
@@ -41,6 +43,8 @@ answer language, are stricter).
 | `gold_20260929-100809` | replay of `agent_20260928-175508` (gpt-4o-mini) | gpt-4.1-mini | claims, fixed judge | **final, agent gpt-4o-mini**: faithfulness 0.910, relevancy 0.934, score 0.922 (1 judge error left out) |
 | `gold_20260929-101444` | replay of `agent_20260928-180737` (gpt-4.1-mini) | gpt-4.1-mini | claims, fixed judge | **final, agent gpt-4.1-mini**: faithfulness 0.914, relevancy 0.980, score 0.947; Q18 0.00 |
 | `gold_20260929-101624` | replay of `agent_20260928-180737`, 8 known questions | gpt-4.1 | claims | judge check: catches Q18, Q12 and Q35's invented threshold (missed by gpt-4.1-mini), fewer false alarms; 0.16 $ for 8 questions (≈ 0.75 $ a full run vs ≈ 0.13 $) |
+| `gold_20260929-110927` | replay of `agent_20260928-175508`, Q17 only | gpt-4.1-mini | claims | judge cache check, first run: 3 judge calls, 0.0020 $, 6.9 s |
+| `gold_20260929-110935` | the same, again | gpt-4.1-mini | claims | judge cache check, second run: the same verdicts, 3 calls answered by the cache, 0 $, 0.02 s |
 
 Chosen: agent **gpt-4o-mini** (same faithfulness as gpt-4.1-mini at about a third of the cost, and no
 wrong attribution on the trap Q18), judge **gpt-4.1-mini** for routine runs, checked against gpt-4.1.

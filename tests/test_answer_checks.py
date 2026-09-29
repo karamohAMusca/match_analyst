@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from src.evaluation.answer_checks import check_answer, problems
+from src.evaluation.answer_checks import check_answer, follow_up_problems, problems
 
 FOOTBALL = {"type": "trap", "expected_tool_use": "retrieval", "requires_abstention": False,
             "relevant_sources": ["coach_pioli"], "required_facts": [["chievo"], ["primavera"]],
@@ -84,3 +84,29 @@ def test_answer_language_must_match_the_question():
     assert "answer in the wrong language (it)" in problems(check_answer(italian_answer, english, ["coach_pioli"], 1))
     assert problems(check_answer(english_answer, english, ["coach_pioli"], 1)) == []
     assert check_answer(italian_answer, dict(english, language="it"), ["coach_pioli"], 1)["language_ok"]
+
+
+def test_follow_up_checks():
+    q = dict(FOOTBALL, type="follow_up", relevant_sources=["situation_uscire_dal_pressing_alto"],
+             required_facts=[], forbidden_claims=[])
+    previous = "Domenica affrontiamo un 4-4-2 basso. Noi giochiamo 4-3-3. Come la prepariamo?"
+    good = "Con il tuo 4-3-3 cerca la verticale [situation_uscire_dal_pressing_alto]."
+    check = check_answer(good, q, ["situation_uscire_dal_pressing_alto"], 1)
+    assert follow_up_problems(good, previous, check) == []
+    generic = "Cerca la verticale e il terzo uomo [coach_gasperini]."
+    check = check_answer(generic, q, ["coach_gasperini"], 1)
+    assert follow_up_problems(generic, previous, check) == [
+        "expected card not consulted: ['situation_uscire_dal_pressing_alto']",
+        "previous turn not used (no 4-4-2, 4-3-3)"]
+    typographic = "Con il tuo 4–3–3 cerca la verticale [situation_uscire_dal_pressing_alto]."   # en dashes
+    check = check_answer(typographic, q, ["situation_uscire_dal_pressing_alto"], 1)
+    assert follow_up_problems(typographic, previous, check) == []
+
+
+def test_grounding_knows_the_earlier_questions_of_a_conversation():
+    q = dict(FOOTBALL, type="follow_up", question="E se invece ci pressano alti?", required_facts=[],
+             forbidden_claims=[])
+    answer = "Contro la Juventus la tesi resta valida [coach_pioli]."
+    source = "Tesi: Primavera del Chievo."
+    assert check_answer(answer, q, ["coach_pioli"], 1, source)["ungrounded"] == ["Juventus"]
+    assert check_answer(answer, q, ["coach_pioli"], 1, source, "Affrontiamo la Juventus.")["ungrounded"] == []

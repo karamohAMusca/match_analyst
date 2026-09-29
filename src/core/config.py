@@ -13,6 +13,11 @@ CORPUS_DIR = PROJECT_ROOT / "corpus"
 MANIFEST_PATH = CORPUS_DIR / "manifest.json"
 REFERENCES_DIR = PROJECT_ROOT / "references"
 GOLD_SET_PATH = PROJECT_ROOT / "eval" / "gold_set.json"
+CACHE_DIR = PROJECT_ROOT / ".cache"   # git-ignored: embeddings and judge verdicts already paid for
+
+# Provider of the agent's model, for datapizza's ClientFactory. The measurements, the price list
+# (src/evaluation/cost.py) and the models offered by the app are OpenAI's.
+LLM_PROVIDER = "openai"
 
 
 @dataclass(frozen=True)
@@ -42,15 +47,15 @@ def load_settings() -> Settings:
     )
 
 
-def require_openai_key() -> str:
-    """Return the OpenAI API key, raising a clear error if it is not configured.
+def require_api_key(provider: str) -> str:
+    """Return the API key of `provider` (OPENAI_API_KEY for "openai", ANTHROPIC_API_KEY for
+    "anthropic", ...), raising a clear error if it is not configured.
 
     Call this only right before an operation that needs the key (LLM call, embeddings).
     """
     load_dotenv(PROJECT_ROOT / ".env")
-    api_key = os.getenv("OPENAI_API_KEY")
+    name = f"{provider.upper()}_API_KEY"
+    api_key = os.getenv(name)
     if not api_key:
-        raise ValueError(
-            "OPENAI_API_KEY is not set. Copy .env.example to .env in the project root and add your key."
-        )
+        raise ValueError(f"{name} is not set. Copy .env.example to .env in the project root and add your key.")
     return api_key

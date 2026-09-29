@@ -8,7 +8,9 @@ a precise note on its own answer ("these names are not in the cards: Philipp, Ky
 harder to ignore.
 Checks, all deterministic and offline:
 - language: the answer is written in the language of the question;
-- grounding: its names and numbers appear in the consulted cards (grounding.py);
+- grounding: its names and numbers appear in the consulted cards (grounding.py), in the question
+  or, in a conversation, in the coach's earlier questions (what the coach said in turn 1, e.g. the
+  opponent's name, is not an invention in turn 2);
 - citations: it cites at least one [card_id] (unless it only says "Non lo so"), and only cards
   it consulted or that those cards mention.
 """
@@ -66,8 +68,11 @@ class Issue:
         return f"{self.kind}: {self.detail}"
 
 
-def review_answer(answer: str, question: str, consulted: list[str], source_text: str) -> list[Issue]:
-    """Problems of `answer`; `source_text` is the text of the `consulted` cards."""
+def review_answer(answer: str, question: str, consulted: list[str], source_text: str,
+                  earlier_questions: str = "") -> list[Issue]:
+    """Problems of `answer`; `source_text` is the text of the `consulted` cards, `earlier_questions`
+    the coach's previous questions of the same conversation (known text for grounding only: the
+    language is the one of the current question)."""
     issues: list[Issue] = []
     wanted, written = detect_language(question), detect_language(answer)
     if written != wanted:
@@ -78,7 +83,7 @@ def review_answer(answer: str, question: str, consulted: list[str], source_text:
         ))
     if not consulted:
         return issues
-    missing = ungrounded_terms(answer, source_text, question)
+    missing = ungrounded_terms(answer, source_text, f"{question}\n{earlier_questions}")
     if missing:
         terms = ", ".join(missing)
         issues.append(Issue(

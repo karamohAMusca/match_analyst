@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from collections import Counter
 
 import pytest
@@ -111,6 +113,14 @@ def test_embedding_cache(tmp_path):
     assert offline.embed(["uno", "due"]) == first[:2]           # served from disk, no embedder
     with pytest.raises(LookupError):
         offline.embed("tre")
+
+
+def test_embedding_cache_reads_the_vectors_already_saved(tmp_path):
+    # The file in .cache/ holds the gold question vectors (sha256 of the text -> vector): the
+    # retrieval evaluation runs offline on it, so it must stay readable as it is.
+    saved = tmp_path / "embeddings.json"
+    saved.write_text(json.dumps({hashlib.sha256("uno".encode("utf-8")).hexdigest(): [1.0, 2.0]}), encoding="utf-8")
+    assert CachedEmbedder(None, MODEL, saved).embed("uno") == [1.0, 2.0]
 
 
 def test_diversify_keeps_order():

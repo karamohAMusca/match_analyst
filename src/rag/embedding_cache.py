@@ -1,21 +1,21 @@
-"""Disk cache for embeddings: the same text is never embedded (and paid for) twice.
+"""Embeddings saved on disk: the same text is never embedded (and paid for) twice.
 
 Used by the retrieval evaluation: the gold questions are embedded once with the API key, then
 every later run (and every retrieval experiment) reuses the saved vectors, even without a key.
-The cache lives in `.cache/` (git-ignored) and is keyed by model and text.
+The vectors are kept in a `DiskCache` (datapizza's `Cache` interface, file in `.cache/`), one entry
+per text, keyed by its hash: datapizza's `cacheable` keeps one entry per call, so a batch with a
+single new text would be paid whole.
 """
 
 from __future__ import annotations
 
 import hashlib
-import json
 from pathlib import Path
 
 from datapizza.core.embedder import BaseEmbedder
 
-from src.core.config import PROJECT_ROOT
-
-CACHE_DIR = PROJECT_ROOT / ".cache"
+from src.core.config import CACHE_DIR
+from src.core.disk_cache import DiskCache
 
 
 class CachedEmbedder(BaseEmbedder):
@@ -24,10 +24,7 @@ class CachedEmbedder(BaseEmbedder):
     def __init__(self, inner: BaseEmbedder | None, model_name: str, path: Path | None = None) -> None:
         self.inner = inner
         self.model_name = model_name
-        self.path = path or CACHE_DIR / f"embeddings_{model_name}.json"
-        self._vectors: dict[str, list[float]] = (
-            json.loads(self.path.read_text(encoding="utf-8")) if self.path.exists() else {}
-        )
+        self.cache = DiskCache(path or CACHE_DIR / f"embeddings_{model_name}.json")
         self.new_texts = 0   # texts embedded through the API by this instance
 
     @staticmethod
@@ -35,7 +32,7 @@ class CachedEmbedder(BaseEmbedder):
         return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
     def missing(self, texts: list[str]) -> list[str]:
-        return [t for t in dict.fromkeys(texts) if self._key(t) not in self._vectors]
+        return [t for t in dict.fromkeys(texts) if self.cache.get(self._key(t)) is None]
 
     def embed(self, text: str | list[str], model_name: str | None = None):
         texts = [text] if isinstance(text, str) else list(text)
@@ -47,9 +44,7 @@ class CachedEmbedder(BaseEmbedder):
                 )
             vectors = self.inner.embed(missing)          # one API call for all missing texts
             for t, v in zip(missing, vectors, strict=True):
-                self._vectors[self._key(t)] = v
+                self.cache.set(self._key(t), v)
             self.new_texts += len(missing)
-            self.path.parent.mkdir(parents=True, exist_ok=True)
-            self.path.write_text(json.dumps(self._vectors), encoding="utf-8")
-        vectors = [self._vectors[self._key(t)] for t in texts]
+        vectors = [self.cache.get(self._key(t)) for t in texts]
         return vectors[0] if isinstance(text, str) else vectors

@@ -1,0 +1,64 @@
+{
+  "run": "20260929-110927",
+  "tag": "cache-check",
+  "model": "gpt-4o-mini",
+  "judge_provider": "openai",
+  "judge_model": "gpt-4.1-mini",
+  "faithfulness_method": "claims",
+  "guardrails": true,
+  "rejudged_from": "eval/runs/agent_20260928-175508.json",
+  "metrics": {
+    "recall@1": 1.0,
+    "recall@5": 1.0,
+    "MRR": 1.0,
+    "faithfulness": 1.0,
+    "relevancy": 1.0,
+    "judge_errors": 0,
+    "abstention_out_of_corpus": null,
+    "latency_p50_s": 0.00026190001517534256,
+    "latency_p95_s": 0.00026190001517534256,
+    "cost_per_query_usd": 0.0,
+    "cost_run_usd": 0.0,
+    "replayed": true
+  },
+  "score": 1.0,
+  "judge_cost_usd": 0.0020428,
+  "judge_cache_hits": 0,
+  "rows": [
+    {
+      "id": "Q17",
+      "type": "inconsistency",
+      "question": "Che percentuale di possesso palla ha avuto la Spagna nella finale del Mondiale 2026?",
+      "latency_s": 0.0,
+      "cost_usd": 0.0,
+      "answer": "La Spagna ha avuto un possesso palla del 60,2% nella finale del Mondiale 2026 contro l'Argentina, che ha avuto solo il 32,5% [case_2026_wc_final_spain_argentina].",
+      "ref": "Le fonti divergono: il report FIFA (Post Match Summary Report) indica 60,2% per la Spagna, 32,5% per l'Argentina e 7,4% di palla contesa; il tabellino di Wikipedia riporta 65%-35%. La risposta corretta segnala la differenza e ne indica l'origine, invece di scegliere un numero senza dirlo.",
+      "consulted": [
+        "case_2026_wc_final_spain_argentina",
+        "case_2024_euro_final_spain_england",
+        "situation_attaccare_un_blocco_basso",
+        "coach_scaloni",
+        "situation_pressing_alto_e_riaggressione"
+      ],
+      "expected_source": "case_2026_wc_final_spain_argentina",
+      "found": true,
+      "rank": 1,
+      "faithfulness": 1.0,
+      "relevancy": 1.0,
+      "faithfulness_reason": "2/2 statements supported",
+      "relevancy_reason": "The answer directly provides the possession percentage of Spain in the 2026 World Cup final, which is exactly what the question asks.",
+      "faithfulness_claims": [
+        {
+          "statement": "La Spagna ha avuto un possesso palla del 60,2% nella finale del Mondiale 2026 contro l'Argentina.",
+          "supported": true,
+          "evidence": "Possesso che avanza, non sterile: 60,2% di possesso, 182 linee rotte contro 87, 251 ricezioni nell'ultimo terzo contro 52 (FIFA PMSR)."
+        },
+        {
+          "statement": "L'Argentina ha avuto un possesso palla del 32,5% nella finale del Mondiale 2026 contro la Spagna.",
+          "supported": true,
+          "evidence": "Numeri | Possesso | Spagna 60,2% | Argentina 32,5% (7,4% contesa)"
+        }
+      ]
+    }
+  ]
+}

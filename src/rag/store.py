@@ -12,7 +12,7 @@ from datapizza.type import Chunk
 from datapizza.vectorstores.qdrant import QdrantVectorstore
 from qdrant_client import models
 
-from src.core.config import Settings, load_settings, require_openai_key
+from src.core.config import Settings, load_settings, require_api_key
 
 EMBEDDING_NAME = "content_embedding"   # must match in VectorConfig, ChunkEmbedder and search
 EMBEDDING_DIMENSIONS = {
@@ -53,7 +53,7 @@ def make_vector_store(settings: Settings | None = None) -> QdrantVectorstore:
 def make_embedder(settings: Settings | None = None) -> OpenAIEmbedder:
     """OpenAI embedder; reads the API key only here, right before it is needed."""
     settings = settings or load_settings()
-    return OpenAIEmbedder(api_key=require_openai_key(), model_name=settings.embedding_model)
+    return OpenAIEmbedder(api_key=require_api_key("openai"), model_name=settings.embedding_model)
 
 
 def ensure_collection(store: QdrantVectorstore, collection: str, dimensions: int) -> None:

@@ -6,6 +6,12 @@
     python -m scripts.eval_agent --all --model gpt-4.1-mini   # same questions, another model
     python -m scripts.eval_agent --all --no-guardrails        # bare agent, to measure the guardrails
     python -m scripts.eval_agent --no-trace                   # do not send traces to Phoenix
+    python -m scripts.eval_agent --follow-up                  # two-turn questions (conversation memory)
+    python -m scripts.eval_agent --all --follow-up            # the whole gold set, 45 questions
+
+A question with a previous turn in the gold set (Q37 after Q13) is asked in a fresh conversation
+right after that turn: besides the usual checks, the expected card must be consulted and the
+previous turn must be used (the formations it named appear in the answer).
 
 Checks per answer (no LLM judge): citations only to consulted cards, no author references used
 as citations, names and numbers present in the consulted cards (grounding), correct tool use,
@@ -28,7 +34,7 @@ import sys
 from collections import Counter
 
 from src.core.config import GOLD_SET_PATH, PROJECT_ROOT
-from src.evaluation.answer_checks import check_answer, problems
+from src.evaluation.answer_checks import check_answer, follow_up_problems, problems
 
 # The 5 questions tried by hand, plus a partial abstention, a keyword question and an English one.
 DEFAULT_IDS = ["Q24", "Q13", "Q15", "Q19", "Q18", "Q21", "Q31", "Q41"]
@@ -51,6 +57,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--ids", help="comma-separated question ids, e.g. Q13,Q18")
     parser.add_argument("--all", action="store_true", help="every gold question except the follow-up")
+    parser.add_argument("--follow-up", action="store_true",
+                        help="add the follow-up questions, each after its previous turn (with --all: all 45)")
     parser.add_argument("--model", help="OpenAI chat model (default: OPENAI_CHAT_MODEL, else gpt-4o-mini)")
     parser.add_argument("--no-guardrails", action="store_true", help="run the bare agent, without input/output guards")
     parser.add_argument("--no-trace", action="store_true", help="do not send traces to Phoenix")
@@ -64,11 +72,16 @@ def main() -> int:
     from src.observability.tracing import flush, setup_tracing
 
     questions = json.loads(GOLD_SET_PATH.read_text(encoding="utf-8"))["questions"]
+    by_id = {q["question_id"]: q for q in questions}
     if args.all:
-        selected = [q for q in questions if q["type"] != "follow_up"]   # needs a previous turn
-    else:
+        selected = [q for q in questions if q["type"] != "follow_up"]   # needs a previous turn: --follow-up
+    elif args.ids or not args.follow_up:
         wanted = args.ids.split(",") if args.ids else DEFAULT_IDS
         selected = [q for q in questions if q["question_id"] in wanted]
+    else:
+        selected = []
+    if args.follow_up:   # added to the rest: --all --follow-up = the whole gold set
+        selected += [q for q in questions if q.get("previous_turn") and q not in selected]
 
     if not args.no_trace:
         settings = load_settings()
@@ -83,22 +96,35 @@ def main() -> int:
 
     rows = []
     for q in selected:
-        answer = analyst.analyze(q["question"])
-        consulted = analyst.consulted_cards
-        source_text = "\n".join(analyst.corpus_tools.retriever.card_text(c) or "" for c in consulted)
-        check = check_answer(answer, q, consulted, len(analyst.corpus_tools.calls), source_text)
-        issues = problems(check)
+        previous = by_id.get(q.get("previous_turn", ""))
+        assistant, first_answer = analyst, None
+        if previous:   # a fresh conversation: the previous turn first, then the follow-up
+            assistant = MatchAnalyst(model=args.model, guardrails=not args.no_guardrails, stateless=False,
+                                     retriever=analyst.corpus_tools.retriever)
+            first_answer = assistant.analyze(previous["question"])
+        answer = assistant.analyze(q["question"])
+        consulted = assistant.consulted_cards
+        source_text = "\n".join(assistant.corpus_tools.retriever.card_text(c) or "" for c in consulted)
+        earlier = previous["question"] if previous else ""
+        check = check_answer(answer, q, consulted, len(assistant.corpus_tools.calls), source_text, earlier)
+        issues = problems(check) + (follow_up_problems(answer, earlier, check) if previous else [])
         rows.append({"question_id": q["question_id"], "type": q["type"], "question": q["question"],
                      "answer": answer, "consulted": consulted,
-                     "tool_calls": [dict(c) for c in analyst.corpus_tools.calls],   # copy: the list is reused
-                     "guard": dict(analyst.last_guard), "check": check, "problems": issues})
+                     "tool_calls": [dict(c) for c in assistant.corpus_tools.calls],   # copy: the list is reused
+                     "guard": dict(assistant.last_guard), "check": check, "problems": issues})
+        if previous:
+            rows[-1].update({"previous_turn": previous["question_id"], "previous_question": previous["question"],
+                             "previous_answer": first_answer})
         searches = "; ".join(
             f"{c['tool']}({c.get('query') or c.get('document_id')}"
             + (f", {c['categories']}" if c.get("categories") else "") + ")"
             for c in rows[-1]["tool_calls"]
         )
-        print(f"{q['question_id']} [{q['type']}] {'OK' if not issues else 'CHECK'}  tools: {searches or 'none'}"
-              + guard_summary(analyst.last_guard) + "".join(f"\n    - {p}" for p in issues))
+        turn = f" (after {previous['question_id']})" if previous else ""
+        print(f"{q['question_id']}{turn} [{q['type']}] {'OK' if not issues else 'CHECK'}  tools: {searches or 'none'}"
+              + guard_summary(assistant.last_guard) + "".join(f"\n    - {p}" for p in issues))
+        if previous:
+            print("    answer: " + " ".join(answer.split())[:400])
 
     ok = sum(1 for r in rows if not r["problems"])
     print(f"\n{ok}/{len(rows)} answers pass every automatic check ({analyst.model}, guardrails {guardrails}).")
