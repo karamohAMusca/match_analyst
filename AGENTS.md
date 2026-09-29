@@ -45,7 +45,8 @@ This document defines the architectural rules, coding standards, and operational
   - `scripts/`: maintenance scripts, run as `python -m scripts.<name>`.
   - `tests/`: offline tests (no API keys, no network), run with `python -m pytest`.
 - **Error Handling**: Tools must handle network/API errors gracefully and return structured failure explanations instead of crashing.
-- **No Hallucinations Rule**: every claim in an answer must be supported by a retrieved card and cite its `document_id`.
+- **No Hallucinations Rule**: every claim in an answer must be supported by a retrieved card and cite its `document_id`; the only other allowed source is what the coach wrote about their own team and the opponent.
+- **Improvement Method**: change one thing at a time, re-measure with `scripts/gold_run.py` (same judge) and keep the change only if the numbers improve; list every run in `eval/runs/README.md`.
 
 ---
 

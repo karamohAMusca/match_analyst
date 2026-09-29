@@ -233,6 +233,26 @@ OpenTelemetry spans with its own attribute names; `src/observability/tracing.py`
 to the OpenInference names Phoenix reads. If Phoenix is not running, tracing is switched off and
 the scripts say so; `eval_agent --no-trace` switches it off on purpose.
 
+### First end-to-end check from a clean install (2026-09-29)
+
+The whole project, cloned into a new folder on Windows with a fresh Python 3.12 environment and
+following this README step by step: `pip install -r requirements.txt` without errors, 571 offline
+tests passed, `ingest --dry-run` 31 cards / 113 chunks, `ingest` found every card unchanged (0
+chunks embedded), `eval_retrieval` gave the same numbers from an empty cache (hybrid interleave:
+recall@1 0.75, recall@5 0.95, MRR 0.84), the CLI answered with citations and a trace in Phoenix,
+and the app worked with a two-turn conversation (the first answer builds on "your 4-3-3").
+The check had first found one problem, fixed before it: with Windows line endings in a clone every
+card looked changed, see [Maintaining the corpus](#maintaining-the-corpus).
+
+What the app's second turn showed, and the automatic checks do not see (the guardrails check
+names, numbers and citations, not who did what):
+- **an invented premise**: to "and if we were down to 10 men at the 90th minute?" it answered
+  "defend your lead", which the coach never said;
+- **a real case with the roles swapped**: "Inter defended a lead in the 2023 Champions League
+  final", while the card says City won 1-0 and Inter was chasing the game (the same kind of error
+  as Q37: Atalanta's man-to-man press attributed to Leverkusen).
+The claim-by-claim judge of the gold run is the check that catches this kind of error.
+
 ---
 
 ## Data and licences
