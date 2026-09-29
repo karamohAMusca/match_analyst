@@ -10,6 +10,16 @@ both searches and buries a chunk that only one search ranks first ("falso terzin
 8th after RRF). Interleave keeps the best hit of each search and has no parameter to tune:
 recall@5 0.95 vs 0.90, MRR@10 0.84 vs 0.80. RRF stays available for comparison.
 After fusion, at most `max_per_card` chunks per card are kept, so one card cannot fill the context.
+
+The steps are nodes of a datapizza `DagPipeline`, one pipeline per mode, built once:
+
+    hybrid:  embedder -> dense --\
+                                  +-> fusion -> diversify
+             bm25 ---------------/
+    dense:   embedder -> dense -> diversify
+    bm25:    bm25 -> diversify
+
+With a query vector already computed, the pipeline starts at `dense` (no embedder node).
 """
 
 from __future__ import annotations
@@ -19,6 +29,7 @@ import unicodedata
 from typing import Literal
 
 from datapizza.core.embedder import BaseEmbedder
+from datapizza.pipeline import DagPipeline
 from datapizza.type import Chunk
 from datapizza.vectorstores.qdrant import QdrantVectorstore
 from rank_bm25 import BM25Okapi
@@ -79,6 +90,7 @@ class Retriever:
             for c in store.dump_collection(collection)
         ]
         self.bm25 = BM25Okapi([tokenize(c.text) for c in self.chunks]) if self.chunks else None
+        self.pipelines: dict[tuple[Mode, bool], DagPipeline] = {}
 
     def card_text(self, document_id: str) -> str | None:
         """Whole card rebuilt from its chunks (title once, sections in order); None if unknown."""
@@ -93,7 +105,7 @@ class Retriever:
         return f"{title}\n\n" + "\n\n".join(sections)
 
     def lexical(self, query: str, pool: int = POOL, categories: list[str] | None = None) -> list[Chunk]:
-        """BM25 ranking over the chunks (category filter applied in Python)."""
+        """BM25 ranking over the chunks (category filter applied in Python); the `bm25` node."""
         if not self.bm25:
             return []
         scores = self.bm25.get_scores(tokenize(query))
@@ -105,10 +117,44 @@ class Retriever:
             chunk = self.chunks[i]
             if categories and chunk.metadata["category"] not in categories:
                 continue
-            hits.append(Chunk(id=chunk.id, text=chunk.text, metadata={**chunk.metadata, "bm25_score": float(scores[i])}))
+            score = float(scores[i])
+            hits.append(Chunk(id=chunk.id, text=chunk.text,
+                              metadata={**chunk.metadata, "bm25_score": score, "score": score}))
             if len(hits) == pool:
                 break
         return hits
+
+    def dense(self, vector: list[float], pool: int = POOL, categories: list[str] | None = None) -> list[Chunk]:
+        """Dense ranking from Qdrant, with the similarity also kept as `dense_score`; the `dense` node."""
+        hits = search_vector(self.store, vector, self.collection, k=pool, categories=categories)
+        for chunk in hits:
+            chunk.metadata["dense_score"] = chunk.metadata["score"]
+        return hits
+
+    def pipeline(self, mode: Mode, embed: bool = True) -> DagPipeline:
+        """The retrieval DAG of `mode` (see the module docstring), built on first use.
+        `embed=False`: no embedder node, the query vector is given to `dense`."""
+        key = (mode, embed)
+        if key in self.pipelines:
+            return self.pipelines[key]
+        dag = DagPipeline()
+        if mode in ("dense", "hybrid"):
+            if embed:
+                dag.add_module("embedder", self.embedder)
+                dag.connect("embedder", "dense", target_key="vector")
+            dag.add_module("dense", self.dense)
+        if mode in ("bm25", "hybrid"):
+            dag.add_module("bm25", self.lexical)
+        dag.add_module("diversify", diversify)
+        if mode == "hybrid":
+            dag.add_module("fusion", fuse)
+            dag.connect("dense", "fusion", target_key="dense")
+            dag.connect("bm25", "fusion", target_key="lexical")
+            dag.connect("fusion", "diversify", target_key="chunks")
+        else:
+            dag.connect("dense" if mode == "dense" else "bm25", "diversify", target_key="chunks")
+        self.pipelines[key] = dag
+        return dag
 
     def retrieve(
         self,
@@ -125,24 +171,19 @@ class Retriever:
         `vector` lets the caller pass an already-computed query embedding (e.g. batch evaluation).
         `fusion` only matters in hybrid mode (compared in scripts/eval_retrieval.py).
         """
-        dense: list[Chunk] = []
-        if mode in ("dense", "hybrid"):
-            vector = vector if vector is not None else self.embedder.embed(query)
-            dense = search_vector(self.store, vector, self.collection, k=POOL, categories=categories)
-            for chunk in dense:
-                chunk.metadata["dense_score"] = chunk.metadata["score"]
-        lexical = self.lexical(query, POOL, categories) if mode in ("bm25", "hybrid") else []
+        inputs: dict[str, dict] = {
+            "dense": {"categories": categories} | ({} if vector is None else {"vector": vector}),
+            "bm25": {"query": query, "categories": categories},
+            "embedder": {"text": query},
+            "fusion": {"method": fusion},
+            "diversify": {"k": k, "max_per_card": max_per_card},
+        }
+        return self.pipeline(mode, embed=vector is None).run(inputs)["diversify"]
 
-        if mode == "dense":
-            ranked = dense
-        elif mode == "bm25":
-            ranked = [Chunk(id=c.id, text=c.text, metadata={**c.metadata, "score": c.metadata["bm25_score"]})
-                      for c in lexical]
-        elif fusion == "interleave":
-            ranked = interleave([dense, lexical])
-        else:
-            ranked = rrf_fuse([dense, lexical])
-        return diversify(ranked, k, max_per_card)
+
+def fuse(dense: list[Chunk], lexical: list[Chunk], method: Fusion = "interleave") -> list[Chunk]:
+    """The `fusion` node of the hybrid pipeline: the dense and BM25 rankings merged into one."""
+    return interleave([dense, lexical]) if method == "interleave" else rrf_fuse([dense, lexical])
 
 
 def interleave(rankings: list[list[Chunk]]) -> list[Chunk]:

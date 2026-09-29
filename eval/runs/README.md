@@ -11,6 +11,7 @@ Every run is measured on the frozen `eval/gold_set.json`. Newest last in each ta
 | `retrieval_20260928-154042` | RRF variants and interleave fusion | interleave: recall@1 0.75, recall@5 0.95, MRR 0.84 (RRF k0=60 0.90 / 0.80) |
 | `retrieval_20260928-154233` | final comparison, offline (cached vectors) | chosen default: hybrid interleave, 1 chunk per card |
 | `retrieval_20260929-143911` | the same, after re-ingesting two cards saved with LF instead of CRLF line endings | every metric identical (hybrid interleave: recall@1 0.75, recall@5 0.95, MRR 0.84) |
+| `retrieval_20260929-153722` | the same, after rebuilding the retrieval as a datapizza `DagPipeline` | identical to the run above, every metric and every question |
 
 ## Agent, deterministic checks (`scripts/eval_agent.py`)
 

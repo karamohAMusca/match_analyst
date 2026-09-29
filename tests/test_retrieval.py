@@ -7,6 +7,7 @@ import json
 from collections import Counter
 
 import pytest
+from datapizza.pipeline import DagPipeline
 from datapizza.type import Chunk
 
 from src.evaluation.retrieval_metrics import load_retrieval_cases, question_metrics, summarize
@@ -64,6 +65,18 @@ def test_precomputed_vector_skips_embedding(retriever):
     calls = retriever.embedder.calls
     retriever.retrieve(QUERY, k=5, vector=vector)
     assert retriever.embedder.calls == calls
+
+
+def test_retrieval_runs_as_a_datapizza_dag(retriever):
+    hybrid = retriever.pipeline("hybrid")
+    assert isinstance(hybrid, DagPipeline) and set(hybrid.nodes) == {"embedder", "dense", "bm25", "fusion", "diversify"}
+    assert {(e.from_node_name, e.to_node_name, e.dst_key) for e in hybrid.edges} == {
+        ("embedder", "dense", "vector"), ("dense", "fusion", "dense"),
+        ("bm25", "fusion", "lexical"), ("fusion", "diversify", "chunks")}
+    assert retriever.pipeline("hybrid") is hybrid                        # built once, then reused
+    assert "embedder" not in retriever.pipeline("hybrid", embed=False).nodes   # vector given
+    assert set(retriever.pipeline("dense").nodes) == {"embedder", "dense", "diversify"}
+    assert set(retriever.pipeline("bm25").nodes) == {"bm25", "diversify"}
 
 
 def test_tokenize():
