@@ -2,6 +2,7 @@
 
     python -m scripts.eval_retrieval             # embeds the questions not cached yet (one call)
     python -m scripts.eval_retrieval --offline   # cached vectors only: no API key, no cost
+    python -m scripts.eval_retrieval --offline --no-save   # results only, for scripts/verify.py
 
 The gold question vectors are cached in .cache/ (a few hundred tokens the first time, well under
 $0.001; free afterwards), and every configuration reuses them, so configurations differ only in
@@ -85,6 +86,8 @@ def print_misses(rows: list[dict]) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--offline", action="store_true", help="use cached question vectors only (no API key)")
+    parser.add_argument("--no-save", action="store_true",
+                        help="print the results without saving a run: the same output at every run (scripts/verify.py)")
     args = parser.parse_args()
     if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
         sys.stdout.reconfigure(encoding="utf-8")
@@ -136,6 +139,8 @@ def main() -> int:
     print_by_type(results)
     print_languages(results[DEFAULT_CONFIG])
     print_misses(results[DEFAULT_CONFIG])
+    if args.no_save:
+        return 0
 
     RUNS_DIR.mkdir(parents=True, exist_ok=True)
     stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")

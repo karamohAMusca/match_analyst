@@ -1,10 +1,13 @@
 # AGENTS.md — Project Instructions for Match Analyst AI
 
-This document defines the architectural rules, coding standards, and operational guidelines for AI coding agents working on the `match_analyst` project.
+Instructions for AI coding agents working on `match_analyst`: the project context, the rules to
+respect, the procedure to follow for every change, and the constraints. Two more instruction files
+work with this one: `.github/instructions/refactor.instructions.md` (rules applied to the Python
+files only) and `.github/prompts/refactor-by-criteria.prompt.md` (a reusable command for the chat).
 
 ---
 
-## 1. Project Mission
+## 1. Project Context
 
 `match_analyst` is an assistant coach built as an agentic RAG application:
 - The user DESCRIBES their own team and the opponent (no live team data) and asks for match preparation or in-game advice.
@@ -12,47 +15,86 @@ This document defines the architectural rules, coding standards, and operational
 - Advice must be grounded in retrieved sources, with priority on recent (2022–2026) winning tactics.
 - When the corpus does not contain the answer, the agent says so ("Non lo so") instead of inventing facts.
 
----
-
-## 2. Core Tech Stack & Constraints
-
+Tech stack:
 - **Framework**: `datapizza-ai v0.1.0` (core, clients-openai, embedders-openai, vectorstores-qdrant).
 - **Language**: Python 3.10+ with strict type hints.
-- **Language Convention**: All code, comments, docstrings, prompts, and documentation MUST BE IN ENGLISH.
-  Exceptions: the corpus cards (`corpus/`) and the answers shown to the user are in Italian (the users are Italian coaches); English questions are supported.
 - **Vector Store**: Qdrant running locally via Docker (`docker-compose.yml`) on port `6337` (collection: `match_analyst_tactics`, named vector `content_embedding`).
 - **Embeddings**: `text-embedding-3-small`.
 - **LLM Engine**: `gpt-4o-mini`; clients are built by datapizza's `ClientFactory` (`LLM_PROVIDER` in `src/core/config.py`).
 - **Observability**: OpenTelemetry bridge exporting traces to Arize Phoenix on `http://localhost:6006/v1/traces`.
 - **Frontend**: Streamlit.
-- **Secrets**: read an API key only through `src.core.config.require_api_key(provider)`, right before the call that needs it. Never load `.env` files outside the project root.
+
+Useful commands (from the project root, virtual environment active):
+
+| Command | What it does | API key |
+|---|---|---|
+| `python -m pytest` | offline tests | no |
+| `python -m scripts.ingest --dry-run` | chunks of the corpus and cost estimate | no |
+| `python -m scripts.eval_retrieval --offline --no-save` | retrieval results of every configuration, from the cached question vectors | no (Qdrant running) |
+| `python -m scripts.verify --save / --check --cmd "<command>" --baseline <file>` | saves the output of a command, then checks that it did not change | no |
+| `python -m scripts.start` | Qdrant + Phoenix + the app | yes |
+| `python -m scripts.ingest`, `scripts.eval_agent`, `scripts.gold_run` | index sync, answer checks, gold run with the LLM judge | yes |
 
 ---
 
-## 3. Architecture & Conventions
+## 2. Rules
 
-- **Separation of Concerns**:
-  - One folder per responsibility, no loose modules in `src/`:
+### Architecture
+- One folder per responsibility, no loose modules in `src/`:
   - `src/core/`: paths and settings (`config.py`); the disk cache with datapizza's `Cache` interface (`disk_cache.py`: embeddings and judge verdicts already paid for, in `.cache/`).
   - `src/corpus/`: reading cards and manifest, splitting cards into chunks. Offline only: no API keys, no network.
-  - `src/rag/`: Qdrant store, embeddings, search, and ingestion. Ingest only the cards listed in `corpus/manifest.json`; the YAML front matter goes into the payload, not into the embedded text.
-  - `src/evaluation/`: measuring the system against `eval/gold_set.json` (frozen): retrieval metrics, deterministic answer checks, LLM judge, gold run, cost. Two entry points: `scripts/eval_agent.py` (fast deterministic checks, guardrail questions included) and `scripts/gold_run.py` (all metrics with the LLM judge; `--rejudge` re-judges a saved run; verdicts already given are read from `.cache/`, `--no-judge-cache` asks again). Runs are saved in `eval/runs/` and listed in `eval/runs/README.md`.
-  - `src/agent/`: Only agent initialization, loop orchestration, and system prompts.
-  - `src/tools/`: Clean, typed `@tool` functions with explicit docstrings explaining inputs and outputs.
-  - `src/guardrails/`: Strict input/output validation; non-football queries MUST be intercepted before reaching the LLM.
+  - `src/rag/`: Qdrant store, embeddings, search (a datapizza `DagPipeline`), and ingestion. Ingest only the cards listed in `corpus/manifest.json`; the YAML front matter goes into the payload, not into the embedded text.
+  - `src/evaluation/`: measuring the system against `eval/gold_set.json`: retrieval metrics, deterministic answer checks, LLM judge, gold run, cost. Two entry points: `scripts/eval_agent.py` (fast deterministic checks, guardrail questions included) and `scripts/gold_run.py` (all metrics with the LLM judge; `--rejudge` re-judges a saved run; verdicts already given are read from `.cache/`, `--no-judge-cache` asks again).
+  - `src/agent/`: only agent initialization, loop orchestration, and system prompts.
+  - `src/tools/`: clean, typed `@tool` functions with explicit docstrings explaining inputs and outputs.
+  - `src/guardrails/`: strict input/output validation; non-football queries MUST be intercepted before reaching the LLM.
   - `src/observability/`: tracing to Arize Phoenix (OpenTelemetry spans translated to OpenInference); optional at runtime.
   - `src/ui/`: logic of the Streamlit app (`app.py` at the root only renders): `backend.py` (a conversation and the numbers of each answer), `view.py` (pure formatting functions, tested offline). The app is tested with Streamlit's `AppTest` and the scripted fake model.
   - `scripts/`: maintenance scripts, run as `python -m scripts.<name>`.
   - `tests/`: offline tests (no API keys, no network), run with `python -m pytest`.
-- **Error Handling**: Tools must handle network/API errors gracefully and return structured failure explanations instead of crashing.
-- **No Hallucinations Rule**: every claim in an answer must be supported by a retrieved card and cite its `document_id`; the only other allowed source is what the coach wrote about their own team and the opponent.
-- **Improvement Method**: change one thing at a time, re-measure with `scripts/gold_run.py` (same judge) and keep the change only if the numbers improve; list every run in `eval/runs/README.md`. Record every wrong answer found in `eval/error_log.md` and try each fix on those cases first.
+
+### Code
+- **Language**: all code, comments, docstrings, prompts and documentation in English. Exceptions: the corpus cards (`corpus/`) and the answers shown to the user are in Italian (the users are Italian coaches); English questions are supported.
+- **Reuse first**: prefer a datapizza-ai component or code already in the project to new code.
+- **Secrets**: read an API key only through `src.core.config.require_api_key(provider)`, right before the call that needs it. Never load `.env` files outside the project root.
+- **Error handling**: tools handle network/API errors gracefully and return structured failure explanations instead of crashing.
+
+### Answers
+- **No hallucinations**: every claim in an answer must be supported by a retrieved card and cite its `document_id`; the only other allowed source is what the coach wrote about their own team and the opponent.
+
+### Corpus
+- Cards follow the writing rules in `references/SOURCES.md` (facts only from cited sources, verbatim quotes, labelled interpretation).
+- After editing a card: `python -m scripts.build_manifest`, then `python -m pytest` and `python -m scripts.check_corpus`, then re-sync the index with `python -m scripts.ingest` (only changed cards are embedded).
+- Save cards with LF line endings (`.gitattributes` enforces it on checkout): the manifest hashes their bytes.
+
+### Evaluation
+- `eval/gold_set.json` is the evaluation yardstick: do not edit it while tuning prompts or retrieval.
+- List every run in `eval/runs/README.md`; record every wrong answer found in `eval/error_log.md` and try each fix on those cases first.
+- A change that alters the answers is kept only if the gold run (same judge) shows: faithfulness up by at least 0.03 and at least 0.85; recall@k down by at most 0.02; latency and cost within budget (today about 0.0012 $ per answer, p95 about 10 s).
 
 ---
 
-## 4. Corpus Rules
+## 3. Procedure
 
-- Cards follow the writing rules in `references/SOURCES.md` (facts only from cited sources, verbatim quotes, labelled interpretation).
-- After editing a card: `python -m scripts.build_manifest`, then `python -m pytest` and `python -m scripts.check_corpus`, then re-sync the index with `python -m scripts.ingest` (only changed cards are embedded).
-- `eval/gold_set.json` is the evaluation yardstick: do not edit it while tuning prompts or retrieval.
-- Save cards with LF line endings (`.gitattributes` enforces it on checkout): the manifest hashes their bytes.
+Follow these steps, in this order, for every change:
+
+1. **Baseline.** Before touching the code, `python -m pytest` must be green; then save the output of retrieval and chunking:
+   - `python -m scripts.verify --save --cmd "python -m scripts.eval_retrieval --offline --no-save" --baseline .cache/verify_retrieval.txt`
+   - `python -m scripts.verify --save --cmd "python -m scripts.ingest --dry-run" --baseline .cache/verify_chunks.txt`
+2. **Map.** List what to change: file and function, the rule it serves, the risk of the change.
+3. **Small steps.** Start from the low-risk changes (names, dead code, constants), then the structural ones. One step at a time.
+4. **Check after every step.** `python -m pytest` and the same two commands with `--check` instead of `--save`. If an output changed, undo the step before going on.
+   A change meant to alter the answers (prompt, guardrails, retrieval) is not a refactoring: it is measured with `scripts/eval_agent.py` and `scripts/gold_run.py` and accepted only by the rule of *Evaluation* above. These commands use the OpenAI key: the user runs them.
+5. **Summary.** List the changes made, the rules they satisfy, the runs added to `eval/runs/README.md` and the errors added to `eval/error_log.md`.
+
+After editing a card the chunks change on purpose: save a new chunks baseline after `build_manifest`.
+
+---
+
+## 4. Constraints
+
+- A refactoring does not change the observable behaviour: the `--check` commands stay green.
+- No new features and no change of domain during a refactoring; refactor incrementally, never rewrite from scratch.
+- Explain the cause of a problem before changing the code.
+- No new dependencies without asking the user.
+- Never call the OpenAI API: the commands that need the key are run by the user.

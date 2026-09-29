@@ -34,12 +34,13 @@ match data), giving priority to recent (2022–2026) winning tactics. Questions 
 | `eval/gold_set.json` | the evaluation yardstick: 45 questions, Italian with paired English ones (frozen) |
 | `eval/runs/` | every measured run, listed with its result in [`eval/runs/README.md`](eval/runs/README.md) |
 | `eval/error_log.md` | wrong answers found, with their cause and fix |
-| `scripts/` | commands run as `python -m scripts.<name>`: `start`, `ingest`, `eval_retrieval`, `eval_agent`, `gold_run`, `build_manifest`, `check_corpus`, `sb_match_report` |
+| `scripts/` | commands run as `python -m scripts.<name>`: `start`, `ingest`, `eval_retrieval`, `eval_agent`, `gold_run`, `build_manifest`, `check_corpus`, `sb_match_report`, `verify` (the output of a command before and after a refactoring) |
 | `tests/` | offline tests, no API key and no network (`python -m pytest`) |
 | `docker-compose.yml` | Qdrant (vector store) and Phoenix (traces) |
 | `.env.example` | settings template: copy it to `.env` and add the key |
 | `requirements.txt` | Python packages |
-| `AGENTS.md` | rules for AI coding agents working on the project |
+| `AGENTS.md` | instructions for AI coding agents: project context, rules, the procedure for every change, constraints |
+| `.github/` | more agent instructions: rules for the Python files only (`instructions/`) and a reusable chat command (`prompts/`) |
 | `.streamlit/config.toml`, `pytest.ini`, `.gitattributes` | app theme; test settings; LF line endings on every checkout (the manifest hashes the cards' bytes) |
 
 Created locally and not versioned: `.env` (the key), `.cache/` (embeddings and judge verdicts
