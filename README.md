@@ -251,7 +251,9 @@ names, numbers and citations, not who did what):
 - **a real case with the roles swapped**: "Inter defended a lead in the 2023 Champions League
   final", while the card says City won 1-0 and Inter was chasing the game (the same kind of error
   as Q37: Atalanta's man-to-man press attributed to Leverkusen).
-The claim-by-claim judge of the gold run is the check that catches this kind of error.
+The claim-by-claim judge of the gold run is the check that catches this kind of error. Every
+error found is collected, with its source and the candidate fixes, in
+[`eval/error_log.md`](eval/error_log.md).
 
 ---
 
