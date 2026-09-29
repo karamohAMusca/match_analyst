@@ -97,7 +97,7 @@ def run(
     rel: list[float] = []
     times: list[float] = []
     costs: list[float] = []
-    n_out = abstained = 0
+    n_out = abstained = judge_errors = 0
     rows = []
 
     for i, g in enumerate(gold):
@@ -125,10 +125,14 @@ def run(
             f = (judge_faithfulness_claims(judge_llm, context, answer, g["q"]) if faithfulness == "claims"
                  else judge_faithfulness(judge_llm, context, answer))
             r = judge_relevancy(judge_llm, g["q"], answer)
-            faith.append(f["score"])
-            rel.append(r["score"])
+            for verdict, scores in ((f, faith), (r, rel)):       # a judge error is left out, and counted
+                if verdict.get("error"):
+                    judge_errors += 1
+                else:
+                    scores.append(verdict["score"])
             row.update({"expected_source": g["source"], "found": bool(rank), "rank": rank,
-                        "faithfulness": round(f["score"], 2), "relevancy": round(r["score"], 2),
+                        "faithfulness": None if f.get("error") else round(f["score"], 2),
+                        "relevancy": None if r.get("error") else round(r["score"], 2),
                         "faithfulness_reason": f["reason"], "relevancy_reason": r["reason"]})
             if "claims" in f:
                 row["faithfulness_claims"] = f["claims"]
@@ -149,6 +153,7 @@ def run(
         "MRR": mrr_sum / len(in_corpus) if in_corpus else 0.0,
         "faithfulness": sum(faith) / len(faith) if faith else 0.0,
         "relevancy": sum(rel) / len(rel) if rel else 0.0,
+        "judge_errors": judge_errors,
         "abstention_out_of_corpus": abstained / n_out if n_out else None,
         "latency_p50_s": statistics.median(times) if times else 0.0,
         "latency_p95_s": p95,
@@ -197,6 +202,8 @@ def table(metrics: dict[str, Any]) -> str:
         ("cost of the run", "n/a (re-judged)" if replayed else f"${metrics['cost_run_usd']:.4f}"),
         ("SCORE (faith+rel)/2", f"{score(metrics):.3f}"),
     ]
+    if metrics.get("judge_errors"):
+        lines.append(("judge errors (left out)", str(metrics["judge_errors"])))
     width = max(len(a) for a, _ in lines)
     return "\n".join(f"{a:{width}s} : {b}" for a, b in lines)
 
@@ -210,7 +217,7 @@ def detail(rows: list[dict[str, Any]], threshold: float = THRESHOLD) -> str:
         below = any(isinstance(v, (int, float)) and v < threshold for v in (f, r))
         if d.get("expected_source"):
             src, rank = ("OK" if d["found"] else "NO"), str(d["rank"] or "—")
-            scores = f"{f:>6.2f} {r:>6.2f}"
+            scores = " ".join(f"{v:>6.2f}" if v is not None else f"{'err':>6s}" for v in (f, r))
         else:
             src, rank = "—", "—"
             scores = f"{'—':>6s} {('abst.' if d['abstained'] else 'NO ABS'):>6s}"

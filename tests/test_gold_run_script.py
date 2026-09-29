@@ -27,7 +27,7 @@ def offline_script(tmp_path, monkeypatch, retriever):
     """Runs the script with `args`; returns (models asked to OpenAIClient, saved record, output)."""
     source = tmp_path / "agent_run.json"
     questions = {g["id"]: g["q"] for g in load_gold(ids=["Q17", "Q19"])}
-    source.write_text(json.dumps({"model": "gpt-4.1-mini", "guardrails": True, "questions": [
+    source.write_text(json.dumps({"model": "gpt-4o-mini", "guardrails": True, "questions": [
         {"question_id": "Q17", "question": questions["Q17"], "answer": "60,2% [case_2026_wc_final_spain_argentina].",
          "consulted": ["case_2026_wc_final_spain_argentina"]},
         {"question_id": "Q19", "question": questions["Q19"], "answer": "Non lo so.", "consulted": []},
@@ -67,8 +67,8 @@ def test_explicit_judge_is_the_one_used(offline_script, capsys):
 
 def test_default_judge_is_fixed_not_the_model_of_the_saved_run(offline_script):
     asked, record = offline_script("--tag", "default")
-    assert asked == "gpt-4o-mini" and record["judge_model"] == "gpt-4o-mini"
-    assert record["model"] == "gpt-4.1-mini"          # the agent of the saved run is kept apart
+    assert asked == "gpt-4.1-mini" and record["judge_model"] == "gpt-4.1-mini"
+    assert record["model"] == "gpt-4o-mini"           # the agent of the saved run is kept apart
 
 
 def test_rejudge_record_is_complete(offline_script):

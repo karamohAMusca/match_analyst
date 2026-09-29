@@ -243,4 +243,12 @@ def run_summaries(runs_dir: Path) -> dict[str, Any]:
         retrieval_rows.append({"metodo": RETRIEVAL_NAMES.get(name, name),
                                "recall@5": overall.get("recall@5"), "MRR": overall.get("MRR@10")})
     live = [g for g in gold if g["live"]]
-    return {"agent": agent, "gold": gold, "gold_live": live[-1] if live else None, "retrieval": retrieval_rows}
+    final = {}   # the latest "final-*" judgement of each agent model: the numbers quoted in the README
+    for path in sorted(runs_dir.glob("gold_*.json")):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if str(data.get("tag", "")).startswith("final-"):
+            final[data["model"]] = {"agente": data["model"], "fedeltà": data["metrics"]["faithfulness"],
+                                    "pertinenza": data["metrics"]["relevancy"], "score": data["score"],
+                                    "giudice": data["judge_model"]}
+    return {"agent": agent, "gold": gold, "gold_live": live[-1] if live else None, "retrieval": retrieval_rows,
+            "final": list(final.values())}

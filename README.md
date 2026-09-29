@@ -172,7 +172,36 @@ guardrails and the conversation and stay in `eval_agent`. With Phoenix running, 
 trace, `gold_run <tag>`, with every question inside. Runs are saved as `eval/runs/gold_<time>.json`.
 `--rejudge` judges the saved answers of an earlier run again (on the cards that run consulted), to
 compare judges on exactly the same answers: a judge is trusted only if it catches the answers we
-know are wrong.
+know are wrong. The default judge is gpt-4.1-mini; a judge error is left out of the averages and
+counted. Every run is listed in [`eval/runs/README.md`](eval/runs/README.md).
+
+#### Results (41 questions, answers with guardrails on, judge gpt-4.1-mini)
+
+| Agent model | Faithfulness | Relevancy | Score | Abstention out of corpus | Trap Q18 (thesis attributed to a later team) |
+|---|---|---|---|---|---|
+| **gpt-4o-mini** (default) | 0.910 | 0.934 | 0.922 | 2/3 | 0.78 |
+| gpt-4.1-mini | 0.914 | 0.980 | 0.947 | 2/3 | 0.00 |
+
+Retrieval on the same questions: recall@1 0.76, recall@5 0.95, MRR 0.84. Live run with gpt-4o-mini:
+latency p50 5.0 s / p95 10.1 s, about 0.0012 $ per answer. gpt-4o-mini is the default: the same
+faithfulness at about a third of the cost, and no wrong attribution on the trap question;
+gpt-4.1-mini gives more complete answers and can be chosen in the app.
+
+**Choosing the judge**, on answers whose errors are known (runs `gold_20260929-094225`, `-094857`,
+`-101624`):
+
+| Judge | Catches the known errors (Q18, Q12, Q35) | False alarms on correct answers | Cost of one full judgement |
+|---|---|---|---|
+| gpt-4o-mini, one score per answer | 0 of 3 (1.0 to every answer) | — | ≈ 0.03 $ |
+| gpt-4o-mini, claim by claim | at most 1 of 3, not stable between runs | several | ≈ 0.05 $ |
+| **gpt-4.1-mini**, claim by claim | 2 of 3 (misses the invented threshold of Q35) | few | ≈ 0.13 $ |
+| gpt-4.1, claim by claim | 3 of 3 | fewest | ≈ 0.75 $ |
+
+gpt-4.1 is the best judge but costs about six times more: routine runs use gpt-4.1-mini, and its
+limits are known. Two more limits of the judge: an omission (a source conflict left out, Q17) is
+not seen statement by statement, and it is covered by the required-facts check of `eval_agent`;
+gpt-4.1-mini judging its own answers may favour them slightly, which would only overrate the model
+we did not choose.
 
 ### Tracing with Phoenix
 

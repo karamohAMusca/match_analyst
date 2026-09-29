@@ -35,3 +35,12 @@ answer language, are stricter).
 | `gold_20260928-215839` | live gpt-4o-mini + guardrails | gpt-4o-mini | holistic | recall@5 0.95, MRR 0.84, abstention 3/3, p50 5.0 s / p95 10.1 s, 0.05 $ + 0.027 $ judge; faithfulness 1.00 on all 38, known-wrong answers included |
 | `gold_20260928-220924` | replay of `agent_20260928-180737` | gpt-4.1-mini | holistic | faithfulness 1.00 on all 38 again: the one-score judge does not work |
 | `gold_20260928-222641` | replay of `agent_20260928-180737` | gpt-4o-mini | claims | faithfulness 0.91; catches the invented PPDA threshold (Q35) and a wrong attribution (Q12), misses Q18; false alarms on the coach's own premise |
+| `gold_20260929-094225` | replay of `agent_20260928-180737` | gpt-4o-mini | claims (judge sees the question) | premise false alarms gone; still misses Q18 (0.94) and Q12 |
+| `gold_20260929-094857` | replay of `agent_20260928-180737` | gpt-4.1-mini | claims | Q18 0.00 (every sentence attributing the thesis to "his Milan"), Q12 caught → **chosen judge** |
+| `gold_20260929-095710` | replay of `agent_20260928-175508` | gpt-4.1-mini | claims | superseded: a cut judge answer (Q27) counted as 0 and a relevancy of 0 on Q17 ("the 2026 World Cup has not happened yet") |
+| `gold_20260929-100809` | replay of `agent_20260928-175508` (gpt-4o-mini) | gpt-4.1-mini | claims, fixed judge | **final, agent gpt-4o-mini**: faithfulness 0.910, relevancy 0.934, score 0.922 (1 judge error left out) |
+| `gold_20260929-101444` | replay of `agent_20260928-180737` (gpt-4.1-mini) | gpt-4.1-mini | claims, fixed judge | **final, agent gpt-4.1-mini**: faithfulness 0.914, relevancy 0.980, score 0.947; Q18 0.00 |
+| `gold_20260929-101624` | replay of `agent_20260928-180737`, 8 known questions | gpt-4.1 | claims | judge check: catches Q18, Q12 and Q35's invented threshold (missed by gpt-4.1-mini), fewer false alarms; 0.16 $ for 8 questions (≈ 0.75 $ a full run vs ≈ 0.13 $) |
+
+Chosen: agent **gpt-4o-mini** (same faithfulness as gpt-4.1-mini at about a third of the cost, and no
+wrong attribution on the trap Q18), judge **gpt-4.1-mini** for routine runs, checked against gpt-4.1.

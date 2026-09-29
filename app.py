@@ -173,8 +173,16 @@ with tab_eval:
                        help="Quante volte dice «Non lo so» quando le schede non hanno la risposta")
         cols[3].metric("Tempo p50 / p95", f"{m['latency_p50_s']:.1f} / {m['latency_p95_s']:.1f} s")
         cols[4].metric("Costo a domanda", f"{m['cost_per_query_usd']:.4f} $")
-        st.caption("Fedeltà e pertinenza, date da un giudice LLM, sono in validazione: il primo giudice dava 1,0 "
-                   "anche a risposte sbagliate. Il risultato arriverà con il giudice verificato.")
+    if runs["final"]:
+        st.markdown("#### ⚖️ Fedeltà e pertinenza: i due modelli dell'agente a confronto")
+        final = pd.DataFrame(runs["final"]).set_index("agente")
+        cols = st.columns(len(final))
+        for col, (model, row) in zip(cols, final.iterrows()):
+            col.metric(f"{model} · fedeltà", f"{row['fedeltà']:.2f}", help="Quota di affermazioni supportate dalle schede")
+            col.metric(f"{model} · pertinenza", f"{row['pertinenza']:.2f}", help="Quanto la risposta risponde alla domanda")
+        st.caption(f"Giudice {final['giudice'].iloc[0]}, affermazione per affermazione, sulle stesse 41 domande. "
+                   "gpt-4o-mini è il predefinito: stessa fedeltà a circa un terzo del costo, e nessuna "
+                   "attribuzione sbagliata sulla domanda trappola.")
     col_a, col_b = st.columns(2, gap="large")
     with col_a:
         st.markdown("#### 🤖 Risposte che passano i controlli automatici")

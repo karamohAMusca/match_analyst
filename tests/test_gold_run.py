@@ -66,6 +66,33 @@ def test_faithfulness_is_judged_on_what_the_agent_read():
     assert "[case_2024_euro_final_spain_england]\nAltro." in judge.inputs[1]
 
 
+def test_judge_errors_are_left_out_of_the_averages(monkeypatch):
+    # Run -095710: Q27's verdict was cut at the token limit and counted as 0.0 against the agent.
+    import src.evaluation.gold_run as gold_run_module
+    error = {"score": 0.0, "reason": "judge error: ValidationError: EOF", "error": True}
+    monkeypatch.setattr(gold_run_module, "judge_relevancy",
+                        lambda llm, q, a: error if "Spagna" in q else {"score": 1.0, "reason": "ok"})
+    gold = load_gold(ids=["Q17", "Q18"])
+    metrics, rows = run(_answer("La tesi parla della Primavera [coach_pioli]."), lambda q, k=10: [CARD], gold,
+                        FakeJudge())
+    assert metrics["relevancy"] == 1.0 and metrics["judge_errors"] == 1          # Q17 left out, not 0
+    assert rows[0]["relevancy"] is None and rows[0]["relevancy_reason"].startswith("judge error")
+    assert " err" in detail(rows).splitlines()[2]
+    assert table(metrics).splitlines()[-1].replace(" ", "") == "judgeerrors(leftout):1"
+
+
+def test_judge_errors_are_flagged():
+    assert judge_relevancy(FakeJudge(fail=True), "q", "a")["error"] is True
+    assert judge_faithfulness_claims(FakeJudge(fail=True), "ctx", MILAN)["error"] is True
+    assert "error" not in judge_relevancy(FakeJudge(), "q", "a")
+
+
+def test_relevancy_judge_does_not_judge_the_facts():
+    # Run -095710: Q17 got relevancy 0.0 because "the 2026 World Cup has not happened yet".
+    from src.evaluation.judge import RELEVANCY_PROMPT
+    assert "Do not judge whether the facts are true" in RELEVANCY_PROMPT
+
+
 def test_english_abstention_counts():
     metrics, _ = run(_answer("I don't know."), None, load_gold(ids=["Q20"]), FakeJudge())
     assert metrics["abstention_out_of_corpus"] == 1.0

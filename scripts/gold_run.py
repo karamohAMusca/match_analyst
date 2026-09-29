@@ -12,7 +12,7 @@
 Prints the metrics table, the detail per question (`<` = faithfulness or relevancy below 0.7)
 and what to try for each low metric; saves everything to eval/runs/gold_<time>.json.
 With Phoenix running, the whole run is one trace ("gold_run <tag>") with every question inside.
-The judge is a separate client, gpt-4o-mini unless --judge-model says otherwise, and the same for
+The judge is a separate client, gpt-4.1-mini unless --judge-model says otherwise, and the same for
 every run whatever the agent's model: scores are comparable only with the same judge. Its cost is
 reported apart from the cost of the answers.
 --rejudge replays the answers of a saved run (a gold run or an eval_agent run) instead of asking
@@ -40,7 +40,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--tag", default="gold", help="label of the run, e.g. baseline")
     parser.add_argument("--model", help="agent model (default: OPENAI_CHAT_MODEL, else gpt-4o-mini)")
-    parser.add_argument("--judge-model", help="judge model (default: gpt-4o-mini, the same for every run)")
+    parser.add_argument("--judge-model", help="judge model (default: gpt-4.1-mini, the same for every run)")
     parser.add_argument("--no-guardrails", action="store_true", help="run the bare agent")
     parser.add_argument("--ids", help="comma-separated question ids, e.g. Q13,Q17")
     parser.add_argument("--rejudge", help="saved run to judge again (eval/runs/gold_*.json or agent_*.json)")

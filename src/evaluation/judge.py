@@ -1,8 +1,9 @@
 """LLM-as-judge: faithfulness and relevancy of an answer, each a score from 0.0 to 1.0.
 
 The judge answers with typed objects through datapizza's `structured_response`, so there is no
-text to parse. Scores are clamped to [0, 1]; a judge error scores 0.0 and the reason says why,
-so a broken judge is visible in the results.
+text to parse. Scores are clamped to [0, 1]. A judge error (network, or a structured answer cut
+at the token limit, as for Q27 in run -095710) returns `error: True` with the reason: the gold run
+leaves it out of the averages and counts it, so it neither passes nor fails the answer.
 
 Faithfulness, two methods:
 - "holistic" (`judge_faithfulness`): one score for the whole answer (`Verdict`: score + reason).
@@ -24,7 +25,9 @@ Faithfulness, two methods:
   Milan"). A verdict must agree with the evidence it quotes (the same run contradicted itself).
   Limit: statements are checked one by one, so an omission (a conflict between sources left
   out, as in Q17) is not seen; the required-facts check of eval_agent covers it.
-Relevancy: the answer actually answers the question (completeness and pertinence).
+Relevancy: the answer actually answers the question (completeness and pertinence), whatever the
+judge believes about the facts: in run -095710 it scored Q17 0.0 because "the 2026 World Cup has
+not happened yet" (the judge's own knowledge is older than the cards).
 Temperature: datapizza's OpenAI client drops a temperature of 0 (it sends the value only when it
 is truthy), so the judge would silently run at the API default; JUDGE_TEMPERATURE is the
 smallest value that is really sent.
@@ -41,8 +44,10 @@ from src.guardrails.output_guard import is_abstention
 JUDGE_TEMPERATURE = 0.01
 # One judge for every run, whatever the agent's model: scores are comparable only with the same
 # judge. (It once defaulted to the agent's model: re-judging a gpt-4.1-mini run silently used a
-# gpt-4.1-mini judge instead of the one asked for.)
-DEFAULT_JUDGE_MODEL = "gpt-4o-mini"
+# gpt-4.1-mini judge instead of the one asked for.) Chosen on 2026-09-29 by re-judging the same
+# answers (runs -094225 / -094857): gpt-4.1-mini caught the known-wrong ones (a thesis attributed
+# to "his Milan", "Italiano's Atalanta"), gpt-4o-mini did not. The agent stays gpt-4o-mini.
+DEFAULT_JUDGE_MODEL = "gpt-4.1-mini"
 # Limits of one judge call. Without them one call hung for minutes on 2026-09-28 (a structured
 # output that kept growing; the OpenAI client has no timeout by default): now it fails fast, the
 # question gets "judge error" with the reason, and the run goes on.
@@ -61,7 +66,10 @@ FAITHFULNESS_PROMPT = (
 )
 RELEVANCY_PROMPT = (
     "You are a judge of RELEVANCY. Rate how well the ANSWER actually answers the QUESTION "
-    "(completeness and pertinence). 1.0 = fully relevant; 0.0 = off topic."
+    "(completeness and pertinence). 1.0 = fully relevant; 0.0 = off topic. Do not judge whether "
+    "the facts are true: the assistant answers from sources that may be more recent than your "
+    "knowledge, and truth is measured by another check. Judge only whether the answer addresses "
+    "the question."
 )
 STATEMENTS_PROMPT = (
     "Split the ANSWER into its atomic statements. Each statement is one fact or one "
@@ -123,7 +131,7 @@ def _verdict(llm: Any, system: str, user: str) -> dict[str, Any]:
         verdict = _structured(llm, Verdict, system, user)
         return {"score": max(0.0, min(1.0, float(verdict.score))), "reason": verdict.reason}
     except Exception as e:  # a failed judgement must not stop the run, and must not look like a pass
-        return {"score": 0.0, "reason": f"judge error: {type(e).__name__}: {e}"}
+        return {"score": 0.0, "reason": f"judge error: {type(e).__name__}: {e}", "error": True}
 
 
 def judge_faithfulness(llm: Any, context: str, answer: str) -> dict[str, Any]:
@@ -144,14 +152,14 @@ def judge_faithfulness_claims(llm: Any, context: str, answer: str, question: str
         if not statements:
             if is_abstention(answer):
                 return {"score": 1.0, "reason": "abstention: no statement to check", "claims": []}
-            return {"score": 0.0, "reason": "judge error: no statement extracted", "claims": []}
+            return {"score": 0.0, "reason": "judge error: no statement extracted", "claims": [], "error": True}
         numbered = "\n".join(f"{i}. {s}" for i, s in enumerate(statements, 1))
         verdicts = _structured(llm, StatementVerdicts, VERIFY_PROMPT,
                                f"QUESTION:\n{question}\n\nCONTEXT:\n{context}\n\nSTATEMENTS:\n{numbered}").verdicts
     except Exception as e:  # a failed judgement must not stop the run, and must not look like a pass
-        return {"score": 0.0, "reason": f"judge error: {type(e).__name__}: {e}", "claims": []}
+        return {"score": 0.0, "reason": f"judge error: {type(e).__name__}: {e}", "claims": [], "error": True}
     if not verdicts:
-        return {"score": 0.0, "reason": "judge error: no verdict returned", "claims": []}
+        return {"score": 0.0, "reason": "judge error: no verdict returned", "claims": [], "error": True}
     claims = [{"statement": v.statement, "supported": bool(v.supported), "evidence": v.evidence} for v in verdicts]
     supported = sum(c["supported"] for c in claims)
     unsupported = [c["statement"] for c in claims if not c["supported"]]
