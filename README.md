@@ -63,9 +63,15 @@ cp .env.example .env               # then add OPENAI_API_KEY
 ### Offline checks (no API key, no network)
 
 ```bash
-python -m pytest                   # corpus, manifest and gold set consistency
+python -m pytest                   # corpus, retrieval, agent loop (fake model), guardrails, evaluation, app
+python -m pytest --cov=src --cov=scripts --cov-report=term-missing   # which lines the tests never run
 python -m scripts.check_corpus     # quotes and cited pages vs references/ (needs the PDFs in references/theses)
 ```
+
+Coverage is read, not just accepted: the core (retrieval, tools, guardrails, judge, gold run) is
+at 96–100%; what stays uncovered is the code that talks to Qdrant, OpenAI or Phoenix, checked by
+running the project. Line coverage does not test the limits, so the thresholds (question length,
+follow-up words, advice words) have tests on the exact value.
 
 ### Maintaining the corpus
 

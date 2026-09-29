@@ -29,6 +29,7 @@ Useful commands (from the project root, virtual environment active):
 | Command | What it does | API key |
 |---|---|---|
 | `python -m pytest` | offline tests | no |
+| `python -m pytest --cov=src --cov=scripts --cov-report=term-missing` | the lines the tests never run | no |
 | `python -m scripts.ingest --dry-run` | chunks of the corpus and cost estimate | no |
 | `python -m scripts.eval_retrieval --offline --no-save` | retrieval results of every configuration, from the cached question vectors | no (Qdrant running) |
 | `python -m scripts.verify --save / --check --cmd "<command>" --baseline <file>` | saves the output of a command, then checks that it did not change | no |

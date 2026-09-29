@@ -9,7 +9,7 @@ from datapizza.vectorstores.qdrant import QdrantVectorstore
 
 from src.corpus.cards import load_cards, parse_card
 from src.corpus.chunking import chunk_card
-from src.rag.ingest import sync_corpus
+from src.rag.ingest import stored_versions, sync_corpus
 from src.rag.store import ensure_collection
 from tests.fakes import COLLECTION, DIM, MODEL, FakeEmbedder
 
@@ -86,3 +86,7 @@ def test_dimension_mismatch_is_refused(store):
     ensure_collection(store, COLLECTION, DIM)
     with pytest.raises(RuntimeError, match="--reset"):
         ensure_collection(store, COLLECTION, DIM * 2)
+
+
+def test_versions_of_a_missing_collection_are_empty(store):
+    assert stored_versions(store, "no_such_collection") == {}   # first sync: everything is new

@@ -21,6 +21,8 @@ references/data/fifa/
 
 # Tooling
 .pytest_cache/
+.coverage
+htmlcov/
 
 # Project guide PDF (not part of the project)
 AITHO_Progetto_Personale.pdf

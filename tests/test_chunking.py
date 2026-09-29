@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.corpus.chunking import MAX_SECTION_CHARS, chunk_card, chunk_id
+from src.corpus.chunking import MAX_SECTION_CHARS, _split_long, chunk_card, chunk_id
 from src.corpus.cards import load_cards, parse_card
 
 CARDS = load_cards()
@@ -97,3 +97,14 @@ def test_short_sections_are_merged_and_long_ones_split(tmp_path):
     assert len(long_parts) > 1                         # split by paragraph
     assert all("## Sezione lunga" in c.text for c in long_parts)
     assert all(len(c.text) <= len("Nota di prova") + MAX_SECTION_CHARS + 50 for c in long_parts)
+
+
+def test_section_at_the_limit_is_kept_whole():
+    # A boundary value: a section of exactly MAX_SECTION_CHARS is one chunk, untouched.
+    exact = "## Sezione\n" + "a" * (MAX_SECTION_CHARS - len("## Sezione\n"))
+    assert len(exact) == MAX_SECTION_CHARS and _split_long("s", exact) == [("s", exact)]
+
+
+def test_long_intro_without_heading_is_split_without_inventing_one():
+    intro = "a" * 1000 + "\n\n" + "b" * 1000               # the text before the first ## heading
+    assert _split_long("intro", intro) == [("intro", "a" * 1000), ("intro", "b" * 1000)]

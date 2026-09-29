@@ -47,6 +47,20 @@ def test_empty_too_long_and_thanks():
     assert check_question("Grazie mille!").reason == "thanks"
 
 
+def test_length_limit_is_exact():
+    # A boundary value: the test above is far over the limit, so ">=" instead of ">" would pass it.
+    question = ("Come attacchiamo il 4-4-2? " * 100)[:MAX_QUESTION_CHARS - 1] + "?"
+    assert len(question) == MAX_QUESTION_CHARS and check_question(question).reason == "football"
+    assert check_question(question + "?").reason == "too_long"
+
+
+def test_follow_up_word_limit_is_exact():
+    # With no football word, no continuation start and nothing pointing back, only the length decides.
+    # The price of letting short follow-ups through: a short off-topic question passes in a chat.
+    assert check_question("Mi scrivi una ricetta", in_conversation=True).reason == "follow_up"          # 4 words
+    assert check_question("Mi scrivi una ricetta veloce", in_conversation=True).reason == "off_topic"   # 5 words
+
+
 def test_follow_up_goes_through_only_in_a_conversation():
     assert check_question("E perché?").reason == "off_topic"
     for follow_up in ("E perché?", "Come mai?", "Ma quanto dura in media?", "Puoi farmi un esempio concreto?",

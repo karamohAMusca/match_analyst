@@ -41,6 +41,12 @@ def test_cards_of_an_answer_cited_first():
     assert view.ordered_cards(message, CARDS) == ["coach_pioli", "coach_klopp"]
 
 
+def test_details_say_when_guardrails_are_off_or_the_rewrite_was_not_kept():
+    assert "guardrail spenti" in view.details_markdown({"guard": {"input": None}, "meta": {}})
+    not_kept = {"input": "football", "issues": ["language: it instead of en"], "rewritten": False}
+    assert "problemi trovati, riscrittura non tenuta" in view.details_markdown({"guard": not_kept, "meta": {}})
+
+
 def test_details_and_searches():
     message = {"consulted": ["coach_pioli"], "calls": [
         {"tool": "search_cards", "query": "catene laterali", "categories": ["coach_profile"], "cards": ["coach_pioli"]},

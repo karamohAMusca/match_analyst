@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from src.evaluation.answer_checks import check_answer, follow_up_problems, problems
+from src.evaluation.answer_checks import MAX_ADVICE_WORDS, check_answer, follow_up_problems, problems
 
 FOOTBALL = {"type": "trap", "expected_tool_use": "retrieval", "requires_abstention": False,
             "relevant_sources": ["coach_pioli"], "required_facts": [["chievo"], ["primavera"]],
@@ -62,6 +62,20 @@ def test_long_advice_is_flagged():
     long_answer = " ".join(["parola"] * 200) + " [coach_pioli]"
     assert any("too long" in p for p in problems(check_answer(long_answer, advice, ["coach_pioli"], 1)))
     assert problems(check_answer("Breve consiglio [coach_pioli].", advice, ["coach_pioli"], 1)) == []
+
+
+def test_advice_word_limit_is_exact():
+    advice = dict(FOOTBALL, type="situational", required_facts=[], forbidden_claims=[])
+    at_limit = " ".join(["parola"] * (MAX_ADVICE_WORDS - 1)) + " [coach_pioli]"   # the id counts as a word
+    check = check_answer(at_limit, advice, ["coach_pioli"], 1)
+    assert check["words"] == MAX_ADVICE_WORDS and not any("too long" in p for p in problems(check))
+    over = check_answer("parola " + at_limit, advice, ["coach_pioli"], 1)
+    assert f"advice too long: {MAX_ADVICE_WORDS + 1} words" in problems(over)
+
+
+def test_malformed_citations_are_reported():
+    check = check_answer("Pressing [coach_klopp, Pioli]", FOOTBALL, ["coach_klopp"], 1)
+    assert "malformed citations: ['coach_klopp, Pioli']" in problems(check)
 
 
 def test_several_ids_in_one_bracket_are_citations():

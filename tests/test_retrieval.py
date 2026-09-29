@@ -139,6 +139,7 @@ def test_embedding_cache_reads_the_vectors_already_saved(tmp_path):
 def test_diversify_keeps_order():
     chunks = [chunk(str(i), d) for i, d in enumerate("AAABBC")]
     assert [c.id for c in diversify(chunks, k=4, max_per_card=2)] == ["0", "1", "3", "4"]
+    assert [c.id for c in diversify(chunks, k=4, max_per_card=None)] == ["0", "1", "2", "3"]   # no limit
 
 
 CASE = {"relevant_sources": ["a", "b"], "distractor_sources": ["x"]}

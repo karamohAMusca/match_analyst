@@ -7,7 +7,7 @@ import re
 import pytest
 
 from src.core.config import PROJECT_ROOT
-from src.corpus.cards import ID_PREFIXES, load_cards, load_manifest, stale_cards
+from src.corpus.cards import ID_PREFIXES, load_cards, load_manifest, parse_card, stale_cards
 
 CARDS = load_cards()
 MANIFEST = load_manifest()
@@ -43,6 +43,17 @@ def test_cards_have_lf_line_endings():
     # hash in every clone. Two cards were in this state until the first clean-install check.
     crlf = [c.relative_path for c in CARDS if b"\r\n" in c.raw]
     assert not crlf, f"save these cards with LF line endings, then run python -m scripts.build_manifest: {crlf}"
+
+
+def test_malformed_card_is_refused_with_a_clear_error(tmp_path):
+    no_front_matter = tmp_path / "no_front_matter.md"
+    no_front_matter.write_text("# Titolo\n\nTesto.\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="missing front matter$"):
+        parse_card(no_front_matter)
+    missing_fields = tmp_path / "missing_fields.md"
+    missing_fields.write_text("---\ntitle: Titolo\n---\n# Titolo\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="missing front matter fields"):
+        parse_card(missing_fields)
 
 
 def test_manifest_is_up_to_date():

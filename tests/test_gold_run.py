@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+from datapizza.core.clients import ClientResponse
+from datapizza.type import StructuredBlock
+
 from src.evaluation.cost import TokenMeter, estimate_cost
 from src.evaluation.gold_run import detail, load_gold, replay, run, score, summary, table, unsupported
 from src.evaluation.judge import (JUDGE_MAX_TOKENS, JUDGE_TEMPERATURE, judge_faithfulness,
@@ -29,6 +32,24 @@ def test_judge_scores_are_clamped_and_errors_are_visible():
     assert judge_relevancy(FakeJudge(relevancy=-0.3), "q", "ans")["score"] == 0.0
     failed = judge_faithfulness(FakeJudge(fail=True), "ctx", "ans")
     assert failed["score"] == 0.0 and failed["reason"].startswith("judge error: TimeoutError")
+
+
+class NoVerdictJudge(FakeJudge):
+    """Extracts the statements of the answer, then returns no verdict for them."""
+
+    def _structured_response(self, input, output_cls, *args, **kwargs):
+        if output_cls.__name__ == "StatementVerdicts":
+            return ClientResponse(content=[StructuredBlock(content=output_cls(verdicts=[]))])
+        return super()._structured_response(input, output_cls, *args, **kwargs)
+
+
+def test_judge_that_returns_nothing_gives_an_error_not_a_pass():
+    # Degenerate judge outputs: nothing to score is a judge error (left out of the averages and
+    # counted), never a 1.0. An answer of citations only has no statement and is not an abstention.
+    empty = judge_faithfulness_claims(FakeJudge(), "[coach_pioli]\nTesi.", "[coach_pioli]", "Chi?")
+    assert empty["error"] and empty["reason"] == "judge error: no statement extracted"
+    silent = judge_faithfulness_claims(NoVerdictJudge(), "[coach_pioli]\nTesi.", "La tesi parla del Chievo [coach_pioli].", "Chi?")
+    assert silent["error"] and silent["reason"] == "judge error: no verdict returned"
 
 
 def test_judge_temperature_is_really_sent():
