@@ -22,10 +22,10 @@
     "references/data/fifa/": "FIFA public match reports",
     "references/SOURCES.md": "provenance, licences and card-writing rules"
   },
-  "generated": "2026-09-27",
+  "generated": "2026-09-29",
   "stats": {
     "documents": 31,
-    "total_chars": 77567
+    "total_chars": 77498
   },
   "documents": [
     {
@@ -303,8 +303,8 @@
       "file_records": [
         {
           "path": "corpus/game_situations/costruzione_dal_basso.md",
-          "sha256": "f5018358fbd99805e9045648ccb563f7bc4493bfbe0f7c1cf228b230a83e828c",
-          "bytes": 2494
+          "sha256": "bb4cf6fe6c82e249a497a3d1ecb4c75dff923712f88311707e8d83e8bff75d4d",
+          "bytes": 2457
         }
       ],
       "phase": "preparazione"
@@ -326,8 +326,8 @@
       "file_records": [
         {
           "path": "corpus/game_situations/difendere_un_vantaggio.md",
-          "sha256": "53b6989561345b47a34bc7a268fbe22146f4ee695d0f12c8a0631512d13b3bce",
-          "bytes": 2532
+          "sha256": "06da520bdb293f92f017b108c79830fc4cc386e54b953434a986c78bd6a5ef6b",
+          "bytes": 2500
         }
       ],
       "phase": "gara"

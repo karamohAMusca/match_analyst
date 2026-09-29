@@ -1,0 +1,4 @@
+# Check out every text file with LF line endings, on every system. corpus/manifest.json stores the
+# SHA-256 of each card's bytes: with Windows line endings (CRLF) in a clone, every card would look
+# changed to the tests and to the ingestion.
+* text=auto eol=lf

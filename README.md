@@ -74,6 +74,9 @@ python -m pytest
 ```
 
 Writing rules for cards are in [`references/SOURCES.md`](references/SOURCES.md).
+The manifest stores the SHA-256 of each card's bytes, so line endings matter: `.gitattributes` makes
+git check out every text file with LF line endings, also on Windows (with CRLF, a clone would see
+every card as changed, in the tests and in the ingestion).
 
 ### Building the index (Qdrant + OpenAI embeddings)
 

@@ -37,6 +37,14 @@ def test_manifest_lists_exactly_the_cards():
     assert listed == IDS, "run `python -m scripts.build_manifest` after adding or removing cards"
 
 
+def test_cards_have_lf_line_endings():
+    # The manifest hashes each card's bytes, and git stores cards with LF (.gitattributes): a card
+    # saved with Windows line endings (CRLF, the default of many editors for new files) gets another
+    # hash in every clone. Two cards were in this state until the first clean-install check.
+    crlf = [c.relative_path for c in CARDS if b"\r\n" in c.raw]
+    assert not crlf, f"save these cards with LF line endings, then run python -m scripts.build_manifest: {crlf}"
+
+
 def test_manifest_is_up_to_date():
     stale = stale_cards(CARDS)
     assert not stale, f"cards changed since the last manifest build: {stale}"

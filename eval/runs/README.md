@@ -10,6 +10,7 @@ Every run is measured on the frozen `eval/gold_set.json`. Newest last in each ta
 | `retrieval_20260928-153546` | dense, BM25, hybrid RRF (2 and 1 per card) | BM25 0.90 but fails English questions; hybrid RRF 1/card 0.90 |
 | `retrieval_20260928-154042` | RRF variants and interleave fusion | interleave: recall@1 0.75, recall@5 0.95, MRR 0.84 (RRF k0=60 0.90 / 0.80) |
 | `retrieval_20260928-154233` | final comparison, offline (cached vectors) | chosen default: hybrid interleave, 1 chunk per card |
+| `retrieval_20260929-143911` | the same, after re-ingesting two cards saved with LF instead of CRLF line endings | every metric identical (hybrid interleave: recall@1 0.75, recall@5 0.95, MRR 0.84) |
 
 ## Agent, deterministic checks (`scripts/eval_agent.py`)
 

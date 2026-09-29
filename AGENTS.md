@@ -54,3 +54,4 @@ This document defines the architectural rules, coding standards, and operational
 - Cards follow the writing rules in `references/SOURCES.md` (facts only from cited sources, verbatim quotes, labelled interpretation).
 - After editing a card: `python -m scripts.build_manifest`, then `python -m pytest` and `python -m scripts.check_corpus`, then re-sync the index with `python -m scripts.ingest` (only changed cards are embedded).
 - `eval/gold_set.json` is the evaluation yardstick: do not edit it while tuning prompts or retrieval.
+- Save cards with LF line endings (`.gitattributes` enforces it on checkout): the manifest hashes their bytes.
