@@ -1,6 +1,32 @@
-# Theme of the Streamlit app (app.py): pitch green as the accent colour.
+# Theme of the Streamlit app (app.py), from the redesign made with Claude Design (design-system/):
+# a sports paper look, pink paper, red accent, black ink, square corners. The classes of the page
+# (.ma-*) are in the CSS block of src/ui/view.py.
 [theme]
-primaryColor = "#2fa84f"
+base = "light"
+baseRadius = "0px"
+font = "Newsreader:https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;0,700;1,400"
+headingFont = "'Barlow Condensed':https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800"
+codeFont = "'IBM Plex Sans Condensed':https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700"
+
+[theme.light]
+primaryColor = "#B3122B"
+backgroundColor = "#F6D3D6"
+secondaryBackgroundColor = "#EFC4C8"
+textColor = "#111111"
+borderColor = "#111111"
+
+[theme.light.sidebar]
+backgroundColor = "#EFC4C8"
+
+[theme.dark]
+primaryColor = "#FF5A6E"
+backgroundColor = "#1B1315"
+secondaryBackgroundColor = "#2A1D20"
+textColor = "#F6E3E4"
+borderColor = "#6E5A5E"
+
+[theme.dark.sidebar]
+backgroundColor = "#2A1D20"
 
 [browser]
 gatherUsageStats = false

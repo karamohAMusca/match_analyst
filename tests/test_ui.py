@@ -30,10 +30,48 @@ def test_citations_become_badges_and_text_is_escaped():
     answer = ("Vince la Spagna [case_2026_wc_final_spain_argentina]. <script>x</script> "
               "Catene laterali [coach_pioli, p. 4]. Riferimento interno [Pioli, p. 4].")
     out = view.cite_badges(answer, CARDS)
-    assert '<span class="ma-cite" title="Finale Mondiale 2026: Spagna 1-0 Argentina (d.t.s.)">🏆 Finale Mondiale 2026</span>' in out
-    assert "🧑‍🏫 Stefano Pioli · p. 4</span>" in out
+    assert ('<span class="ma-cite" title="Finale Mondiale 2026: Spagna 1-0 Argentina (d.t.s.)">'
+            '<span class="n">1</span>🏆 Finale Mondiale 2026</span>') in out
+    assert '<span class="n">2</span>🧑‍🏫 Stefano Pioli · p. 4</span>' in out
     assert "&lt;script&gt;" in out and "<script>" not in out               # model output cannot inject HTML
     assert "[Pioli, p. 4]" in out                                           # not a card id: left as it is
+
+
+def test_citation_numbers_link_the_badges_to_the_card_next_to_the_answer():
+    answer = "A [coach_pioli]. B [coach_klopp, coach_pioli]. C [not_a_card]."
+    assert view.citation_numbers(answer, CARDS) == {"coach_pioli": 1, "coach_klopp": 2}   # first cited, first number
+    out = view.cite_badges(answer, CARDS)
+    assert out.count('<span class="n">1</span>') == 2 and out.count('<span class="n">2</span>') == 1
+    assert '<span class="n">2</span></div>' in view.card_header_html(CARDS["coach_klopp"], 2)
+    assert 'class="n"' not in view.card_header_html(CARDS["coach_klopp"])        # browsing the cards: no number
+
+
+def test_masthead_and_welcome_tiles_follow_the_design():
+    head = view.header_html(CARDS)
+    assert head.startswith('<header class="ma-hero"><div class="top"><span>Coverciano · Finali 2022–2026</span>')
+    assert '<div class="ma-chips"><span class="label">Nell\'archivio</span>' in head and "🏆 7 finali" in head
+    tile = view.feature_html("🔎", "Solo fonti <citate>", "Testo")
+    assert tile == '<div class="ma-feature"><div class="t">🔎 Solo fonti &lt;citate&gt;</div><div class="d">Testo</div></div>'
+
+
+def test_answer_without_a_source_is_boxed():
+    answer = "Il PSG ha vinto ai rigori [case_2026_ucl_final_psg_arsenal].\n\nNon lo so riguardo alla panchina del PSG."
+    out = view.answer_html(answer, CARDS)
+    first, second = out.split("\n\n")
+    assert "ma-unknown" not in first and 'class="ma-cite"' in first
+    assert second == ('<div class="ma-unknown"><span class="k">Senza fonte</span>'
+                      "<p>Non lo so riguardo alla panchina del PSG.</p></div>")
+    assert "ma-unknown" in view.answer_html("I don't know. The cards do not cover it.", CARDS)
+
+
+def test_guardrail_box_marks_the_questions_that_never_reached_the_model():
+    stopped = {"guard_note": "Guardrail: domanda fuori tema, fermata prima del modello.", "guard": {"input": "off_topic"}}
+    assert view.guard_html(stopped) == ('<div class="ma-guard blocked"><span class="k">Guardrail</span>'
+                                        "domanda fuori tema, fermata prima del modello</div>")
+    fixed = {"guard_note": "Guardrail: risposta corretta automaticamente (lingua della risposta).",
+             "guard": {"input": "football", "rewritten": True}}
+    assert view.guard_html(fixed).startswith('<div class="ma-guard"><span class="k">Guardrail</span>risposta corretta')
+    assert view.guard_html({"guard": {"input": "football"}}) == ""              # nothing to report
 
 
 def test_cards_of_an_answer_cited_first():

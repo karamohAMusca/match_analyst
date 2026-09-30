@@ -33,3 +33,8 @@ src/LEGGIMI.md
 
 # Local caches (embeddings of the gold questions, ...)
 .cache/
+
+# Design sync (Claude Design): the generated bundle and the tool's own scripts, rebuilt at every sync
+design-system/ds-bundle/
+design-system/.ds-sync/
+design-system/.design-sync/

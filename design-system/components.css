@@ -1,0 +1,63 @@
+/* Match Analyst — components.
+   Part 1: the classes of the app (the CSS block of src/ui/view.py), written with the tokens.
+   Part 2 (.ds-*): how the Streamlit components look around them, for the previews only. */
+
+/* ---------- part 1: app classes ---------- */
+.ma-hero {background: linear-gradient(120deg, var(--ma-green-900) 0%, var(--ma-green-700) 55%, var(--ma-green-500) 100%);
+  color: #fff; border-radius: var(--ma-radius-hero); padding: 1.1rem var(--ma-space-4); margin-bottom: var(--ma-space-3);
+  position: relative; overflow: hidden;}
+.ma-hero:before {content: ""; position: absolute; right: 70px; top: 0; bottom: 0; border-left: 2px solid var(--ma-pitch-line);}
+.ma-hero:after {content: ""; position: absolute; right: 10px; top: 50%; width: 120px; height: 120px;
+  transform: translateY(-50%); border: 2px solid var(--ma-pitch-line); border-radius: 50%;}
+.ma-hero h1 {color: #fff; font-size: var(--ma-size-h1); margin: 0; padding: 0;}
+.ma-hero p {margin: var(--ma-space-1) 0 .6rem 0; opacity: .93;}
+.ma-chip {display: inline-block; padding: .12rem .6rem; margin: .12rem .3rem .12rem 0; border-radius: var(--ma-radius-pill);
+  font-size: var(--ma-size-badge); background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35);}
+.ma-cite {display: inline-block; padding: .03rem .45rem; margin: 0 .12rem; border-radius: var(--ma-radius-badge);
+  font-size: var(--ma-size-badge); background: var(--ma-green-tint); border: 1px solid var(--ma-green-border);
+  white-space: nowrap; cursor: help;}
+.ma-card-head {border-left: 5px solid var(--ma-green-500); padding: .35rem .8rem; margin-bottom: var(--ma-space-2);
+  background: var(--ma-green-wash); border-radius: 0 var(--ma-radius-card) var(--ma-radius-card) 0;}
+.ma-card-head .t {font-weight: 700; font-size: 1.05rem;}
+.ma-tag {display: inline-block; padding: .06rem .5rem; margin: var(--ma-space-1) .3rem 0 0; border-radius: var(--ma-radius-pill);
+  font-size: var(--ma-size-tag); background: rgba(46,160,67,.12); border: 1px solid rgba(46,160,67,.35);}
+.ma-feature {border: 1px solid var(--ma-border); border-radius: var(--ma-radius-tile); padding: var(--ma-space-3) 1rem; min-height: 150px;}
+.ma-feature .i {font-size: 1.7rem;}
+.ma-feature .t {font-weight: 700; margin: .2rem 0 .3rem 0;}
+.ma-feature .d {font-size: var(--ma-size-small); opacity: .85;}
+
+/* ---------- part 2: Streamlit look, previews only ---------- */
+body {margin: 0; background: var(--ma-bg); color: var(--ma-text); font-family: var(--ma-font); font-size: var(--ma-size-body); line-height: 1.6;}
+.ds-page {max-width: 760px; padding: 1.5rem;}
+.ds-label {font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ma-text-muted); margin: 1.2rem 0 .4rem;}
+.ds-caption {font-size: var(--ma-size-small); color: var(--ma-text-muted);}
+.ds-msg {display: flex; gap: .75rem; padding: .9rem 1rem; border-radius: .5rem; margin: .5rem 0;}
+.ds-msg.user {background: var(--ma-bg-secondary);}
+.ds-avatar {flex: 0 0 2rem; height: 2rem; border-radius: .5rem; display: flex; align-items: center; justify-content: center;
+  background: var(--ma-bg-secondary); font-size: 1.1rem;}
+.ds-msg .body {flex: 1; min-width: 0;}
+.ds-msg .body > p:first-child {margin-top: .2rem;}
+.ds-expander {border: 1px solid var(--ma-border); border-radius: .5rem; padding: .45rem .8rem; margin: .4rem 0; font-size: var(--ma-size-small);}
+.ds-metric {display: inline-block; min-width: 150px; margin: 0 1.5rem .8rem 0;}
+.ds-metric .l {font-size: var(--ma-size-small); color: var(--ma-text-muted);}
+.ds-metric .v {font-size: 2.1rem; line-height: 1.2;}
+.ds-button {display: block; width: 100%; box-sizing: border-box; text-align: left; padding: .4rem .75rem; margin: .3rem 0;
+  border: 1px solid var(--ma-border); border-radius: .5rem; background: var(--ma-bg); color: var(--ma-text); font: inherit;}
+.ds-toggle {display: flex; align-items: center; gap: .6rem; margin: .5rem 0;}
+.ds-toggle .sw {width: 2.2rem; height: 1.2rem; border-radius: 999px; background: var(--ma-green-500); position: relative;}
+.ds-toggle .sw:after {content: ""; position: absolute; right: .15rem; top: .15rem; width: .9rem; height: .9rem; border-radius: 50%; background: #fff;}
+.ds-select {border: 1px solid var(--ma-border); border-radius: .5rem; padding: .4rem .75rem; background: var(--ma-bg-secondary);}
+.ds-tabs {display: flex; gap: 1.6rem; border-bottom: 1px solid var(--ma-border); margin-bottom: 1rem;}
+.ds-tabs span {padding: .5rem 0;}
+.ds-tabs .on {color: var(--ma-green-500); border-bottom: 2px solid var(--ma-green-500);}
+.ds-input {border: 1px solid var(--ma-border); border-radius: .5rem; padding: .7rem 1rem; color: var(--ma-text-muted); margin-top: 1rem;}
+.ds-alert {border-radius: .5rem; padding: .8rem 1rem; background: var(--ma-info-bg);}
+.ds-spinner {display: inline-block; width: 1rem; height: 1rem; border: 2px solid var(--ma-border); border-top-color: var(--ma-green-500);
+  border-radius: 50%; vertical-align: -.15rem; margin-right: .5rem;}
+.ds-swatch {display: inline-block; vertical-align: top; width: 150px; margin: 0 .8rem .8rem 0; font-size: var(--ma-size-small);}
+.ds-swatch .c {height: 56px; border-radius: .5rem; border: 1px solid var(--ma-border); margin-bottom: .3rem;}
+.ds-layout {display: grid; grid-template-columns: 240px 1fr; min-height: 100vh;}
+.ds-sidebar {background: var(--ma-bg-secondary); padding: 1.2rem 1rem;}
+.ds-main {padding: 1.2rem 1.6rem;}
+.ds-cols {display: grid; grid-template-columns: 3fr 2fr; gap: 2rem;}
+.ds-cols3 {display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;}

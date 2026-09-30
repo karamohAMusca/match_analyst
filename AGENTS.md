@@ -51,6 +51,7 @@ Useful commands (from the project root, virtual environment active):
   - `src/guardrails/`: strict input/output validation; non-football queries MUST be intercepted before reaching the LLM.
   - `src/observability/`: tracing to Arize Phoenix (OpenTelemetry spans translated to OpenInference); optional at runtime.
   - `src/ui/`: logic of the Streamlit app (`app.py` at the root only renders): `backend.py` (a conversation and the numbers of each answer), `view.py` (pure formatting functions, tested offline). The app is tested with Streamlit's `AppTest` and the scripted fake model.
+  - `design-system/`: tokens, components and answer states of the app as HTML previews (for Claude Design); a new design comes back only through `.streamlit/config.toml` and the `CSS` block of `src/ui/view.py`.
   - `scripts/`: maintenance scripts, run as `python -m scripts.<name>`.
   - `tests/`: offline tests (no API keys, no network), run with `python -m pytest`.
 

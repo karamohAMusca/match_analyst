@@ -47,7 +47,8 @@ def test_off_topic_example_is_stopped_and_explained(app):
     assert not app.exception
     answer = app.chat_message[-1]
     assert answer.name == "assistant" and "Posso aiutarti solo" in answer.markdown[0].value
-    assert any("fuori tema" in c.value for c in app.caption)                   # the guardrail note
+    assert any('class="ma-guard blocked"' in m.value and "fuori tema" in m.value
+               for m in answer.markdown)                                       # the guardrail box
 
 
 def test_new_conversation_and_other_tabs(app):

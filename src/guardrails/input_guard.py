@@ -31,15 +31,17 @@ INJECTION_RE = re.compile(
     re.IGNORECASE,
 )
 FORMATION_RE = re.compile(r"\b\d-\d-\d(?:-\d)?\b")
+COMPACT_FORMATION_RE = re.compile(r"\b[1-5]{3,4}\b")   # 352, 4231: digits of the 10 outfield players
 FOOTBALL_STEMS = (
     # Italian
     "calci", "pallon", "squadr", "allen", "difes", "difens", "attacc", "centrocamp", "portier",
     "terzin", "median", "trequart", "tattic", "campionat", "classific", "mondial", "contropied",
     "ripartenz", "transizion", "marcatur", "press", "riaggress", "fuorigioc", "sovrappos", "inserim",
     "dribbl", "arbitr", "panchin", "spogliat", "tifos", "scudett", "rifinit", "avversar", "formazion",
+    "gioc", "affront", "punizion", "centravant",
     # English
     "footbal", "soccer", "coach", "player", "defen", "attack", "midfield", "striker", "winger",
-    "flank", "goalkeep", "tactic", "offside", "penalt", "goal", "counter",
+    "flank", "goalkeep", "tactic", "offside", "penalt", "goal", "counter", "opponent", "play",
 )
 FOOTBALL_WORDS = frozenset(
     # Italian
@@ -109,6 +111,8 @@ def _words(text: str) -> list[str]:
 def is_football(text: str) -> bool:
     """True if the text has a football word, stem or formation (generous on purpose)."""
     if FORMATION_RE.search(text):
+        return True
+    if any(sum(map(int, m)) == 10 for m in COMPACT_FORMATION_RE.findall(text)):
         return True
     return any(w in FOOTBALL_WORDS or w.startswith(FOOTBALL_STEMS) for w in _words(text))
 
