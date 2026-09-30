@@ -84,6 +84,21 @@ def test_formations_written_without_dashes_are_football():
         assert check_question(not_a_formation).reason == "off_topic", not_a_formation
 
 
+def test_game_situations_are_football_even_without_football_words():
+    # Found in the app: "sto perdendo e sono al 90esimo, che devo fare?" was stopped as off-topic.
+    for situation in ("sto perdendo e sono al 90esimo, che devo fare?",
+                      "Siamo sotto di uno al 75', quali cambi faccio?",
+                      "Stiamo pareggiando 1-1 a dieci minuti dalla fine",
+                      "Siamo rimasti in 10 nel secondo tempo, come mi sistemo?",
+                      "Mancano 5 minuti al novantesimo e siamo in svantaggio",
+                      "We are losing at half time, what should I change?",
+                      "Down to ten men after a red card: what now?"):
+        assert check_question(situation).reason == "football", situation
+    for off_topic in ("Chi vincerà le prossime elezioni politiche?", "Ho perso le chiavi di casa, come faccio?",
+                      "Mi scrivi la ricetta della carbonara?"):
+        assert check_question(off_topic).reason == "off_topic", off_topic
+
+
 def test_off_topic_reply_in_the_language_of_the_question():
     assert check_question("Can you write me a pasta recipe?").reply.startswith("I can only help")
     assert check_question("Chi vincerà le elezioni?").reply.startswith("Posso aiutarti solo")

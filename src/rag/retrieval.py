@@ -78,6 +78,16 @@ def diversify(chunks: list[Chunk], k: int, max_per_card: int | None) -> list[Chu
     return kept
 
 
+def whole_card(chunks: list[Chunk]) -> str | None:
+    """The text of a card from its chunks: title once, sections in order; None if no chunk."""
+    parts = sorted(chunks, key=lambda c: c.metadata["chunk_index"])
+    if not parts:
+        return None
+    title = parts[0].metadata["title"]
+    sections = [c.text.removeprefix(f"{title}\n\n") for c in parts]
+    return f"{title}\n\n" + "\n\n".join(sections)
+
+
 class Retriever:
     """Search the card corpus. Build once (it loads the chunks from Qdrant for BM25), then reuse."""
 
@@ -94,15 +104,7 @@ class Retriever:
 
     def card_text(self, document_id: str) -> str | None:
         """Whole card rebuilt from its chunks (title once, sections in order); None if unknown."""
-        parts = sorted(
-            (c for c in self.chunks if c.metadata["document_id"] == document_id),
-            key=lambda c: c.metadata["chunk_index"],
-        )
-        if not parts:
-            return None
-        title = parts[0].metadata["title"]
-        sections = [c.text.removeprefix(f"{title}\n\n") for c in parts]
-        return f"{title}\n\n" + "\n\n".join(sections)
+        return whole_card([c for c in self.chunks if c.metadata["document_id"] == document_id])
 
     def lexical(self, query: str, pool: int = POOL, categories: list[str] | None = None) -> list[Chunk]:
         """BM25 ranking over the chunks (category filter applied in Python); the `bm25` node."""

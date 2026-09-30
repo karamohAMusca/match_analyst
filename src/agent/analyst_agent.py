@@ -11,6 +11,7 @@ guardrail is indistinguishable from a broken one.
 from __future__ import annotations
 
 import json
+import logging
 import uuid
 from typing import Any
 
@@ -28,6 +29,8 @@ from src.rag.embedding_cache import CachedEmbedder
 from src.rag.retrieval import Retriever
 from src.rag.store import make_embedder, make_vector_store
 from src.tools.corpus_tools import CorpusTools, card_context
+
+log = logging.getLogger(__name__)
 
 INPUT_NOTES = {
     "off_topic": "domanda fuori tema, fermata prima del modello",
@@ -126,7 +129,12 @@ class MatchAnalyst:
                 set_output(guard, verdict.reason if verdict.allowed else f"{verdict.reason}: {verdict.reply}")
             self.last_guard["input"] = verdict.reason
             if not verdict.allowed:
+                if verdict.reason in INPUT_NOTES:   # off topic, injection, too long
+                    log.warning("input guard: question stopped (%s), no model call", verdict.reason)
+                else:                               # greeting, thanks, empty
+                    log.info("input guard: %s, fixed reply without the model", verdict.reason)
                 return verdict.reply or ""
+            log.info("input guard: %s", verdict.reason)
         response = self.agent.run(question)
         answer = response.text if hasattr(response, "text") else str(response)
         if self.guardrails:
@@ -155,15 +163,20 @@ class MatchAnalyst:
         self.last_guard["issues"] = [i.describe() for i in issues]
         self.last_guard["remaining"] = list(self.last_guard["issues"])
         if not issues:
+            log.info("output guard: no problem")
             return answer
+        log.info("output guard: %d problems, one rewrite: %s", len(issues), self.last_guard["issues"])
         try:
             rewritten = self._rewrite(question, answer, issues, cards)
         except Exception as e:  # network/API error: keep the first answer, say it in the report
             self.last_guard["error"] = f"{type(e).__name__}: {e}"
+            log.warning("output guard: rewrite failed, first answer kept", exc_info=True)
             return answer
         remaining = review_answer(rewritten, question, consulted, source_text, earlier) if rewritten else issues
         if not rewritten or len(remaining) > len(issues):
+            log.warning("output guard: rewrite discarded (%d problems left instead of %d)", len(remaining), len(issues))
             return answer
+        log.info("output guard: rewrite kept, %d problems left", len(remaining))
         self.last_guard["rewritten"] = True
         self.last_guard["remaining"] = [i.describe() for i in remaining]
         self._remember(rewritten)

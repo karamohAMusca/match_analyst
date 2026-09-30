@@ -7,9 +7,11 @@ cards of every answer next to it, what the guardrails did, time and cost of each
 31 cards of the knowledge base, and the measured results of the saved evaluation runs.
 The page only renders: the agent and the numbers come from src/ui/backend.py, the formatting
 from src/ui/view.py. Needs Qdrant running (docker compose up -d), the index built and
-OPENAI_API_KEY in .env; with Phoenix running, every question is also a trace.
+OPENAI_API_KEY in .env; with Phoenix running, every question is also a trace. Every chat is saved
+in chats/, and what happens while chatting is written to logs/match_analyst.log.
 """
 
+import logging
 import os
 
 os.environ.setdefault("DATAPIZZA_AGENT_LOG_LEVEL", "WARNING")   # no agent log panels in the terminal
@@ -17,13 +19,22 @@ os.environ.setdefault("DATAPIZZA_AGENT_LOG_LEVEL", "WARNING")   # no agent log p
 import pandas as pd  # noqa: E402
 import streamlit as st  # noqa: E402
 
-from src.core.config import PROJECT_ROOT  # noqa: E402
+from src.core.config import PROJECT_ROOT, load_settings  # noqa: E402
+from src.observability.logs import setup_logging  # noqa: E402
 from src.ui import backend, view  # noqa: E402
 
 RUNS_DIR = PROJECT_ROOT / "eval" / "runs"
+logger = logging.getLogger("src.app")   # under "src": written to the project's log
 
 st.set_page_config(page_title="Match Analyst", page_icon="⚽", layout="wide")
 st.markdown(view.CSS, unsafe_allow_html=True)
+
+
+@st.cache_resource(show_spinner=False)
+def get_logging() -> None:
+    settings = load_settings()
+    setup_logging(settings.log_level, console=settings.log_console)
+    logger.info("app started")
 
 
 @st.cache_resource(show_spinner="Carico l'indice delle schede…")
@@ -55,6 +66,7 @@ def new_conversation() -> None:
 
 
 # ----------------------------------------------------------------- state and backend
+get_logging()
 state = st.session_state
 state.setdefault("messages", [])
 state.setdefault("conversation", None)
@@ -64,6 +76,7 @@ ready, problem = True, ""
 try:
     retriever = get_retriever()
 except Exception as e:  # Qdrant not running, index missing, API key not set
+    logger.exception("assistant not ready")
     ready, problem = False, ("Non riesco a preparare l'assistente: controlla che Qdrant sia acceso "
                              "(`docker compose up -d`) e che `OPENAI_API_KEY` sia impostata nel `.env`. "
                              f"Schede e valutazione restano consultabili.\n\nDettaglio: {e}")
@@ -97,6 +110,12 @@ with st.sidebar:
         c1, c2 = st.columns(2)
         c1.metric("Risposte", len(answers))
         c2.metric("Costo", f"{sum(m['meta']['cost_usd'] for m in answers):.3f} $")
+        log = state.conversation.log.path if state.conversation else None
+        if log and log.exists():
+            st.download_button("⬇️ Scarica la chat", log.read_bytes(), file_name=log.name,
+                               mime="application/jsonl", use_container_width=True,
+                               help=f"Salvata anche in chats/{log.name}: domande, risposte, schede, "
+                                    "ricerche, guardrail e memoria dell'agente.")
 
 # a different model or guardrail setting starts a new conversation
 conversation = state.conversation
@@ -107,6 +126,7 @@ if ready and (conversation is None or (conversation.model, conversation.guardrai
             st.toast("Impostazioni cambiate: nuova conversazione.", icon="🔄")
         state.conversation = conversation = backend.Conversation(model, guardrails, retriever)
     except (ValueError, RuntimeError) as e:   # missing API key, ...
+        logger.exception("conversation not created")
         ready, problem = False, f"Non riesco a creare l'assistente: {e}"
 
 # ----------------------------------------------------------------- page
@@ -210,6 +230,8 @@ if question and ready:
     with st.spinner("Sto studiando le schede…"):
         try:
             state.messages.append(conversation.ask(question))
+            if state.messages[-1].get("log_error"):
+                st.toast(f"Chat non salvata: {state.messages[-1]['log_error']}", icon="⚠️")
         except Exception as e:  # network or API error: keep the conversation alive
             state.messages.append({"role": "assistant", "content": f"⚠️ Errore durante l'analisi: {e}"})
     st.rerun()

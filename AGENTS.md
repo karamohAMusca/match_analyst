@@ -31,9 +31,10 @@ Useful commands (from the project root, virtual environment active):
 | `python -m pytest` | offline tests | no |
 | `python -m pytest --cov=src --cov=scripts --cov-report=term-missing` | the lines the tests never run | no |
 | `python -m scripts.ingest --dry-run` | chunks of the corpus and cost estimate | no |
+| `python -m scripts.review_chats [--all \| <file>]` | automatic checks on the chats saved by the app (`chats/`) | no |
 | `python -m scripts.eval_retrieval --offline --no-save` | retrieval results of every configuration, from the cached question vectors | no (Qdrant running) |
 | `python -m scripts.verify --save / --check --cmd "<command>" --baseline <file>` | saves the output of a command, then checks that it did not change | no |
-| `python -m scripts.start` | Qdrant + Phoenix + the app | yes |
+| `python -m scripts.start` | Qdrant + Phoenix + the app; the log live in the terminal, the review of the session's chats on Ctrl+C | yes |
 | `python -m scripts.ingest`, `scripts.eval_agent`, `scripts.gold_run` | index sync, answer checks, gold run with the LLM judge | yes |
 
 ---
@@ -49,8 +50,8 @@ Useful commands (from the project root, virtual environment active):
   - `src/agent/`: only agent initialization, loop orchestration, and system prompts.
   - `src/tools/`: clean, typed `@tool` functions with explicit docstrings explaining inputs and outputs.
   - `src/guardrails/`: strict input/output validation; non-football queries MUST be intercepted before reaching the LLM.
-  - `src/observability/`: tracing to Arize Phoenix (OpenTelemetry spans translated to OpenInference); optional at runtime.
-  - `src/ui/`: logic of the Streamlit app (`app.py` at the root only renders): `backend.py` (a conversation and the numbers of each answer), `view.py` (pure formatting functions, tested offline). The app is tested with Streamlit's `AppTest` and the scripted fake model.
+  - `src/observability/`: tracing to Arize Phoenix (OpenTelemetry spans translated to OpenInference), optional at runtime; the log of the app and the CLI (`logs.py`: Python `logging`, `logs/match_analyst.log`, git-ignored). Never log the API key; the text of the questions only goes to `chats/`.
+  - `src/ui/`: logic of the Streamlit app (`app.py` at the root only renders): `backend.py` (a conversation and the numbers of each answer), `view.py` (pure formatting functions, tested offline). `chat_log.py` saves every conversation to `chats/` (git-ignored: it holds what the users typed). The app is tested with Streamlit's `AppTest` and the scripted fake model.
   - `design-system/`: tokens, components and answer states of the app as HTML previews (for Claude Design); a new design comes back only through `.streamlit/config.toml` and the `CSS` block of `src/ui/view.py`.
   - `scripts/`: maintenance scripts, run as `python -m scripts.<name>`.
   - `tests/`: offline tests (no API keys, no network), run with `python -m pytest`.

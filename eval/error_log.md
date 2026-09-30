@@ -21,7 +21,13 @@ branch `verifier-wip` (not measured yet).
 | E8 | Q11, run `agent_20260929-112013` | Gasperini's principles explained, but not the final itself (Lookman, 3-0), though both cards were read whole | An incomplete answer to a two-card question | To try: the agent plans its searches before answering | Open |
 | E9 | Q31, run `agent_20260929-112013` | The rewrite deleted *"Lahm"* and *"Bayern"*, the answer to the question | The grounding check flagged "Philipp" and "Monaco" (the card writes "Lahm" and "Bayern") and the rewrite removed the whole sentence | The rewrite removes only the flagged words (`verifier-wip`) | Fix written, not measured |
 | E10 | Q05, Q25, Q43, run `agent_20260929-112013` | Correct answers counted as "required facts missing" (Q05: "lo spazio tra i centrocampisti e i difensori" for "alle spalle dei centrocampisti e davanti ai difensori") | The required-facts check looks for exact words; the answers paraphrase | None: the gold set is frozen. Read these failures before counting them | Not an agent error |
+| E11 | App, chat of 2026-09-30 | *"sto giocando 352 e devo affrontare 433 cosa faccio?"* stopped as off topic, before the model | The input guard knew formations only with dashes (3-5-2), and "giocando" / "affrontare" were not in its vocabulary | Formations without dashes (3 or 4 digits from 1 to 5 adding up to 10), stems `gioc`, `affront`; test in `test_guardrails.py` | Fixed; verdicts on the gold set unchanged (45/45) |
+| E12 | App, chat of 2026-09-30 | *"sto perdendo e sono al 90esimo, che devo fare?"* stopped as off topic | An in-game situation with no football word: the score and the minute were not in the vocabulary | Game situations in the input guard: minute (90esimo, 90'), score (1-0, sotto di uno), phase (secondo tempo), a man down, changes and cards; test | Fixed; verdicts on the gold set unchanged (45/45) |
 
 The deterministic guardrails check names, numbers and citations: they cannot see E1–E6, where
 every name is in the cards and the sentence puts them together wrongly. The claim-by-claim judge of
 the gold run sees most of them (E3, E4 with gpt-4.1-mini; E5 only with gpt-4.1).
+
+Football questions wrongly stopped by the input guard (E11, E12) show up in the review printed by
+`python -m scripts.start` when the app is closed, marked `stopped (off_topic)`: the words to add
+are read there.

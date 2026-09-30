@@ -4,9 +4,10 @@ Code that prevents, not a prompt that asks: prompt-injection attempts, off-topic
 questions and oversized inputs get a fixed reply and never reach the LLM; greetings get the
 presentation without spending a call. Every verdict carries its reason, so the caller can show
 it: "a silent guardrail is indistinguishable from a broken one".
-The football test is a vocabulary check (words, stems and formations such as 4-3-3), generous on
-purpose: a football question wrongly blocked is worse than an off-topic one let through, which the
-system prompt still turns away. In a conversation, a question with no football word goes through
+The football test is a vocabulary check (words, stems, formations such as 4-3-3 or 433, and game
+situations: the minute, the score, the phase of the match, a man down), generous on purpose: a
+football question wrongly blocked is worse than an off-topic one let through, which the system
+prompt still turns away. In a conversation, a question with no football word goes through
 as a follow-up only if it looks like one: short ("e perché?", "come mai?"), opening like a
 continuation ("e...", "ma...", "quindi..."), or pointing back ("questo", "un esempio", "spiegami
 meglio"). Anything else is off topic even mid-conversation (found while building the app: an
@@ -32,6 +33,18 @@ INJECTION_RE = re.compile(
 )
 FORMATION_RE = re.compile(r"\b\d-\d-\d(?:-\d)?\b")
 COMPACT_FORMATION_RE = re.compile(r"\b[1-5]{3,4}\b")   # 352, 4231: digits of the 10 outfield players
+# Game situations, also with no football word ("sto perdendo e sono al 90esimo, che devo fare?").
+SITUATION_RE = re.compile(
+    r"\b\d{1,3}\s*(?:esimo\b|['’°]|min\b|minut)"                         # 90esimo, 90', 90°, 85 min, 10 minuti
+    r"|\b(?:quarant|cinquant|sessant|settant|ottant|novant)\w*esimo\b"     # novantesimo, ottantacinquesimo
+    r"|\b\d{1,2}\s*[-–]\s*\d{1,2}\b"                                       # the score: 1-0, 2 - 2
+    r"|\b(?:sotto|avanti)\s+di\s+(?:un|uno|una|due|tre|\d+)\b"             # sotto di uno, avanti di due
+    r"|\b(?:primo|secondo)\s+tempo\b|\b(?:first|second)\s+half\b|\bhalf[\s-]?time\b"
+    r"|\b(?:extra|injury|stoppage)\s+time\b"
+    r"|\brimast\w*\s+in\s+(?:dieci|nove|10|9)\b|\buom[oi]\s+in\s+(?:meno|piu|più)\b"   # a man down or up
+    r"|\b(?:superiorit|inferiorit)\w*\s+numeric|\bdown\s+to\s+(?:ten|nine|10|9)\b|\bman\s+(?:down|up)\b",
+    re.IGNORECASE,
+)
 FOOTBALL_STEMS = (
     # Italian
     "calci", "pallon", "squadr", "allen", "difes", "difens", "attacc", "centrocamp", "portier",
@@ -39,18 +52,24 @@ FOOTBALL_STEMS = (
     "ripartenz", "transizion", "marcatur", "press", "riaggress", "fuorigioc", "sovrappos", "inserim",
     "dribbl", "arbitr", "panchin", "spogliat", "tifos", "scudett", "rifinit", "avversar", "formazion",
     "gioc", "affront", "punizion", "centravant",
+    # Italian, game situations: the score, the time, changes, cards
+    "vantagg", "svantagg", "rimont", "pareggi", "sostitu", "subentr", "supplementar", "recuper",
+    "espuls", "ammoni", "cartellin", "infortun", "intervall",
     # English
     "footbal", "soccer", "coach", "player", "defen", "attack", "midfield", "striker", "winger",
     "flank", "goalkeep", "tactic", "offside", "penalt", "goal", "counter", "opponent", "play",
+    "equaliz", "substitut", "stoppage", "comeback",
 )
 FOOTBALL_WORDS = frozenset(
     # Italian
     "palla palle gol rigore rigori partita partite gara gare fascia fasce punta punte blocco campo "
     "modulo moduli esterno esterni regista registi mister derby tiro tiri cross corner stadio "
     "champions uefa fifa euro coverciano ppda xg "
+    # game situations: exact forms only ("vincerà le elezioni", "ho perso le chiavi" stay off topic)
+    "perdendo perdiamo vincendo vinciamo risultato punteggio minuto minuti cambi cambio "
     # English
     "ball team teams pitch match matches wing block formation league cup final finals possession "
-    "marking "
+    "marking losing winning trailing minute minutes score scoreline "
     # coaches, clubs and national teams of the corpus
     "pioli gasperini klopp guardiola conte inzaghi ancelotti scaloni zerbi spalletti inter milan "
     "juventus juve napoli roma lazio atalanta fiorentina sassuolo chievo spezia trapani psg arsenal "
@@ -109,8 +128,8 @@ def _words(text: str) -> list[str]:
 
 
 def is_football(text: str) -> bool:
-    """True if the text has a football word, stem or formation (generous on purpose)."""
-    if FORMATION_RE.search(text):
+    """True if the text has a football word, stem, formation or game situation (generous on purpose)."""
+    if FORMATION_RE.search(text) or SITUATION_RE.search(text):
         return True
     if any(sum(map(int, m)) == 10 for m in COMPACT_FORMATION_RE.findall(text)):
         return True

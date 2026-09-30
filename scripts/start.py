@@ -4,8 +4,10 @@
     python -m scripts.start --stop     # stop Qdrant and Phoenix (the index and the traces are kept)
 
 If Docker is not running, Docker Desktop is started (Windows: its standard install path; macOS:
-`open -a Docker`) and the script waits for it. Ctrl+C stops the app; Qdrant and Phoenix keep
-running for the next start (stop them with --stop).
+`open -a Docker`) and the script waits for it. While the app is open, the lines of the project's
+log (logs/match_analyst.log) are also printed here, marked [log]. Ctrl+C stops the app and prints
+the review of the chats of this session (scripts/review_chats.py) with where the chats and the
+log are; Qdrant and Phoenix keep running for the next start (stop them with --stop).
 """
 
 from __future__ import annotations
@@ -17,8 +19,12 @@ import sys
 import time
 import urllib.request
 from collections.abc import Callable
+from pathlib import Path
 
+import src.core.config as config
+from scripts.review_chats import review_files
 from src.core.config import PROJECT_ROOT
+from src.observability.logs import LOG_FILE
 
 SERVICES = {"Qdrant": "http://localhost:6337/healthz", "Phoenix": "http://localhost:6006"}
 APP_URL = "http://localhost:8501"
@@ -74,6 +80,21 @@ def docker_compose(*args: str) -> int:
         return 1
 
 
+def session_report(before: set[Path]) -> str:
+    """After the app is closed: the review of the chats started in this session (the files not in
+    `before`), then where the chats and the whole log are."""
+    new = sorted(set(config.CHATS_DIR.glob("*.jsonl")) - before)
+    if not new:
+        return "Nessuna chat in questa sessione."
+    try:
+        review = review_files(new)
+    except Exception as e:  # a damaged file must not hide where the files are
+        review = f"Resoconto non disponibile ({type(e).__name__}: {e})."
+    return (f"=== Resoconto delle chat di questa sessione ===\n{review}\n\n"
+            f"Chat salvate in {config.CHATS_DIR}: {', '.join(p.name for p in new)}\n"
+            f"Log completo: {config.LOGS_DIR / LOG_FILE}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--stop", action="store_true", help="stop Qdrant and Phoenix")
@@ -99,11 +120,15 @@ def main() -> int:
     if not all(wait_for(name, lambda url=url: answers(url)) for name, url in SERVICES.items()):
         return 1
     print(f"3/3 Apro l'app: {APP_URL}  (tracce: http://localhost:6006)  — Ctrl+C per chiuderla")
+    print("    Le righe [log] mostrano cosa succede a ogni domanda; alla chiusura, il resoconto delle chat.")
+    before = set(config.CHATS_DIR.glob("*.jsonl"))
     try:
-        return subprocess.run([sys.executable, "-m", "streamlit", "run", "app.py"], cwd=PROJECT_ROOT).returncode
+        return subprocess.run([sys.executable, "-m", "streamlit", "run", "app.py"], cwd=PROJECT_ROOT,
+                              env={**os.environ, "LOG_CONSOLE": "1"}).returncode
     except KeyboardInterrupt:
         return 0
     finally:
+        print("\n" + session_report(before) + "\n")
         print("App chiusa. Qdrant e Phoenix restano accesi: `python -m scripts.start --stop` per spegnerli.")
 
 

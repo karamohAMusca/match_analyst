@@ -119,6 +119,7 @@ $0.001), later runs are free, and `python -m scripts.eval_retrieval --offline` n
 
 ```bash
 python -m scripts.start           # Qdrant + Phoenix (Docker), wait until ready, then the app
+                                  # (log live in the terminal; Ctrl+C: review of the session's chats)
 python -m scripts.start --stop    # stop Qdrant and Phoenix (index and traces are kept)
 streamlit run app.py              # only the app, if the services are already running
 ```
@@ -132,6 +133,36 @@ cost and the searches the agent made. The sidebar starts a new conversation, swi
 guardrails (to show them at work) and has example questions, one in English and one off topic.
 **Schede**: the 31 cards by category. **Valutazione**: the measured results of the saved runs
 (no API call). With Phoenix running, every question is also a trace.
+
+### Saved chats and the log
+
+Every conversation of the app is saved in `chats/`, one JSON Lines file per chat named after the
+time it started (`2026-09-30_153012.jsonl`), one line per answer written as soon as it is given:
+question, answer, consulted cards, searches, guardrails, time/tokens/cost, and the turns added to
+the agent's memory (datapizza `Memory`, tool calls and results included). The sidebar button
+"⬇️ Scarica la chat" downloads the current one.
+
+```bash
+python -m scripts.review_chats            # the last chat, answer by answer (offline, no key)
+python -m scripts.review_chats --all      # every saved chat
+```
+
+It runs the automatic checks of `eval_agent` on every saved answer, against the text of the cards
+it consulted: citations only to consulted cards, names and numbers present in those cards or in
+the coach's questions, tool use, answer language; then the chat's totals (flagged answers,
+questions stopped, rewrites, time, tokens, cost).
+
+What happens while chatting (app and CLI) is written to `logs/match_analyst.log`: new
+conversation and its file, every question (its length, not its text), the input guard's verdict,
+the searches with the cards found and their time, the output guard and the rewrite, every answer
+with time, tokens and cost; warnings for stopped questions and discarded rewrites; errors with
+their stack trace. `LOG_LEVEL=DEBUG` in `.env` also writes the search queries. The file is rotated
+at 1 MB (5 old files kept). Both folders are git-ignored: they hold what the users typed.
+
+With `python -m scripts.start` everything is in one terminal: while the app is open the log lines
+are printed there too (marked `[log]`), and Ctrl+C closes the app and prints the review of the
+chats of that session (the same report as `scripts.review_chats`) with where the chats and the log
+are.
 
 ### Chat with the agent from the terminal (uses the OpenAI API)
 

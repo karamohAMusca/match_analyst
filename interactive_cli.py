@@ -8,6 +8,7 @@ and OPENAI_API_KEY in .env. With Phoenix running (same docker compose), every qu
 also a trace at http://localhost:6006.
 """
 
+import logging
 import os
 import sys
 
@@ -15,6 +16,7 @@ os.environ.setdefault("DATAPIZZA_AGENT_LOG_LEVEL", "WARNING")   # no agent log p
 
 from src.agent.analyst_agent import MatchAnalyst  # noqa: E402
 from src.core.config import load_settings  # noqa: E402
+from src.observability.logs import setup_logging  # noqa: E402
 from src.observability.tracing import flush, setup_tracing  # noqa: E402
 
 EXIT_COMMANDS = {"esci", "quit", "exit"}
@@ -34,11 +36,13 @@ def main() -> None:
         sys.stdout.reconfigure(encoding="utf-8")
 
     settings = load_settings()
+    setup_logging(settings.log_level)
     print(setup_tracing(settings.phoenix_endpoint, settings.phoenix_project))
     single_question = len(sys.argv) > 1
     try:
         analyst = MatchAnalyst(stateless=single_question)
     except (ValueError, RuntimeError) as e:
+        logging.getLogger("src.cli").exception("assistant not ready")
         print(f"Errore di configurazione: {e}")
         return
 
@@ -61,6 +65,7 @@ def main() -> None:
         try:
             show(analyst, user_input)
         except Exception as e:  # keep the session alive on API/network errors
+            logging.getLogger("src.cli").exception("question failed")
             print(f"Errore durante l'analisi: {e}")
     flush()
     print("Buon lavoro, Mister!")

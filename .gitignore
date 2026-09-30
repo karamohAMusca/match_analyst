@@ -34,6 +34,12 @@ src/LEGGIMI.md
 # Local caches (embeddings of the gold questions, ...)
 .cache/
 
+# The app's conversations (questions typed by the users): kept locally for analysis
+chats/
+
+# Log of the app and the CLI (rotated, see src/observability/logs.py)
+logs/
+
 # Design sync (Claude Design): the generated bundle and the tool's own scripts, rebuilt at every sync
 design-system/ds-bundle/
 design-system/.ds-sync/

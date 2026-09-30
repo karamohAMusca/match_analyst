@@ -11,7 +11,9 @@ parameter annotations, and postponed (string) annotations would break it.
 """
 
 import json
+import logging
 import re
+import time
 from typing import Annotated, Literal
 
 from datapizza.tools import tool
@@ -19,6 +21,8 @@ from datapizza.type import Chunk
 
 from src.observability.tracing import record_documents, set_output, span
 from src.rag.retrieval import Retriever
+
+log = logging.getLogger(__name__)
 
 Category = Literal["match_case", "game_situation", "coach_profile", "thesis_note", "glossary"]
 
@@ -124,6 +128,8 @@ class CorpusTools:
             "Optional: prefer these card types, e.g. ['coach_profile'] to compare coaches (the best overall result is always included)",
         ] = None,
     ) -> str:
+        log.debug("search_cards query: %s (categories %s)", query, categories)
+        t0 = time.perf_counter()
         with span("retrieve", "RETRIEVER", query, metadata=json.dumps({"categories": categories})) as current:
             try:
                 hits = self.retriever.retrieve(query, k=self.k)
@@ -131,6 +137,7 @@ class CorpusTools:
                     hits = merge_filtered(self.retriever.retrieve(query, k=self.k, categories=categories), hits, self.k)
             except Exception as e:  # network, Qdrant or API errors: explain instead of crashing
                 self.calls.append({"tool": "search_cards", "query": query, "error": str(e)})
+                log.warning("search_cards failed: %s: %s", type(e).__name__, e, exc_info=True)
                 set_output(current, f"error: {e}")
                 return f"Search failed ({type(e).__name__}: {e}). Tell the user the knowledge base is unavailable."
             record_documents(current, hits)   # in Phoenix: the chunks found, with card id and score
@@ -140,6 +147,8 @@ class CorpusTools:
             "categories": categories,
             "cards": [h.metadata["document_id"] for h in hits],
         })
+        log.info("search_cards: %d cards in %.2f s %s", len(hits), time.perf_counter() - t0,
+                 [h.metadata["document_id"] for h in hits])
         if not hits:
             return "No passage found for this query in the knowledge base."
         full = {}
@@ -157,6 +166,7 @@ class CorpusTools:
         document_id = document_id.strip().strip("[]")
         text = self.retriever.card_text(document_id)
         self.calls.append({"tool": "read_card", "document_id": document_id, "found": text is not None})
+        log.info("read_card: %s (%s)", document_id, "found" if text is not None else "not found")
         if text is None:
             return f"No card with document_id '{document_id}'. Use search_cards to find the right id."
         title, _, body = text.partition("\n\n")

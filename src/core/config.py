@@ -14,6 +14,8 @@ MANIFEST_PATH = CORPUS_DIR / "manifest.json"
 REFERENCES_DIR = PROJECT_ROOT / "references"
 GOLD_SET_PATH = PROJECT_ROOT / "eval" / "gold_set.json"
 CACHE_DIR = PROJECT_ROOT / ".cache"   # git-ignored: embeddings and judge verdicts already paid for
+CHATS_DIR = PROJECT_ROOT / "chats"    # git-ignored: the app's conversations, one file each
+LOGS_DIR = PROJECT_ROOT / "logs"      # git-ignored: what happened while chatting, errors included
 
 # Provider of the agent's model, for datapizza's ClientFactory. The measurements, the price list
 # (src/evaluation/cost.py) and the models offered by the app are OpenAI's.
@@ -31,6 +33,8 @@ class Settings:
     qdrant_collection: str
     phoenix_endpoint: str
     phoenix_project: str
+    log_level: str
+    log_console: bool
 
 
 def load_settings() -> Settings:
@@ -44,6 +48,8 @@ def load_settings() -> Settings:
         qdrant_collection=os.getenv("QDRANT_COLLECTION", "match_analyst_tactics"),
         phoenix_endpoint=os.getenv("PHOENIX_COLLECTOR_ENDPOINT", "http://localhost:6006/v1/traces"),
         phoenix_project=os.getenv("PHOENIX_PROJECT_NAME", "match_analyst"),
+        log_level=os.getenv("LOG_LEVEL", "INFO").upper(),
+        log_console=os.getenv("LOG_CONSOLE") == "1",   # set by scripts.start
     )
 
 
