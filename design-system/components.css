@@ -54,7 +54,7 @@ body {margin: 0; background: var(--ma-bg); color: var(--ma-text); font-family: v
 .ds-alert {border-radius: .5rem; padding: .8rem 1rem; background: var(--ma-info-bg);}
 .ds-spinner {display: inline-block; width: 1rem; height: 1rem; border: 2px solid var(--ma-border); border-top-color: var(--ma-green-500);
   border-radius: 50%; vertical-align: -.15rem; margin-right: .5rem;}
-.ds-swatch {display: inline-block; width: 150px; margin: 0 .8rem .8rem 0; font-size: var(--ma-size-small);}
+.ds-swatch {display: inline-block; vertical-align: top; width: 150px; margin: 0 .8rem .8rem 0; font-size: var(--ma-size-small);}
 .ds-swatch .c {height: 56px; border-radius: .5rem; border: 1px solid var(--ma-border); margin-bottom: .3rem;}
 .ds-layout {display: grid; grid-template-columns: 240px 1fr; min-height: 100vh;}
 .ds-sidebar {background: var(--ma-bg-secondary); padding: 1.2rem 1rem;}

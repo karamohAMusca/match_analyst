@@ -76,6 +76,14 @@ def test_off_topic_is_stopped_even_in_a_conversation():
         assert (verdict.allowed, verdict.reason) == (False, "off_topic"), off_topic
 
 
+def test_formations_written_without_dashes_are_football():
+    # Found in the app: "352" and "433" with no other football word were stopped as off-topic.
+    assert check_question("sto giocando 352 e devo affrontare 433 cosa faccio?").allowed
+    assert check_question("Come attacco un 4231?").allowed
+    for not_a_formation in ("Quanto fa 100 per 3?", "Chi ha vinto nel 2022?", "Mi presti 555 dollari?"):
+        assert check_question(not_a_formation).reason == "off_topic", not_a_formation
+
+
 def test_off_topic_reply_in_the_language_of_the_question():
     assert check_question("Can you write me a pasta recipe?").reply.startswith("I can only help")
     assert check_question("Chi vincerà le elezioni?").reply.startswith("Posso aiutarti solo")

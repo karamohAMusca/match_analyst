@@ -55,27 +55,87 @@ RETRIEVAL_NAMES = {"dense": "densa", "bm25": "BM25 (parole chiave)", "hybrid rrf
 
 CSS = """
 <style>
-.block-container {padding-top: 3.6rem;}
-.ma-hero {background: linear-gradient(120deg, #0b5d1e 0%, #1f8a3b 55%, #2fa84f 100%); color: #fff;
-  border-radius: 16px; padding: 1.1rem 1.4rem; margin-bottom: .9rem; position: relative; overflow: hidden;}
-.ma-hero:before {content: ""; position: absolute; right: 70px; top: 0; bottom: 0; border-left: 2px solid rgba(255,255,255,.22);}
-.ma-hero:after {content: ""; position: absolute; right: 10px; top: 50%; width: 120px; height: 120px;
-  transform: translateY(-50%); border: 2px solid rgba(255,255,255,.22); border-radius: 50%;}
-.ma-hero h1 {color: #fff; font-size: 1.75rem; margin: 0; padding: 0;}
-.ma-hero p {margin: .25rem 0 .6rem 0; opacity: .93;}
-.ma-chip {display: inline-block; padding: .12rem .6rem; margin: .12rem .3rem .12rem 0; border-radius: 999px;
-  font-size: .78rem; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35);}
-.ma-cite {display: inline-block; padding: .03rem .45rem; margin: 0 .12rem; border-radius: 6px; font-size: .78rem;
-  background: rgba(46,160,67,.14); border: 1px solid rgba(46,160,67,.45); white-space: nowrap; cursor: help;}
-.ma-card-head {border-left: 5px solid #2fa84f; padding: .35rem .8rem; margin-bottom: .5rem;
-  background: rgba(46,160,67,.06); border-radius: 0 10px 10px 0;}
-.ma-card-head .t {font-weight: 700; font-size: 1.05rem;}
-.ma-tag {display: inline-block; padding: .06rem .5rem; margin: .25rem .3rem 0 0; border-radius: 999px;
-  font-size: .74rem; background: rgba(46,160,67,.12); border: 1px solid rgba(46,160,67,.35);}
-.ma-feature {border: 1px solid rgba(128,128,128,.28); border-radius: 14px; padding: .9rem 1rem; min-height: 150px;}
-.ma-feature .i {font-size: 1.7rem;}
-.ma-feature .t {font-weight: 700; margin: .2rem 0 .3rem 0;}
-.ma-feature .d {font-size: .88rem; opacity: .85;}
+/* Classes of the page (.ma-*), from the redesign made with Claude Design (design-system/):
+   titles in Barlow Condensed, text in Newsreader, labels in IBM Plex Sans Condensed. */
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap");
+
+.block-container {padding-top: 5rem;}   /* the masthead top line clears the Streamlit toolbar */
+:root {
+  --ma-ink:#111111; --ma-red:#B3122B; --ma-on-red:#FFFFFF;
+  --ma-paper:#F6D3D6; --ma-card:#FBE9EA; --ma-muted:#4A3A3C;
+  --ma-head:"Barlow Condensed",sans-serif;
+  --ma-head-weight:800; --ma-head-case:uppercase;
+  --ma-label:"IBM Plex Sans Condensed",sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --ma-ink:#F6E3E4; --ma-red:#FF5A6E; --ma-on-red:#1B1315;
+  --ma-paper:#1B1315; --ma-card:#241A1C; --ma-muted:#C9AFB2;
+} }
+.ma-hero { text-align:center; }
+.ma-hero .top { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  font:600 12px var(--ma-label); text-transform:uppercase; letter-spacing:.08em;
+  border-bottom:1px solid var(--ma-ink); padding-bottom:6px; }
+.ma-hero .top em { font-style:normal; color:var(--ma-red); }
+.ma-hero h1 { font-family:var(--ma-head); font-weight:var(--ma-head-weight);
+  text-transform:var(--ma-head-case); font-size:clamp(40px,11vw,88px); line-height:.98;
+  color:var(--ma-ink); margin:12px 0 8px; padding-bottom:6px; border-bottom:4px solid var(--ma-ink); }
+.ma-hero p { font-style:italic; font-size:18px; max-width:680px; margin:10px auto 12px; }
+.ma-chips { display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
+  gap:6px 22px; padding:8px 12px;
+  border-top:1px solid var(--ma-ink); border-bottom:1px solid var(--ma-ink); }
+.ma-chips .label { font:700 12px var(--ma-label); text-transform:uppercase;
+  letter-spacing:.1em; color:var(--ma-red); }
+.ma-chip { font:500 15px var(--ma-label); white-space:nowrap; }
+.ma-cite { display:inline-flex; align-items:center; gap:5px; margin:0 2px;
+  font:600 12px var(--ma-label); text-transform:uppercase; letter-spacing:.03em;
+  color:var(--ma-red); border-bottom:1px solid var(--ma-red); white-space:nowrap; cursor:help; }
+.ma-cite .n { background:var(--ma-ink); color:var(--ma-paper);
+  font-family:var(--ma-head); font-weight:var(--ma-head-weight); font-size:12px;
+  min-width:16px; height:16px; line-height:16px; text-align:center; }
+.ma-card-head { background:var(--ma-card); border-top:6px solid var(--ma-ink);
+  border-bottom:1px solid var(--ma-ink); padding:12px 16px;
+  display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:start; }
+.ma-card-head .t { font-family:var(--ma-head); font-weight:var(--ma-head-weight);
+  text-transform:var(--ma-head-case); font-size:28px; line-height:1.05; margin-top:8px; }
+.ma-card-head .n { width:44px; height:44px; border-radius:50%; background:var(--ma-ink);
+  color:var(--ma-paper); font-family:var(--ma-head); font-weight:var(--ma-head-weight);
+  font-size:24px; line-height:44px; text-align:center; }
+.ma-tag { display:inline-block; padding:1px 8px; background:var(--ma-red); color:var(--ma-on-red);
+  font:700 12px var(--ma-label); letter-spacing:.1em; text-transform:uppercase; }
+.ma-feature { background:var(--ma-card); border-top:6px solid var(--ma-ink);
+  border-bottom:1px solid var(--ma-ink); padding:14px 16px; min-height:150px; }
+.ma-feature .t { font-family:var(--ma-head); font-weight:var(--ma-head-weight);
+  text-transform:var(--ma-head-case); font-size:24px; line-height:1.05; }
+.ma-feature .d { font-size:15px; color:var(--ma-muted); }
+
+/* "Non lo so": the part of an answer with no source */
+.ma-unknown { display:grid; grid-template-columns:auto 1fr; gap:10px;
+  align-items:baseline; padding:8px 0;
+  border-top:1px solid var(--ma-ink); border-bottom:1px solid var(--ma-ink); }
+.ma-unknown .k { font:700 11px var(--ma-label); text-transform:uppercase;
+  letter-spacing:.1em; border:1px solid var(--ma-ink); padding:0 6px; }
+.ma-unknown p { margin:0; font-style:italic; }
+
+/* What the guardrails did (instead of a caption); .blocked when the question never reached the model */
+.ma-guard { display:flex; align-items:center; gap:8px; padding:5px 10px;
+  font:700 12px var(--ma-label); text-transform:uppercase; letter-spacing:.08em;
+  border:1px solid var(--ma-ink); }
+.ma-guard .k { background:var(--ma-ink); color:var(--ma-paper); padding:0 6px; }
+.ma-guard.blocked { background:var(--ma-ink); color:var(--ma-paper); }
+.ma-guard.blocked .k { background:var(--ma-red); color:var(--ma-on-red); }
+
+/* Waiting: st.spinner takes primaryColor from the theme, no CSS needed */
+@media (max-width: 640px) {
+  .ma-hero .top { justify-content:center; text-align:center; }
+  .ma-hero h1 { font-size:clamp(40px,11vw,64px); }
+  .ma-hero p { font-size:17px; }
+  .ma-chips { gap:4px 16px; padding:8px 4px; }
+  .ma-chip { font-size:14px; }
+  .ma-card-head { padding:10px 12px; }
+  .ma-card-head .t { font-size:23px; }
+  .ma-card-head .n { width:36px; height:36px; line-height:36px; font-size:20px; }
+  .ma-cite { white-space:normal; }
+}
 </style>
 """
 
@@ -119,7 +179,8 @@ def card_body(card: dict[str, Any]) -> str:
     return re.sub(r"^(#{2,4}) ", lambda m: "#" * (len(m.group(1)) + 2) + " ", body, flags=re.M)
 
 
-def card_header_html(card: dict[str, Any]) -> str:
+def card_header_html(card: dict[str, Any], number: int | None = None) -> str:
+    """Tags and title of a card; `number` is the one of its citations in the answer (see citation_numbers)."""
     tags = [category_name(card["category"])]
     if card["date"]:
         tags.append(f"📅 {card['date']}")
@@ -127,24 +188,41 @@ def card_header_html(card: dict[str, Any]) -> str:
         tags.append(f"🏅 {card['winner']}")
     tags += [f"📋 {team}: {formation}" for team, formation in card["formations"].items()]
     tags += [f"🧑‍🏫 {team}: {coach}" for team, coach in card["coaches"].items()]
-    chips = "".join(f'<span class="ma-tag">{html.escape(str(t))}</span>' for t in tags)
-    return f'<div class="ma-card-head"><div class="t">{html.escape(card["title"])}</div>{chips}</div>'
+    chips = " ".join(f'<span class="ma-tag">{html.escape(str(t))}</span>' for t in tags)
+    badge = f'<span class="n">{number}</span>' if number else ""
+    return f'<div class="ma-card-head"><div>{chips}<div class="t">{html.escape(card["title"])}</div></div>{badge}</div>'
 
 
 def header_html(cards: dict[str, dict[str, Any]]) -> str:
+    """The masthead of the page: the paper's top line, the title, the corpus in numbers."""
     counts = {c: sum(1 for card in cards.values() if card["category"] == c) for c in CATEGORIES}
     chips = "".join(f'<span class="ma-chip">{CATEGORIES[c][0]} {n} {CATEGORIES[c][1].lower()}</span>'
                     for c, n in counts.items() if n)
-    return ('<div class="ma-hero"><h1>⚽ Match Analyst</h1>'
+    return ('<header class="ma-hero"><div class="top"><span>Coverciano · Finali 2022–2026</span>'
+            "<em>L'assistente allenatore</em></div><h1>⚽ Match Analyst</h1>"
             "<p>L'assistente allenatore che prepara la partita e le situazioni di gara "
             "citando le fonti: tesi di Coverciano e finali 2022–2026.</p>"
-            f"{chips}</div>")
+            f'<div class="ma-chips"><span class="label">Nell\'archivio</span>{chips}</div></header>')
+
+
+def feature_html(icon: str, title: str, text: str) -> str:
+    """A welcome tile of the empty chat (the icon leads the title: the tiles have no icon row)."""
+    return (f'<div class="ma-feature"><div class="t">{icon} {html.escape(title)}</div>'
+            f'<div class="d">{html.escape(text)}</div></div>')
 
 
 # ============================ ANSWERS =======================================
+def citation_numbers(answer: str, cards: dict[str, dict[str, Any]]) -> dict[str, int]:
+    """card_id -> the number of its citations in `answer` (1 = first card cited), for the known cards.
+    The same number is on the badges of the answer and on the header of the card next to it."""
+    cited = [i for b in BRACKETS_RE.findall(answer) for i in citation_ids(b.strip()) if i in cards]
+    return {card_id: n for n, card_id in enumerate(dict.fromkeys(cited), start=1)}
+
+
 def cite_badges(answer: str, cards: dict[str, dict[str, Any]]) -> str:
-    """The answer with every [card_id] citation shown as a badge (title in the tooltip)."""
+    """The answer with every [card_id] citation shown as a numbered badge (title in the tooltip)."""
     text = html.escape(answer, quote=False)
+    numbers = citation_numbers(answer, cards)
 
     def badge(match: re.Match) -> str:
         inner = match.group(1).strip()
@@ -158,11 +236,38 @@ def cite_badges(answer: str, cards: dict[str, dict[str, Any]]) -> str:
             icon = CATEGORIES.get(card["category"], ("📄",))[0] if card else "📄"
             label = short_title(card) if card else card_id
             tooltip = card["title"] if card else card_id
-            badges.append(f'<span class="ma-cite" title="{html.escape(tooltip)}">{icon} {html.escape(label)}'
+            number = f'<span class="n">{numbers[card_id]}</span>' if card_id in numbers else ""
+            badges.append(f'<span class="ma-cite" title="{html.escape(tooltip)}">{number}{icon} {html.escape(label)}'
                           f'{" · " + html.escape(page) if page else ""}</span>')
         return " ".join(badges)
 
     return BRACKETS_RE.sub(badge, text)
+
+
+UNKNOWN_START = ("non lo so", "i don't know", "i do not know")
+
+
+def answer_html(answer: str, cards: dict[str, dict[str, Any]]) -> str:
+    """The answer for st.markdown: numbered citation badges, and every paragraph that says
+    "Non lo so" (the part of the answer with no source) in its own box."""
+    paragraphs = cite_badges(answer, cards).split("\n\n")
+    marked = [f'<div class="ma-unknown"><span class="k">Senza fonte</span><p>{p.strip()}</p></div>'
+              if p.strip().lower().startswith(UNKNOWN_START) else p for p in paragraphs]
+    return "\n\n".join(marked)
+
+
+GUARD_STOPPED = {"off_topic", "injection", "too_long"}   # the question never reached the model
+
+
+def guard_html(message: dict[str, Any]) -> str:
+    """What the guardrails did for an answer, as a box ('' when they did nothing to report)."""
+    note = message.get("guard_note")
+    if not note:
+        return ""
+    text = note.removeprefix("Guardrail:").strip().rstrip(".")
+    stopped = (message.get("guard") or {}).get("input") in GUARD_STOPPED
+    return (f'<div class="ma-guard{" blocked" if stopped else ""}"><span class="k">Guardrail</span>'
+            f"{html.escape(text)}</div>")
 
 
 def ordered_cards(message: dict[str, Any], cards: dict[str, dict[str, Any]]) -> list[str]:

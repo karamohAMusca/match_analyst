@@ -41,8 +41,8 @@ def get_cards() -> dict:
     return view.load_card_index()
 
 
-def show_card(card: dict, height: int) -> None:
-    st.markdown(view.card_header_html(card), unsafe_allow_html=True)
+def show_card(card: dict, height: int, number: int | None = None) -> None:
+    st.markdown(view.card_header_html(card, number), unsafe_allow_html=True)
     with st.container(height=height):
         st.markdown(view.card_body(card))
     with st.expander(f"📚 Fonti della scheda ({len(card['sources'])})"):
@@ -121,17 +121,16 @@ with tab_chat:
     with col_chat:
         if not state.messages:
             for col, (icon, title, text) in zip(st.columns(3), view.WELCOME):
-                col.markdown(f'<div class="ma-feature"><div class="i">{icon}</div><div class="t">{title}</div>'
-                             f'<div class="d">{text}</div></div>', unsafe_allow_html=True)
+                col.markdown(view.feature_html(icon, title, text), unsafe_allow_html=True)
             st.caption("Scrivi in basso, oppure scegli un esempio nella barra a sinistra.")
         for message in state.messages:
             with st.chat_message(message["role"], avatar="🧑‍🏫" if message["role"] == "user" else "⚽"):
                 if message["role"] == "user":
                     st.markdown(message["content"])
                     continue
-                st.markdown(view.cite_badges(message["content"], cards), unsafe_allow_html=True)
+                st.markdown(view.answer_html(message["content"], cards), unsafe_allow_html=True)
                 if message.get("guard_note"):
-                    st.caption(f"🛡️ {message['guard_note']}")
+                    st.markdown(view.guard_html(message), unsafe_allow_html=True)
                 if message.get("meta"):
                     with st.expander("📊 Dettagli della risposta"):
                         st.markdown(view.details_markdown(message))
@@ -143,12 +142,13 @@ with tab_chat:
         st.markdown("#### 📄 Schede della risposta")
         last = next((m for m in reversed(state.messages) if m["role"] == "assistant"), None)
         ids = view.ordered_cards(last, cards) if last else []
+        numbers = view.citation_numbers(last["content"], cards) if last else {}   # as on the badges
         if not ids:
             st.info("Qui compaiono le schede che l'assistente ha consultato e citato, da leggere per intero.")
         else:
-            pick = st.selectbox("Scheda", ids, format_func=lambda i: view.card_label(cards[i]),
-                                key=f"answer_card_{len(state.messages)}", label_visibility="collapsed")
-            show_card(cards[pick], height=460)
+            pick = st.selectbox("Scheda", ids, key=f"answer_card_{len(state.messages)}", label_visibility="collapsed",
+                                format_func=lambda i: (f"{numbers[i]} · " if i in numbers else "") + view.card_label(cards[i]))
+            show_card(cards[pick], height=460, number=numbers.get(pick))
 
 with tab_cards:
     col_list, col_card = st.columns([1, 2], gap="large")
@@ -189,7 +189,7 @@ with tab_eval:
         if runs["agent"]:
             agent = pd.DataFrame(runs["agent"])
             agent["% che passano"] = (100 * agent["passano"] / agent["domande"]).round()
-            st.bar_chart(agent, x="run", y="% che passano", horizontal=True, color="#2fa84f")
+            st.bar_chart(agent, x="run", y="% che passano", horizontal=True, color="#B3122B")
             st.caption("44 domande per run; da sinistra a destra nel tempo: modelli, ultimo giro di prompt, guardrail.")
     with col_b:
         st.markdown("#### 🔍 Ricerca: metodi a confronto")
