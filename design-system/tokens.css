@@ -1,51 +1,50 @@
-/* Match Analyst — design tokens.
-   Light theme by default, dark theme with prefers-color-scheme. The "base" colours are Streamlit's
-   own defaults: the app is drawn inside them, and .streamlit/config.toml can change them. */
+/* Match Analyst — design tokens (the redesign made with Claude Design).
+   A sports paper: pink paper, red accent, black ink, square corners. Light theme by default, dark
+   theme with prefers-color-scheme. In the app: .streamlit/config.toml (theme colours and fonts)
+   and the variables of the CSS block of src/ui/view.py. */
 :root {
-  /* brand: pitch green */
-  --ma-green-900: #0b5d1e;
-  --ma-green-700: #1f8a3b;
-  --ma-green-500: #2fa84f;            /* primaryColor in .streamlit/config.toml */
-  --ma-green-tint: rgba(46, 160, 67, .14);
-  --ma-green-border: rgba(46, 160, 67, .45);
-  --ma-green-wash: rgba(46, 160, 67, .06);
-  --ma-pitch-line: rgba(255, 255, 255, .22);
+  /* colours (config.toml [theme.light]) */
+  --ma-red: #B3122B;                  /* primaryColor: citations, tags, active tab, toggles */
+  --ma-on-red: #FFFFFF;
+  --ma-paper: #F6D3D6;                /* backgroundColor */
+  --ma-bg-secondary: #EFC4C8;         /* secondaryBackgroundColor, sidebar */
+  --ma-card: #FBE9EA;                 /* card headers, welcome tiles */
+  --ma-ink: #111111;                  /* textColor, borderColor, rules */
+  --ma-muted: #4A3A3C;                /* secondary text */
 
-  /* base (Streamlit light theme) */
-  --ma-bg: #ffffff;
-  --ma-bg-secondary: #f0f2f6;
-  --ma-text: #31333f;
-  --ma-text-muted: rgba(49, 51, 63, .6);
-  --ma-border: rgba(128, 128, 128, .28);
-  --ma-warning-bg: rgba(255, 189, 69, .16);
-  --ma-info-bg: rgba(28, 131, 225, .1);
-
-  /* typography (Streamlit default font) */
-  --ma-font: "Source Sans 3", "Source Sans Pro", sans-serif;
-  --ma-size-h1: 1.75rem;
-  --ma-size-h4: 1.1rem;
+  /* typography */
+  --ma-head: "Inter", sans-serif;     /* headingFont: titles, card titles, numbers */
+  --ma-head-weight: 800;
+  --ma-head-case: uppercase;
+  --ma-body: "Newsreader", serif;     /* font: answers and body text */
+  --ma-label: "IBM Plex Sans Condensed", sans-serif;   /* codeFont: labels, badges, tags */
+  --ma-input: "Inter", sans-serif;    /* the text typed in the chat input */
+  --ma-size-hero: clamp(40px, 11vw, 88px);
+  --ma-size-card-title: 28px;
+  --ma-size-tile-title: 24px;
   --ma-size-body: 1rem;
-  --ma-size-small: .88rem;
-  --ma-size-badge: .78rem;
-  --ma-size-tag: .74rem;
+  --ma-size-small: 15px;
+  --ma-size-label: 12px;
 
-  /* shape and space */
-  --ma-radius-hero: 16px;
-  --ma-radius-tile: 14px;
-  --ma-radius-card: 10px;
-  --ma-radius-badge: 6px;
-  --ma-radius-pill: 999px;
-  --ma-space-1: .25rem;
-  --ma-space-2: .5rem;
-  --ma-space-3: .9rem;
-  --ma-space-4: 1.4rem;
+  /* shape and space (baseRadius = 0px: square corners everywhere) */
+  --ma-radius: 0px;
+  --ma-rule: 1px solid var(--ma-ink);
+  --ma-rule-heavy: 6px solid var(--ma-ink);
+  --ma-space-1: 4px;
+  --ma-space-2: 8px;
+  --ma-space-3: 12px;
+  --ma-space-4: 16px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --ma-bg: #0e1117;
-    --ma-bg-secondary: #262730;
-    --ma-text: #fafafa;
-    --ma-text-muted: rgba(250, 250, 250, .6);
+    /* config.toml [theme.dark] */
+    --ma-red: #FF5A6E;
+    --ma-on-red: #1B1315;
+    --ma-paper: #1B1315;
+    --ma-bg-secondary: #2A1D20;
+    --ma-card: #241A1C;
+    --ma-ink: #F6E3E4;
+    --ma-muted: #C9AFB2;
   }
 }

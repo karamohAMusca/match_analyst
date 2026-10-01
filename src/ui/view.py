@@ -56,14 +56,15 @@ RETRIEVAL_NAMES = {"dense": "densa", "bm25": "BM25 (parole chiave)", "hybrid rrf
 CSS = """
 <style>
 /* Classes of the page (.ma-*), from the redesign made with Claude Design (design-system/):
-   titles in Barlow Condensed, text in Newsreader, labels in IBM Plex Sans Condensed. */
-@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap");
+   titles and the chat input in Inter, text in Newsreader, labels in IBM Plex Sans Condensed. */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=IBM+Plex+Sans+Condensed:wght@500;600;700&display=swap");
 
 .block-container {padding-top: 5rem;}   /* the masthead top line clears the Streamlit toolbar */
+[data-testid="stChatInput"] textarea { font-family:"Inter",sans-serif; }
 :root {
   --ma-ink:#111111; --ma-red:#B3122B; --ma-on-red:#FFFFFF;
   --ma-paper:#F6D3D6; --ma-card:#FBE9EA; --ma-muted:#4A3A3C;
-  --ma-head:"Barlow Condensed",sans-serif;
+  --ma-head:"Inter",sans-serif;
   --ma-head-weight:800; --ma-head-case:uppercase;
   --ma-label:"IBM Plex Sans Condensed",sans-serif;
 }

@@ -4,25 +4,28 @@ The visual building blocks of the Streamlit app, as a design system that Claude 
 and redesign: the tokens (colours, type, shape), the components and the states of an answer, each
 with an HTML preview.
 
-It was generated on 2026-09-29 from the app itself: the HTML comes from the formatting functions
-of `src/ui/view.py` (`header_html`, `cite_badges`, `card_header_html`) and the answers are real
-ones, from run `eval/runs/agent_20260929-112013.json`. It shows the app as it is today: the
-starting point of the redesign, not the goal.
+It shows the app as it is today, after the redesign made with Claude Design: a sports paper, with
+pink paper, a red accent, black ink and square corners; titles and the chat input in Inter, the
+answers in Newsreader, labels and badges in IBM Plex Sans Condensed. It was generated on
+2026-10-01 from the app itself: part 1 of `components.css` is the CSS block of `src/ui/view.py`
+copied as it is, the HTML of the previews comes from the formatting functions of the same file
+(`header_html`, `answer_html`, `guard_html`, `card_header_html`, `feature_html`), and the answers
+are real ones, from run `eval/runs/agent_20260929-112013.json`.
 
 ## Structure
 
 | Path | What it is |
 |---|---|
-| `tokens.css` | colours (light and dark theme), font, sizes, radii, spacing, as CSS variables |
-| `components.css` | part 1: the classes of the app (`.ma-hero`, `.ma-cite`, `.ma-card-head`, `.ma-tag`, `.ma-feature`, `.ma-chip`) written with the tokens; part 2 (`.ds-*`): how the Streamlit components around them look, for the previews only |
+| `tokens.css` | colours (light and dark theme, the values of `.streamlit/config.toml`), fonts, sizes, rules, spacing, as CSS variables |
+| `components.css` | part 1: the classes of the app (`.ma-hero`, `.ma-cite`, `.ma-card-head`, `.ma-tag`, `.ma-feature`, `.ma-chip`, `.ma-unknown`, `.ma-guard`), the CSS block of `src/ui/view.py`; part 2 (`.ds-*`): how the Streamlit components around them look, for the previews only |
 | `previews/` | one page per card, grouped by the `@dsCard` comment on its first line: Colors, Type, Components, Answer states, Screens |
 
 | Group | Previews |
 |---|---|
 | Colors, Type | `colors.html`, `typography.html` |
-| Components | `hero.html` (header), `citation-badges.html`, `card-header.html`, `welcome-tiles.html`, `metrics.html`, `sidebar.html` |
-| Answer states | `answer-normal.html` (cited, with a real case), `answer-dont-know.html`, `answer-blocked.html` (off topic), `answer-rewritten.html` (fixed by the guardrail), `answer-loading.html` |
-| Screens | `screen-chat.html`: sidebar, header, tabs, the chat and the cited card side by side |
+| Components | `hero.html` (masthead), `citation-badges.html` (numbered), `card-header.html` (with the number of its citations), `welcome-tiles.html`, `metrics.html`, `sidebar.html` |
+| Answer states | `answer-normal.html` (cited, with a real case), `answer-dont-know.html` (the "Senza fonte" box), `answer-blocked.html` (off topic, dark guardrail box), `answer-rewritten.html` (fixed by the guardrail), `answer-loading.html` |
+| Screens | `screen-chat.html`: sidebar, masthead, tabs, the chat and the cited card side by side |
 
 ## Working with Claude Design
 
@@ -41,12 +44,10 @@ starting from the Chat screen, and sync again when the result is ready.
 
 The app is Streamlit, so a new design comes back in two places only:
 - the tokens → `.streamlit/config.toml` (`primaryColor`, `backgroundColor`, `secondaryBackgroundColor`,
-  `textColor`, `font`) and the variables of the CSS block;
+  `textColor`, `borderColor`, `font`, `headingFont`, `codeFont`, `baseRadius`, for both themes)
+  and the variables of the CSS block;
 - part 1 of `components.css` → the `CSS` block of `src/ui/view.py`, same class names.
 
 Part 2 (`.ds-*`) only imitates Streamlit for the previews: layout, widgets and the chat input are
 Streamlit's own and can be restyled, not rebuilt. The app tests (`tests/test_app.py`,
 `tests/test_ui.py`) must stay green: a redesign changes the look, not the behaviour.
-
-Known detail of today's design, visible in `answer-normal.html`: a citation badge never breaks
-across lines, so the full stop after it can wrap alone to the next line.
