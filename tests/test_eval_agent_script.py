@@ -68,10 +68,10 @@ def test_follow_up_is_added_to_the_other_questions(run_script):
     assert [r["question_id"] for r in data["questions"]] == ["Q24", "Q37"]
 
 
-def test_verifier_is_on_by_default_and_shared_by_the_conversations(run_script):
-    data, clients = run_script("--ids", "Q24", "--follow-up")
+def test_verifier_is_opt_in_and_shared_by_the_conversations(run_script):
+    data, clients = run_script("--ids", "Q24", "--follow-up", "--verifier")
     assert data["verifier"] == "fake-judge" and len(clients) == 2      # the verifier model really used; two agents
     [verifier] = run_script.verifiers                                 # one verifier for both
     assert verifier.inputs                                            # it checked the answers
-    data, _ = run_script("--ids", "Q24", "--no-verifier")
+    data, _ = run_script("--ids", "Q24")
     assert data["verifier"] is None and len(run_script.verifiers) == 1

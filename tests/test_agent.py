@@ -84,15 +84,15 @@ def test_model_option_overrides_the_default(retriever, monkeypatch):
     monkeypatch.setattr(analyst_module, "load_settings", lambda: SimpleNamespace(chat_model="gpt-4o-mini"))
     monkeypatch.setattr(analyst_module, "require_api_key", lambda provider: f"test-key-{provider}")
     monkeypatch.setattr(openai_clients, "OpenAIClient", lambda **kw: created.append(kw) or ScriptedLLM())
-    assert MatchAnalyst(retriever=retriever).model == "gpt-4o-mini"
-    assert MatchAnalyst(retriever=retriever, model="gpt-4.1-mini").model == "gpt-4.1-mini"
+    assert MatchAnalyst(retriever=retriever, verify=True).model == "gpt-4o-mini"
+    assert MatchAnalyst(retriever=retriever, model="gpt-4.1-mini", verify=True).model == "gpt-4.1-mini"
     agents, verifiers = created[0::2], created[1::2]          # each analyst: its agent, then its verifier
     assert [c["model"] for c in agents] == ["gpt-4o-mini", "gpt-4.1-mini"]
     assert agents[0]["api_key"] == "test-key-openai" and agents[0]["temperature"] == 0.1
     assert all(v["model"] == VERIFIER_MODEL and v["timeout"] == 60 and v["temperature"] == 0.01 for v in verifiers)
     created.clear()
-    assert MatchAnalyst(retriever=retriever, verify=False).verifier is None
-    assert MatchAnalyst(retriever=retriever, guardrails=False).verifier is None      # the bare agent
+    assert MatchAnalyst(retriever=retriever).verifier is None                        # off by default
+    assert MatchAnalyst(retriever=retriever, guardrails=False, verify=True).verifier is None   # the bare agent
     assert [c["model"] for c in created] == ["gpt-4o-mini", "gpt-4o-mini"]            # no verifier built
 
 

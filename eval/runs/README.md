@@ -31,6 +31,8 @@ answer language, are stricter).
 | `agent_20260928-180737` | gpt-4.1-mini + guardrails | 44 | 34 | 35 with multi-card citations accepted; fails the trap Q18 |
 | `agent_20260929-104445` | gpt-4o-mini + guardrails | 1 (two turns) | 0 | `--follow-up`: Q37 asked right after Q13 in one conversation; it consulted the expected card, but did not use the previous turn (no 4-3-3 in the answer) |
 | `agent_20260929-112013` | gpt-4o-mini + guardrails | 44 + two turns | 34 + 0/1 | prompt: advice tailored to the coach's own description. Q13 now builds on "la tua formazione 4-3-3"; Q37 still does not name it. +Q01, Q02, Q21, Q34, −Q38 (mostly required-facts variance); 10 answers rewritten, no invented name left |
+| `agent_20261009-105701` | gpt-4o-mini + guardrails, no verifier | 5 known-error questions (Q12, Q18, Q31, Q35, Q37 after Q13) | 3/5 | Q35 states an invented PPDA threshold ("inferiore a 10 indica un pressing d'élite", E5) and passes every check; Q37 gets the roles right this time |
+| `agent_20261009-105844` | the same + verifier gpt-4.1-mini | the same 5 | 4/5 | the verifier catches E5 (rewritten to "Non lo so" + the cards' values) and Lahm stays in Q31 (E9); it misses E2 in Q37 ("l'Atalanta ha sfruttato il pressing a uomo del Leverkusen"): it quoted the right sentence as evidence and called it supported. Rechecked apart: caught 4/4; with the roles written out before the verdict, 10/10 as expected (E2 5/5, no false alarm on the right version 3/3, E5 2/2), 0.0036 $ per check |
 
 ## Gold runs (`scripts/gold_run.py`, 41 questions, LLM judge)
 
@@ -47,6 +49,9 @@ answer language, are stricter).
 | `gold_20260929-101624` | replay of `agent_20260928-180737`, 8 known questions | gpt-4.1 | claims | judge check: catches Q18, Q12 and Q35's invented threshold (missed by gpt-4.1-mini), fewer false alarms; 0.16 $ for 8 questions (≈ 0.75 $ a full run vs ≈ 0.13 $) |
 | `gold_20260929-110927` | replay of `agent_20260928-175508`, Q17 only | gpt-4.1-mini | claims | judge cache check, first run: 3 judge calls, 0.0020 $, 6.9 s |
 | `gold_20260929-110935` | the same, again | gpt-4.1-mini | claims | judge cache check, second run: the same verdicts, 3 calls answered by the cache, 0 $, 0.02 s |
+| `gold_20261009-112356` | live gpt-4o-mini + guardrails (tag verifier-off) | gpt-4.1-mini | claims | **current reference**: faithfulness 0.923, relevancy 0.974, abstention 3/3, recall@5 0.95, MRR 0.84, p50 4.1 s / p95 7.2 s, 0.0012 $ per answer. With the changes since 2026-09-29 (prompt tailored to the coach, input guard, E9 rewrite instruction) |
+| `gold_20261009-114805` | the same + verifier gpt-4.1-mini with roles (tag verifier-on) | gpt-4.1-mini | claims | faithfulness 0.949 (+0.025), relevancy 0.966, p50 17.7 s / p95 32.3 s, 0.0064 $ per answer: **under the acceptance gate** (+0.03 required; latency and cost far over budget), and the judge shares the verifier's model and method, so the gain is if anything overrated. 9 questions better, 5 worse; Q35's threshold softened by the rewrite but still there. Verifier kept, off by default (`--verifier`) |
 
 Chosen: agent **gpt-4o-mini** (same faithfulness as gpt-4.1-mini at about a third of the cost, and no
 wrong attribution on the trap Q18), judge **gpt-4.1-mini** for routine runs, checked against gpt-4.1.
+Verifier (2026-10-09): not adopted by default, under the gate on faithfulness gain, latency and cost (`gold_20261009-114805` vs `-112356`).

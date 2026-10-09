@@ -342,6 +342,7 @@ def run_summaries(runs_dir: Path) -> dict[str, Any]:
             metrics = data["metrics"]
             gold.append({"file": path.name, "tag": data.get("tag"), "metrics": metrics,
                          "live": not data.get("rejudged_from") and not metrics.get("replayed"),
+                         "verifier": data.get("verifier"),
                          "judge": data.get("judge_model"), "method": data.get("faithfulness_method") or "holistic"})
         elif path.name.startswith("retrieval_"):
             retrieval = data
@@ -350,7 +351,7 @@ def run_summaries(runs_dir: Path) -> dict[str, Any]:
         overall = summary.get("overall", summary)
         retrieval_rows.append({"metodo": RETRIEVAL_NAMES.get(name, name),
                                "recall@5": overall.get("recall@5"), "MRR": overall.get("MRR@10")})
-    live = [g for g in gold if g["live"]]
+    live = [g for g in gold if g["live"] and not g["verifier"]]   # the configuration the app runs
     final = {}   # the latest "final-*" judgement of each agent model: the numbers quoted in the README
     for path in sorted(runs_dir.glob("gold_*.json")):
         data = json.loads(path.read_text(encoding="utf-8"))

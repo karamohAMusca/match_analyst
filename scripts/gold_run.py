@@ -4,7 +4,7 @@
     python -m scripts.gold_run --tag baseline           # label of the run (in Phoenix and in the file)
     python -m scripts.gold_run --model gpt-4.1-mini     # another model for the agent
     python -m scripts.gold_run --no-guardrails          # the bare agent
-    python -m scripts.gold_run --no-verifier            # guardrails without the verifier, to measure it
+    python -m scripts.gold_run --verifier               # with the verifier (off by default)
     python -m scripts.gold_run --ids Q13,Q17,Q35        # some questions only
     python -m scripts.gold_run --rejudge eval/runs/agent_20260928-175508.json --judge-model gpt-4.1-mini
                                                         # same saved answers, another judge (judge cost only)
@@ -25,7 +25,7 @@ verdicts; --no-judge-cache asks the judge again (e.g. to see how much its verdic
 --rejudge replays the answers of a saved run (a gold run or an eval_agent run) instead of asking
 the agent: faithfulness is judged on the cards that run consulted, so two judges can be compared
 on exactly the same answers. Latency and cost of the answers are not re-measured.
-With the guardrails on, the verifier (src/guardrails/verifier.py) checks every statement of every
+With --verifier, the verifier (src/guardrails/verifier.py) checks every statement of every
 answer: its calls are in the cost of the answers, priced with its own model. Its method and model are
 the judge's, so a run judged by gpt-4.1-mini favours it: re-judge the same run with --judge-model
 gpt-4.1 to compare.
@@ -53,7 +53,7 @@ def main() -> int:
     parser.add_argument("--model", help="agent model (default: OPENAI_CHAT_MODEL, else gpt-4o-mini)")
     parser.add_argument("--judge-model", help="judge model (default: gpt-4.1-mini, the same for every run)")
     parser.add_argument("--no-guardrails", action="store_true", help="run the bare agent")
-    parser.add_argument("--no-verifier", action="store_true", help="keep the guardrails, without the verifier")
+    parser.add_argument("--verifier", action="store_true", help="add the verifier (off by default)")
     parser.add_argument("--ids", help="comma-separated question ids, e.g. Q13,Q17")
     parser.add_argument("--rejudge", help="saved run to judge again (eval/runs/gold_*.json or agent_*.json)")
     parser.add_argument("--faithfulness", choices=["claims", "holistic"], default="claims",
@@ -85,7 +85,7 @@ def main() -> int:
     source = json.loads(Path(args.rejudge).read_text(encoding="utf-8")) if args.rejudge else None
     try:
         if source is None:
-            analyst = MatchAnalyst(model=args.model, guardrails=not args.no_guardrails, verify=not args.no_verifier)
+            analyst = MatchAnalyst(model=args.model, guardrails=not args.no_guardrails, verify=args.verifier)
             retriever, agent_model, guardrails_on = analyst.corpus_tools.retriever, analyst.model, analyst.guardrails
             verifier_model = analyst.verifier_model
         else:

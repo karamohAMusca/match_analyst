@@ -5,7 +5,7 @@
     python -m scripts.eval_agent --all            # whole gold set (~$0.1 with gpt-4o-mini)
     python -m scripts.eval_agent --all --model gpt-4.1-mini   # same questions, another model
     python -m scripts.eval_agent --all --no-guardrails        # bare agent, to measure the guardrails
-    python -m scripts.eval_agent --all --no-verifier          # guardrails without the verifier, to measure it
+    python -m scripts.eval_agent --all --verifier             # with the verifier (off by default), to measure it
     python -m scripts.eval_agent --no-trace                   # do not send traces to Phoenix
     python -m scripts.eval_agent --follow-up                  # two-turn questions (conversation memory)
     python -m scripts.eval_agent --all --follow-up            # the whole gold set, 45 questions
@@ -19,7 +19,7 @@ as citations, names and numbers present in the consulted cards (grounding), corr
 "Non lo so" when required, answer in the language of the question, required facts, forbidden
 claims, length of advice.
 The checks run on the final answer, after the guardrails; what the guardrails did (input
-verdict, problems found, rewrite) is saved with it. With the guardrails on, the verifier
+verdict, problems found, rewrite) is saved with it. With --verifier, the verifier
 (src/guardrails/verifier.py, gpt-4.1-mini) checks every statement too: two more calls per
 answer. Answers, checks, guardrails, model and verifier are saved to eval/runs/agent_<time>.json.
 Needs Qdrant running, the index built and OPENAI_API_KEY. With Phoenix running, every question
@@ -63,7 +63,7 @@ def main() -> int:
                         help="add the follow-up questions, each after its previous turn (with --all: all 45)")
     parser.add_argument("--model", help="OpenAI chat model (default: OPENAI_CHAT_MODEL, else gpt-4o-mini)")
     parser.add_argument("--no-guardrails", action="store_true", help="run the bare agent, without input/output guards")
-    parser.add_argument("--no-verifier", action="store_true", help="keep the guardrails, without the verifier")
+    parser.add_argument("--verifier", action="store_true", help="add the verifier (off by default)")
     parser.add_argument("--no-trace", action="store_true", help="do not send traces to Phoenix")
     args = parser.parse_args()
     if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
@@ -90,7 +90,7 @@ def main() -> int:
         settings = load_settings()
         print(setup_tracing(settings.phoenix_endpoint, settings.phoenix_project))
     try:
-        analyst = MatchAnalyst(model=args.model, guardrails=not args.no_guardrails, verify=not args.no_verifier)
+        analyst = MatchAnalyst(model=args.model, guardrails=not args.no_guardrails, verify=args.verifier)
     except (ValueError, RuntimeError) as e:
         print(e)
         return 1

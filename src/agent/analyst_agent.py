@@ -70,7 +70,7 @@ class MatchAnalyst:
         model: str | None = None,
         guardrails: bool = True,
         verifier: Client | None = None,
-        verify: bool = True,
+        verify: bool | None = None,
     ) -> None:
         """Create the agent.
 
@@ -87,7 +87,9 @@ class MatchAnalyst:
             guardrails: False runs the bare agent (to measure what the guardrails change).
             verifier: client of the verifier; defaults to VERIFIER_MODEL, built only together with
                 the default `client` (tests that pass a mock pass a fake verifier to test it).
-            verify: False keeps the other guardrails without the verifier (to measure it).
+            verify: True adds the verifier (off by default: in gold runs 114805 vs 112356 it gave
+                +0.025 faithfulness for 5x the cost and 4x the latency, under the acceptance gate);
+                None = on only when a `verifier` client is given; False = off.
 
         Raises:
             ValueError: if the OpenAI client is needed and OPENAI_API_KEY is not configured.
@@ -98,7 +100,7 @@ class MatchAnalyst:
             model = model or load_settings().chat_model
             client = ClientFactory.create(provider=LLM_PROVIDER, api_key=require_api_key(LLM_PROVIDER),
                                           model=model, temperature=temperature)
-        verify = verify and guardrails
+        verify = (verifier is not None if verify is None else verify) and guardrails
         if verify and verifier is None and default_clients:
             verifier = ClientFactory.create(provider=LLM_PROVIDER, api_key=require_api_key(LLM_PROVIDER),
                                             model=VERIFIER_MODEL, temperature=JUDGE_TEMPERATURE,

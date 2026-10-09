@@ -190,12 +190,17 @@ guardrails did.
   in the consulted cards, and it must cite `[card_id]`s it actually consulted. On a problem the
   model gets a precise note and rewrites the answer once; the rewrite is kept only if it is not
   worse, and what happened is always reported;
-- *verifier* (`src/guardrails/verifier.py`, a second model after the writer): the checks above see
-  names, numbers and citations, not who did what ("Inter defended a lead" passes them, while the
-  card says City won). The verifier runs the gold run's claim-by-claim check at answer time: every
-  statement is checked against the consulted cards, and each unsupported one goes into the same
-  single rewrite, with what the cards say. Model gpt-4.1-mini, two calls per answer, in the answer's
-  cost. Being measured: `--no-verifier` (in `eval_agent` and `gold_run`) runs without it.
+- *verifier*, optional (`src/guardrails/verifier.py`, a second model after the writer: a sequential
+  architecture): the checks above see names, numbers and citations, not who did what ("Inter
+  defended a lead" passes them, while the card says City won). The verifier runs the gold run's
+  claim-by-claim check at answer time, writing who does what to whom in each statement and in its
+  evidence before deciding; each unsupported statement goes into the same single rewrite, with what
+  the cards say. **Off by default** (`--verifier` in `eval_agent` and `gold_run`): measured on the
+  gold set it raised faithfulness from 0.923 to 0.949, under the +0.03 the acceptance gate requires,
+  for 5 times the cost (0.0064 $ per answer) and 4 times the latency (p95 32 s). On the known
+  errors it works (it catches the swapped roles of E2 and the invented threshold of E5), but a
+  single check is not stable: in one run it quoted the right sentence and called the wrong one
+  supported (see `eval/error_log.md`).
 
 To check answers automatically on a set of gold questions (citations only to consulted cards,
 grounding, language, correct tool use, "Non lo so" when required, required facts; ~$0.02 for
@@ -272,7 +277,7 @@ environment where `requirements.txt` is installed (with the setup of
 ```bash
 python -m scripts.gold_run --tag baseline              # ~$0.2 with gpt-4o-mini
 python -m scripts.gold_run --tag gpt41 --model gpt-4.1-mini
-python -m scripts.gold_run --tag no-verifier --no-verifier   # guardrails without the verifier
+python -m scripts.gold_run --tag verifier-on --verifier      # with the verifier (off by default)
 python -m scripts.gold_run --rejudge eval/runs/agent_20260928-180737.json --judge-model gpt-4.1-mini
 ```
 
@@ -308,6 +313,12 @@ Retrieval on the same questions: recall@1 0.76, recall@5 0.95, MRR 0.84. Live ru
 latency p50 5.0 s / p95 10.1 s, about 0.0012 $ per answer. gpt-4o-mini is the default: the same
 faithfulness at about a third of the cost, and no wrong attribution on the trap question;
 gpt-4.1-mini gives more complete answers and can be chosen in the app.
+
+**Current reference** (live run `gold_20261009-112356`, gpt-4o-mini with guardrails, after the
+prompt tailored to the coach, the input-guard fixes and the E9 rewrite instruction): faithfulness
+0.923, relevancy 0.974, abstention 3/3, recall@5 0.95, MRR 0.84, p50 4.1 s / p95 7.2 s, 0.0012 $ per
+answer. With the verifier (`-114805`): faithfulness 0.949, relevancy 0.966, p95 32.3 s, 0.0064 $
+per answer, so it stays off by default.
 
 **Choosing the judge**, on answers whose errors are known (runs `gold_20260929-094225`, `-094857`,
 `-101624`):

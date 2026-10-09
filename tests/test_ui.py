@@ -105,7 +105,7 @@ def test_saved_runs_summary():
     assert len(runs["agent"]) == 6 and [r["domande"] for r in runs["agent"]] == [44] * 5 + [45]   # + two turns
     assert runs["agent"][-2]["run"] == "gpt-4.1-mini + guardrail (18:07)"
     assert runs["agent"][-1]["run"] == "gpt-4o-mini + guardrail (11:20)" and runs["agent"][-1]["passano"] == 34
-    assert runs["gold_live"]["file"] == "gold_20260928-215839.json"
+    assert runs["gold_live"]["file"] == "gold_20261009-112356.json"     # not -114805: it used the verifier
     final = {r["agente"]: r for r in runs["final"]}                     # the numbers of the README
     assert round(final["gpt-4o-mini"]["fedeltà"], 3) == 0.910 and round(final["gpt-4.1-mini"]["pertinenza"], 2) == 0.98
     chosen = next(r for r in runs["retrieval"] if r["metodo"] == "ibrida interleave (scelta)")
