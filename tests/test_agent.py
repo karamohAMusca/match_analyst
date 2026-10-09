@@ -11,7 +11,8 @@ from datapizza.type import ROLE, TextBlock
 import src.agent.analyst_agent as analyst_module
 from src.agent.analyst_agent import MatchAnalyst
 from src.agent.prompts import MATCH_ANALYST_SYSTEM_PROMPT
-from tests.fakes import ScriptedLLM
+from src.guardrails.verifier import VERIFIER_MODEL
+from tests.fakes import FakeJudge, ScriptedLLM
 
 QUESTION = "Primavera del Chievo: si gioca alla domenica come ci si allena durante la settimana"
 
@@ -85,8 +86,14 @@ def test_model_option_overrides_the_default(retriever, monkeypatch):
     monkeypatch.setattr(openai_clients, "OpenAIClient", lambda **kw: created.append(kw) or ScriptedLLM())
     assert MatchAnalyst(retriever=retriever).model == "gpt-4o-mini"
     assert MatchAnalyst(retriever=retriever, model="gpt-4.1-mini").model == "gpt-4.1-mini"
-    assert [c["model"] for c in created] == ["gpt-4o-mini", "gpt-4.1-mini"]
-    assert created[0]["api_key"] == "test-key-openai" and created[0]["temperature"] == 0.1
+    agents, verifiers = created[0::2], created[1::2]          # each analyst: its agent, then its verifier
+    assert [c["model"] for c in agents] == ["gpt-4o-mini", "gpt-4.1-mini"]
+    assert agents[0]["api_key"] == "test-key-openai" and agents[0]["temperature"] == 0.1
+    assert all(v["model"] == VERIFIER_MODEL and v["timeout"] == 60 and v["temperature"] == 0.01 for v in verifiers)
+    created.clear()
+    assert MatchAnalyst(retriever=retriever, verify=False).verifier is None
+    assert MatchAnalyst(retriever=retriever, guardrails=False).verifier is None      # the bare agent
+    assert [c["model"] for c in created] == ["gpt-4o-mini", "gpt-4o-mini"]            # no verifier built
 
 
 ENGLISH_QUESTION = "In Pioli's thesis, how does the 4-4-2 press on the flanks?"
@@ -123,6 +130,50 @@ def test_chat_memory_holds_the_rewritten_answer(retriever):
     assert not any(a.startswith("Dalle schede:") for a in answers)
     single = MatchAnalyst(client=ScriptedLLM(rewrite=ENGLISH_REWRITE), retriever=retriever)
     assert single.analyze(ENGLISH_QUESTION) == ENGLISH_REWRITE and len(single.agent._memory) == 0
+
+
+CORRECTED = "La tesi di Pioli descrive il 4-4-2 a zona [coach_pioli]."
+
+
+def test_unsupported_statement_is_corrected_by_the_rewrite(retriever):
+    # Found in the app: "Inter defended a lead in the 2023 final" passed every deterministic check
+    # (the card names Inter), while City won 1-0. Here the fake verifier rejects the Chievo statements.
+    verifier = FakeJudge(unsupported=("Chievo",))
+    llm = ScriptedLLM(rewrite=CORRECTED)
+    analyst = MatchAnalyst(client=llm, retriever=retriever, verifier=verifier)
+    assert analyst.analyze(QUESTION) == CORRECTED
+    issues = analyst.last_guard["issues"]
+    assert issues and all(i.startswith("unsupported: ") and "Chievo" in i for i in issues)
+    [request] = llm.rewrite_requests
+    assert "This statement is not supported by the cards" in request and "Correct it with what the cards say" in request
+    assert analyst.last_guard["rewritten"] and analyst.last_guard["remaining"] == []   # the rewrite is verified too
+    assert len(verifier.inputs) == 4                          # statements + verdicts, for the answer and the rewrite
+    assert analyst.guard_note.count("affermazioni non confermate dalle schede") == 1
+
+
+def test_statement_still_unsupported_after_the_rewrite_is_reported(retriever):
+    still_wrong = "La tesi parla della Primavera del Chievo [coach_pioli]."
+    analyst = MatchAnalyst(client=ScriptedLLM(rewrite=still_wrong), retriever=retriever,
+                           verifier=FakeJudge(unsupported=("Chievo",)))
+    assert analyst.analyze(QUESTION) == still_wrong           # fewer problems than the first answer: kept
+    assert analyst.last_guard["remaining"] == ["unsupported: La tesi parla della Primavera del Chievo"]
+    assert "da verificare: unsupported: La tesi parla della Primavera del Chievo" in analyst.guard_note
+
+
+def test_failed_verification_never_blocks_the_answer(retriever):
+    analyst = MatchAnalyst(client=ScriptedLLM(), retriever=retriever, verifier=FakeJudge(fail=True))
+    assert analyst.analyze(QUESTION).startswith("Dalle schede:")
+    assert "judge error" in analyst.last_guard["verifier_error"]
+    assert "verifica delle affermazioni non completata" in analyst.guard_note
+
+
+def test_verifier_runs_only_on_answers_from_cards(retriever):
+    verifier = FakeJudge()
+    analyst = MatchAnalyst(client=ScriptedLLM(), retriever=retriever, verifier=verifier)
+    analyst.analyze("Ciao, chi sei?")
+    analyst.analyze("Mi scrivi la ricetta della carbonara?")
+    assert verifier.inputs == []                              # no card consulted: nothing to verify
+    assert MatchAnalyst(client=ScriptedLLM(), retriever=retriever, verifier=verifier, verify=False).verifier is None
 
 
 def test_worse_rewrite_is_discarded(retriever):

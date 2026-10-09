@@ -302,7 +302,9 @@ def details_markdown(message: dict[str, Any]) -> str:
         f"- ⏱️ **Tempo:** {meta.get('latency_s', 0):.1f} s",
         f"- 🔤 **Token:** {_n(tokens)} (letti {_n(meta.get('prompt_tokens', 0))}, "
         f"scritti {_n(meta.get('completion_tokens', 0))})",
-        f"- 💰 **Costo:** {meta.get('cost_usd', 0):.4f} $ ({meta.get('model', '—')})",
+        f"- 💰 **Costo:** {meta.get('cost_usd', 0):.4f} $ ({meta.get('model', '—')}"
+        + (f" + verifica {meta['verifier_model']}, {_n(meta.get('verifier_tokens', 0))} token"
+           if meta.get("verifier_model") else "") + ")",
         f"- 🔎 **Ricerche:** {searches} · **schede consultate:** {len(message.get('consulted') or [])}",
         f"- 🛡️ **Guardrail di ingresso:** {GUARD_INPUT.get(guard.get('input'), 'spenti')}",
         f"- 🛡️ **Guardrail di uscita:** {output}",

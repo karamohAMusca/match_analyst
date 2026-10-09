@@ -189,7 +189,13 @@ guardrails did.
 - *output*: the answer must be in the language of the question, its names and numbers must appear
   in the consulted cards, and it must cite `[card_id]`s it actually consulted. On a problem the
   model gets a precise note and rewrites the answer once; the rewrite is kept only if it is not
-  worse, and what happened is always reported.
+  worse, and what happened is always reported;
+- *verifier* (`src/guardrails/verifier.py`, a second model after the writer): the checks above see
+  names, numbers and citations, not who did what ("Inter defended a lead" passes them, while the
+  card says City won). The verifier runs the gold run's claim-by-claim check at answer time: every
+  statement is checked against the consulted cards, and each unsupported one goes into the same
+  single rewrite, with what the cards say. Model gpt-4.1-mini, two calls per answer, in the answer's
+  cost. Being measured: `--no-verifier` (in `eval_agent` and `gold_run`) runs without it.
 
 To check answers automatically on a set of gold questions (citations only to consulted cards,
 grounding, language, correct tool use, "Non lo so" when required, required facts; ~$0.02 for
@@ -266,6 +272,7 @@ environment where `requirements.txt` is installed (with the setup of
 ```bash
 python -m scripts.gold_run --tag baseline              # ~$0.2 with gpt-4o-mini
 python -m scripts.gold_run --tag gpt41 --model gpt-4.1-mini
+python -m scripts.gold_run --tag no-verifier --no-verifier   # guardrails without the verifier
 python -m scripts.gold_run --rejudge eval/runs/agent_20260928-180737.json --judge-model gpt-4.1-mini
 ```
 

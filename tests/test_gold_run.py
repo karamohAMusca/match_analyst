@@ -76,6 +76,15 @@ def test_run_metrics_on_in_corpus_and_out_of_corpus_questions():
     assert rows[0]["rank"] == 2 and rows[0]["faithfulness_reason"] == "scripted" and rows[1]["abstained"]
 
 
+def test_an_answer_that_used_two_models_gives_its_own_cost():
+    # With the verifier, an answer costs the agent's tokens at its price plus the verifier's at its own.
+    gold = load_gold(ids=["Q17"])
+    resp = _answer("60,2% [case_2026_wc_final_spain_argentina].")
+    answer_fn = lambda q, k=5: SimpleNamespace(**vars(resp(q)), cost_usd=0.0042)   # noqa: E731
+    metrics, rows = run(answer_fn, lambda q, k=10: [CARD], gold, FakeJudge())
+    assert rows[0]["cost_usd"] == 0.0042 and metrics["cost_per_query_usd"] == 0.0042
+
+
 def test_faithfulness_is_judged_on_what_the_agent_read():
     gold = load_gold(ids=["Q17"])
     judge = FakeJudge()

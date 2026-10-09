@@ -7,8 +7,9 @@ import pytest
 
 import src.ui.backend as backend
 from src.core.config import PROJECT_ROOT
+from src.evaluation.cost import estimate_cost
 from src.ui import view
-from tests.fakes import ScriptedLLM
+from tests.fakes import FakeJudge, ScriptedLLM
 
 CARDS = view.load_card_index()
 QUESTION = "Primavera del Chievo: si gioca alla domenica come ci si allena durante la settimana"
@@ -122,6 +123,19 @@ def test_conversation_answer_with_its_numbers(conversation):
     assert message["role"] == "assistant" and message["consulted"][0] == "coach_pioli"
     assert message["calls"][0]["tool"] == "search_cards" and message["guard"]["input"] == "football"
     assert message["meta"]["model"] == "gpt-4o-mini" and message["meta"]["latency_s"] >= 0
+
+
+def test_the_verifier_is_in_the_cost_and_in_the_details(retriever, monkeypatch):
+    judge = FakeJudge()                                        # 100 + 20 tokens per call
+    judge.model_name = "gpt-4.1-mini"                          # priced like the real verifier
+    monkeypatch.setattr(backend, "make_client", lambda model: ScriptedLLM())
+    monkeypatch.setattr(backend, "make_verifier", lambda: judge)
+    conversation = backend.Conversation("gpt-4o-mini", True, retriever)
+    meta = conversation.ask(QUESTION)["meta"]
+    assert meta["verifier_model"] == "gpt-4.1-mini" and meta["verifier_tokens"] == 240   # statements + verdicts
+    agent = estimate_cost(meta["prompt_tokens"], meta["completion_tokens"], "gpt-4o-mini")
+    assert meta["cost_usd"] == pytest.approx(agent + estimate_cost(200, 40, "gpt-4.1-mini"))
+    assert "+ verifica gpt-4.1-mini, 240 token" in view.details_markdown({"meta": meta})
 
 
 def test_conversation_keeps_memory_and_guardrails(conversation):

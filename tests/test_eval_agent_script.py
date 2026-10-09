@@ -13,16 +13,25 @@ import pytest
 
 import scripts.eval_agent as eval_agent
 import src.agent.analyst_agent as analyst_module
-from tests.fakes import ScriptedLLM
+from src.guardrails.verifier import VERIFIER_MODEL
+from tests.fakes import FakeJudge, ScriptedLLM
 
 FOLLOW_UP = "E se invece ci pressano alti a uomo?"
 
 
 @pytest.fixture
 def run_script(retriever, monkeypatch, tmp_path):
-    """Runs the script with `args`; returns (saved run, the fake clients in creation order)."""
+    """Runs the script with `args`; returns (saved run, the fake agent clients in creation order).
+    The verifiers are fake judges, in `run.verifiers`."""
     clients: list[ScriptedLLM] = []
-    monkeypatch.setattr(openai_clients, "OpenAIClient", lambda **kw: clients.append(ScriptedLLM()) or clients[-1])
+    verifiers: list[FakeJudge] = []
+
+    def fake_openai_client(**kw):
+        made, where = (FakeJudge(), verifiers) if kw["model"] == VERIFIER_MODEL else (ScriptedLLM(), clients)
+        where.append(made)
+        return made
+
+    monkeypatch.setattr(openai_clients, "OpenAIClient", fake_openai_client)
     monkeypatch.setattr(analyst_module, "require_api_key", lambda provider: "test-key")
     monkeypatch.setattr(analyst_module, "load_settings", lambda: SimpleNamespace(chat_model="gpt-4o-mini"))
     monkeypatch.setattr(analyst_module, "build_retriever", lambda: retriever)
@@ -39,6 +48,7 @@ def run_script(retriever, monkeypatch, tmp_path):
         saved.unlink()
         return data, clients
 
+    run.verifiers = verifiers
     return run
 
 
@@ -56,3 +66,12 @@ def test_follow_up_is_asked_after_its_previous_turn_in_the_same_conversation(run
 def test_follow_up_is_added_to_the_other_questions(run_script):
     data, _ = run_script("--ids", "Q24", "--follow-up")
     assert [r["question_id"] for r in data["questions"]] == ["Q24", "Q37"]
+
+
+def test_verifier_is_on_by_default_and_shared_by_the_conversations(run_script):
+    data, clients = run_script("--ids", "Q24", "--follow-up")
+    assert data["verifier"] == "fake-judge" and len(clients) == 2      # the verifier model really used; two agents
+    [verifier] = run_script.verifiers                                 # one verifier for both
+    assert verifier.inputs                                            # it checked the answers
+    data, _ = run_script("--ids", "Q24", "--no-verifier")
+    assert data["verifier"] is None and len(run_script.verifiers) == 1

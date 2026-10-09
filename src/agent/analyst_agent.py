@@ -1,11 +1,12 @@
 """The assistant coach agent (datapizza-ai `Agent` with the corpus tools), wrapped by the guardrails:
 
-    question -> input guard -> agent (search, read, answer) -> output guard -> (one rewrite) -> answer
+    question -> input guard -> agent (search, read, answer) -> output guard + verifier -> (one rewrite) -> answer
 
 The input guard stops injection attempts, off-topic questions and oversized inputs before any
-model call; the output guard checks language, grounding and citations and, on a problem, asks
-the model for one rewrite. What the guards did is in `last_guard` and `guard_note`: a silent
-guardrail is indistinguishable from a broken one.
+model call; the output guard checks language, grounding and citations, and the verifier (a second
+model, src/guardrails/verifier.py) checks every statement against the consulted cards. On a
+problem, the model rewrites the answer once. What the guards did is in `last_guard` and
+`guard_note`: a silent guardrail is indistinguishable from a broken one.
 """
 
 from __future__ import annotations
@@ -23,7 +24,9 @@ from datapizza.type import ROLE, TextBlock
 from src.agent.prompts import MATCH_ANALYST_SYSTEM_PROMPT, REWRITE_REQUEST
 from src.core.config import LLM_PROVIDER, load_settings, require_api_key
 from src.guardrails.input_guard import check_question
+from src.evaluation.judge import JUDGE_MAX_RETRIES, JUDGE_TEMPERATURE, JUDGE_TIMEOUT_S
 from src.guardrails.output_guard import Issue, review_answer
+from src.guardrails.verifier import VERIFIER_MODEL, verify_answer
 from src.observability.tracing import set_output, span
 from src.rag.embedding_cache import CachedEmbedder
 from src.rag.retrieval import Retriever
@@ -42,6 +45,7 @@ ISSUE_NOTES = {
     "ungrounded": "nomi o numeri non presenti nelle schede",
     "unknown_citation": "citazioni di schede non consultate",
     "no_citation": "nessuna scheda citata",
+    "unsupported": "affermazioni non confermate dalle schede",
 }
 
 
@@ -65,6 +69,8 @@ class MatchAnalyst:
         k: int = 5,
         model: str | None = None,
         guardrails: bool = True,
+        verifier: Client | None = None,
+        verify: bool = True,
     ) -> None:
         """Create the agent.
 
@@ -79,17 +85,27 @@ class MatchAnalyst:
             k: passages returned by each search.
             model: OpenAI chat model; defaults to OPENAI_CHAT_MODEL (unused when `client` is given).
             guardrails: False runs the bare agent (to measure what the guardrails change).
+            verifier: client of the verifier; defaults to VERIFIER_MODEL, built only together with
+                the default `client` (tests that pass a mock pass a fake verifier to test it).
+            verify: False keeps the other guardrails without the verifier (to measure it).
 
         Raises:
             ValueError: if the OpenAI client is needed and OPENAI_API_KEY is not configured.
             RuntimeError: if the default retriever cannot reach Qdrant.
         """
+        default_clients = client is None
         if client is None:
             model = model or load_settings().chat_model
             client = ClientFactory.create(provider=LLM_PROVIDER, api_key=require_api_key(LLM_PROVIDER),
                                           model=model, temperature=temperature)
+        verify = verify and guardrails
+        if verify and verifier is None and default_clients:
+            verifier = ClientFactory.create(provider=LLM_PROVIDER, api_key=require_api_key(LLM_PROVIDER),
+                                            model=VERIFIER_MODEL, temperature=JUDGE_TEMPERATURE,
+                                            timeout=JUDGE_TIMEOUT_S, max_retries=JUDGE_MAX_RETRIES)
         self.model = model
         self.client = client
+        self.verifier = verifier if verify else None
         self.guardrails = guardrails
         self.stateless = stateless
         self.last_guard: dict[str, Any] = {}
@@ -115,7 +131,8 @@ class MatchAnalyst:
             answer = self._answer(question)
             set_output(root, answer)
             root.set_attribute("metadata", json.dumps(
-                {"model": self.model, "consulted_cards": self.consulted_cards, "guardrails": self.last_guard},
+                {"model": self.model, "verifier": self.verifier_model, "consulted_cards": self.consulted_cards,
+                 "guardrails": self.last_guard},
                 ensure_ascii=False))
         return answer
 
@@ -152,14 +169,14 @@ class MatchAnalyst:
                 for block in turn if isinstance(block, TextBlock)]
 
     def _review(self, question: str, answer: str) -> str:
-        """Output guard: check the answer; on problems, one rewrite, kept unless it is worse.
-        In a chat, the coach's earlier questions count as known text for the names and numbers
-        (the opponent named in turn 1 is not an invention in turn 2)."""
+        """Output guard: check the answer; on problems, one rewrite, kept unless it is worse (more
+        problems under the same checks). In a chat, the coach's earlier questions count as known
+        text (the opponent named in turn 1 is not an invention in turn 2)."""
         consulted = self.consulted_cards
         cards = {c: self.corpus_tools.retriever.card_text(c) or "" for c in consulted}
-        source_text = "\n".join(cards.values())
+        source_text, context = "\n".join(cards.values()), card_context(cards)
         earlier = "\n".join(self.coach_questions[:-1])   # the memory already holds the current question
-        issues = review_answer(answer, question, consulted, source_text, earlier)
+        issues = self._check(answer, question, consulted, source_text, context, earlier)
         self.last_guard["issues"] = [i.describe() for i in issues]
         self.last_guard["remaining"] = list(self.last_guard["issues"])
         if not issues:
@@ -167,12 +184,13 @@ class MatchAnalyst:
             return answer
         log.info("output guard: %d problems, one rewrite: %s", len(issues), self.last_guard["issues"])
         try:
-            rewritten = self._rewrite(question, answer, issues, cards)
+            rewritten = self._rewrite(question, answer, issues, context)
         except Exception as e:  # network/API error: keep the first answer, say it in the report
             self.last_guard["error"] = f"{type(e).__name__}: {e}"
             log.warning("output guard: rewrite failed, first answer kept", exc_info=True)
             return answer
-        remaining = review_answer(rewritten, question, consulted, source_text, earlier) if rewritten else issues
+        remaining = (self._check(rewritten, question, consulted, source_text, context, earlier)
+                     if rewritten else issues)
         if not rewritten or len(remaining) > len(issues):
             log.warning("output guard: rewrite discarded (%d problems left instead of %d)", len(remaining), len(issues))
             return answer
@@ -181,6 +199,22 @@ class MatchAnalyst:
         self.last_guard["remaining"] = [i.describe() for i in remaining]
         self._remember(rewritten)
         return rewritten
+
+    def _check(self, answer: str, question: str, consulted: list[str], source_text: str, context: str,
+               earlier: str) -> list[Issue]:
+        """The deterministic checks, then the verifier (only when the answer rests on cards)."""
+        issues = review_answer(answer, question, consulted, source_text, earlier)
+        if self.verifier is None or not consulted:
+            return issues
+        with span("verifier", "GUARDRAIL", answer) as current:
+            unsupported, error = verify_answer(self.verifier, answer, question, context, earlier)
+            set_output(current, error or json.dumps([i.detail for i in unsupported], ensure_ascii=False))
+        if error:   # never blocks the answer: reported, as a guardrail must not be silent
+            self.last_guard["verifier_error"] = error
+            log.warning("verifier: not completed (%s)", error)
+        else:
+            log.info("verifier: %d statements not supported by the cards", len(unsupported))
+        return issues + unsupported
 
     def _remember(self, answer: str) -> None:
         """In a chat, make datapizza's memory hold the answer the coach saw: the agent stored its
@@ -195,16 +229,21 @@ class MatchAnalyst:
                         return
                 return
 
-    def _rewrite(self, question: str, answer: str, issues: list[Issue], cards: dict[str, str]) -> str:
-        """One rewrite: rules + context in the system prompt, the request in the input."""
+    def _rewrite(self, question: str, answer: str, issues: list[Issue], context: str) -> str:
+        """One rewrite: rules + context (the consulted cards) in the system prompt, the request in the input."""
         problems = "\n".join(f"- {issue.instruction}" for issue in issues)
         request = REWRITE_REQUEST.format(question=question, answer=answer, problems=problems)
-        system_prompt = MATCH_ANALYST_SYSTEM_PROMPT + "\n\nContext:\n" + card_context(cards)
+        system_prompt = MATCH_ANALYST_SYSTEM_PROMPT + "\n\nContext:\n" + context
         # The trace shows what the model read: the request, then the context it was given.
-        with span("rewrite", "CHAIN", f"{request}\n\n--- context ---\n{card_context(cards)}") as current:
+        with span("rewrite", "CHAIN", f"{request}\n\n--- context ---\n{context}") as current:
             rewritten = self.client.invoke(input=request, system_prompt=system_prompt).text.strip()
             set_output(current, rewritten)
         return rewritten
+
+    @property
+    def verifier_model(self) -> str | None:
+        """The verifier's model, or None when the answers are not verified."""
+        return getattr(self.verifier, "model_name", None) if self.verifier is not None else None
 
     @property
     def consulted_cards(self) -> list[str]:
@@ -219,10 +258,12 @@ class MatchAnalyst:
             return f"Guardrail: {INPUT_NOTES[guard['input']]}."
         notes = []
         if guard.get("rewritten"):
-            fixed = [ISSUE_NOTES[i.split(":")[0]] for i in guard["issues"]]
+            fixed = dict.fromkeys(ISSUE_NOTES[i.split(":")[0]] for i in guard["issues"])
             notes.append("risposta corretta automaticamente (" + ", ".join(fixed) + ")")
         if guard.get("remaining"):
             notes.append("da verificare: " + "; ".join(guard["remaining"]))
         if guard.get("error"):
             notes.append("controllo di uscita non completato")
+        if guard.get("verifier_error"):
+            notes.append("verifica delle affermazioni non completata")
         return ("Guardrail: " + ". ".join(notes) + ".") if notes else None

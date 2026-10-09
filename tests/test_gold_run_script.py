@@ -83,6 +83,7 @@ def test_rejudge_record_is_complete(offline_script):
     assert record["rejudged_from"].endswith("agent_run.json") and record["faithfulness_method"] == "claims"
     assert [r["id"] for r in record["rows"]] == ["Q17", "Q19"] and record["metrics"]["replayed"] is True
     assert record["rows"][0]["faithfulness_claims"]                  # claim by claim by default
+    assert "verifier" in record and record["verifier"] is None       # the saved run had no verifier
 
 
 def test_a_rejudge_does_not_pay_again_for_the_verdicts_it_has(offline_script, capsys):

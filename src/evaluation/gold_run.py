@@ -108,8 +108,9 @@ def run(
         times.append(time.perf_counter() - t0)
         answer = getattr(resp, "text", "") or ""
         usage = getattr(resp, "usage", None)
-        costs.append(estimate_cost(getattr(usage, "prompt_tokens", 0) or 0,
-                                   getattr(usage, "completion_tokens", 0) or 0, model))
+        cost = getattr(resp, "cost_usd", None)   # given when the answer used more than one model (verifier)
+        costs.append(cost if cost is not None else estimate_cost(getattr(usage, "prompt_tokens", 0) or 0,
+                                                                 getattr(usage, "completion_tokens", 0) or 0, model))
         hits = retrieve_fn(g["q"], k=10) if retrieve_fn else []   # wide pool: r@1, r@5 and MRR
         found = [h.metadata.get("document_id") for h in hits]
         row: dict[str, Any] = {"id": g["id"], "type": g["type"], "question": g["q"],

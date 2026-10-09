@@ -60,7 +60,7 @@ def is_abstention(answer: str) -> bool:
 class Issue:
     """One problem of an answer: `kind` and `detail` for the report, `instruction` for the model."""
 
-    kind: str        # language | ungrounded | unknown_citation | no_citation
+    kind: str        # language | ungrounded | unknown_citation | no_citation | unsupported (verifier.py)
     detail: str
     instruction: str
 
@@ -88,10 +88,12 @@ def review_answer(answer: str, question: str, consulted: list[str], source_text:
         terms = ", ".join(missing)
         issues.append(Issue(
             "ungrounded", terms,
-            f"These names or numbers do not appear in the cards you consulted: {terms}. Remove them or "
-            "replace them with the exact words of the cards; never complete names, minutes or seasons "
-            "from memory. If the question asks for that detail and the cards do not give it, write "
-            "\"Non lo so\" (in English: \"I don't know\") for that detail.",
+            f"These names or numbers do not appear in the cards you consulted: {terms}. Remove only these "
+            "words, not the sentence around them, or replace them with the exact words of the cards: "
+            "keep the facts the cards give (a surname without the first name the cards do not write, a "
+            "team as the cards name it). Never complete names, minutes or seasons from memory. If the "
+            "question asks for that detail and the cards do not give it, write \"Non lo so\" (in "
+            "English: \"I don't know\") for that detail.",
         ))
     cited = cited_ids(answer)
     mentioned = set(CARD_MENTION_RE.findall(source_text))

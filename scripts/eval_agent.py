@@ -5,6 +5,7 @@
     python -m scripts.eval_agent --all            # whole gold set (~$0.1 with gpt-4o-mini)
     python -m scripts.eval_agent --all --model gpt-4.1-mini   # same questions, another model
     python -m scripts.eval_agent --all --no-guardrails        # bare agent, to measure the guardrails
+    python -m scripts.eval_agent --all --no-verifier          # guardrails without the verifier, to measure it
     python -m scripts.eval_agent --no-trace                   # do not send traces to Phoenix
     python -m scripts.eval_agent --follow-up                  # two-turn questions (conversation memory)
     python -m scripts.eval_agent --all --follow-up            # the whole gold set, 45 questions
@@ -18,8 +19,9 @@ as citations, names and numbers present in the consulted cards (grounding), corr
 "Non lo so" when required, answer in the language of the question, required facts, forbidden
 claims, length of advice.
 The checks run on the final answer, after the guardrails; what the guardrails did (input
-verdict, problems found, rewrite) is saved with it. Answers, checks, guardrails and model name
-are saved to eval/runs/agent_<time>.json.
+verdict, problems found, rewrite) is saved with it. With the guardrails on, the verifier
+(src/guardrails/verifier.py, gpt-4.1-mini) checks every statement too: two more calls per
+answer. Answers, checks, guardrails, model and verifier are saved to eval/runs/agent_<time>.json.
 Needs Qdrant running, the index built and OPENAI_API_KEY. With Phoenix running, every question
 is also a trace (project from PHOENIX_PROJECT_NAME).
 """
@@ -47,7 +49,7 @@ def guard_summary(guard: dict) -> str:
     if guard.get("input") not in (None, "football"):
         parts.append(f"guard: {guard['input']}")
     if guard.get("rewritten"):
-        parts.append("rewritten (" + ", ".join(i.split(":")[0] for i in guard["issues"]) + ")")
+        parts.append("rewritten (" + ", ".join(dict.fromkeys(i.split(":")[0] for i in guard["issues"])) + ")")
     elif guard.get("issues"):
         parts.append("rewrite not kept" + (" (error)" if guard.get("error") else ""))
     return "".join(f"  {p}" for p in parts)
@@ -61,6 +63,7 @@ def main() -> int:
                         help="add the follow-up questions, each after its previous turn (with --all: all 45)")
     parser.add_argument("--model", help="OpenAI chat model (default: OPENAI_CHAT_MODEL, else gpt-4o-mini)")
     parser.add_argument("--no-guardrails", action="store_true", help="run the bare agent, without input/output guards")
+    parser.add_argument("--no-verifier", action="store_true", help="keep the guardrails, without the verifier")
     parser.add_argument("--no-trace", action="store_true", help="do not send traces to Phoenix")
     args = parser.parse_args()
     if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
@@ -87,12 +90,13 @@ def main() -> int:
         settings = load_settings()
         print(setup_tracing(settings.phoenix_endpoint, settings.phoenix_project))
     try:
-        analyst = MatchAnalyst(model=args.model, guardrails=not args.no_guardrails)
+        analyst = MatchAnalyst(model=args.model, guardrails=not args.no_guardrails, verify=not args.no_verifier)
     except (ValueError, RuntimeError) as e:
         print(e)
         return 1
     guardrails = "on" if analyst.guardrails else "off"
-    print(f"Model: {analyst.model} | guardrails: {guardrails}\n")
+    verifier = analyst.verifier_model or "off"
+    print(f"Model: {analyst.model} | guardrails: {guardrails} | verifier: {verifier}\n")
 
     rows = []
     for q in selected:
@@ -100,7 +104,8 @@ def main() -> int:
         assistant, first_answer = analyst, None
         if previous:   # a fresh conversation: the previous turn first, then the follow-up
             assistant = MatchAnalyst(model=args.model, guardrails=not args.no_guardrails, stateless=False,
-                                     retriever=analyst.corpus_tools.retriever)
+                                     retriever=analyst.corpus_tools.retriever, verifier=analyst.verifier,
+                                     verify=analyst.verifier is not None)
             first_answer = assistant.analyze(previous["question"])
         answer = assistant.analyze(q["question"])
         consulted = assistant.consulted_cards
@@ -127,7 +132,8 @@ def main() -> int:
             print("    answer: " + " ".join(answer.split())[:400])
 
     ok = sum(1 for r in rows if not r["problems"])
-    print(f"\n{ok}/{len(rows)} answers pass every automatic check ({analyst.model}, guardrails {guardrails}).")
+    print(f"\n{ok}/{len(rows)} answers pass every automatic check ({analyst.model}, guardrails {guardrails}, "
+          f"verifier {verifier}).")
     if analyst.guardrails:
         stopped = sum(1 for r in rows if r["guard"].get("input") not in (None, "football", "follow_up"))
         flagged = sum(1 for r in rows if r["guard"].get("issues"))
@@ -141,7 +147,8 @@ def main() -> int:
     RUNS_DIR.mkdir(parents=True, exist_ok=True)
     stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     out = RUNS_DIR / f"agent_{stamp}.json"
-    run = {"run": stamp, "model": analyst.model, "guardrails": analyst.guardrails, "questions": rows}
+    run = {"run": stamp, "model": analyst.model, "guardrails": analyst.guardrails,
+           "verifier": analyst.verifier_model, "questions": rows}
     out.write_text(json.dumps(run, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Answers saved to {out.relative_to(PROJECT_ROOT).as_posix()}")
     return 0

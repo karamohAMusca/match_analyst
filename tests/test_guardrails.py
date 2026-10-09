@@ -10,6 +10,8 @@ from src.core.config import GOLD_SET_PATH
 from src.guardrails.input_guard import MAX_QUESTION_CHARS, check_question
 from src.guardrails.language import detect_language
 from src.guardrails.output_guard import review_answer
+from src.guardrails.verifier import verify_answer
+from tests.fakes import FakeJudge
 
 GOLD = json.loads(GOLD_SET_PATH.read_text(encoding="utf-8"))["questions"]
 CARD = ("Profilo allenatore: Stefano Pioli. Tesi del 2003 sul 4-4-2 a zona della Primavera del Chievo "
@@ -127,6 +129,21 @@ def test_instructions_name_the_exact_problem():
     assert "Philipp, Lahm" in issue.instruction and issue.describe() == "ungrounded: Philipp, Lahm"
     # Run agent_20260928-175508 (Q21): the invented coach was removed but replaced by "il manager".
     assert 'write "Non lo so"' in issue.instruction
+    # Run agent_20260929-112013 (Q31): for "Philipp" and "Monaco" the rewrite deleted the whole
+    # sentence, and with it the surname and the team the question asked for.
+    assert "Remove only these words, not the sentence around them" in issue.instruction
+
+
+def test_verifier_turns_unsupported_statements_into_issues():
+    judge = FakeJudge(unsupported=("Inter",))
+    answer = "Il City ha vinto 1-0 [case_x]. L'Inter ha difeso il vantaggio [case_x]."
+    issues, error = verify_answer(judge, answer, "E se fossimo in 10?", "[case_x]\nCity 1-0 Inter.",
+                                  "Affrontiamo un 4-4-2.")
+    assert error is None and [(i.kind, i.detail) for i in issues] == [("unsupported", "L'Inter ha difeso il vantaggio")]
+    assert "Correct it with what the cards say" in issues[0].instruction and "not in the context" in issues[0].instruction
+    assert "QUESTION:\nAffrontiamo un 4-4-2.\nE se fossimo in 10?" in judge.inputs[0]   # the coach's own words
+    issues, error = verify_answer(FakeJudge(fail=True), answer, "E se fossimo in 10?", "[case_x]\nCity 1-0 Inter.")
+    assert issues == [] and error.startswith("judge error")
 
 
 def test_earlier_questions_of_a_chat_count_as_known_text():

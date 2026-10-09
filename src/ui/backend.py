@@ -3,8 +3,9 @@ the app shows next to it (latency, tokens, cost, searches, guardrails). Every an
 to the chat's file in `chats/` (see `chat_log.py`).
 
 Kept out of app.py so it can be tested offline: the app only renders what `Conversation.ask()`
-returns. `make_client()` returns None in the app (MatchAnalyst then builds the OpenAI client);
-tests replace it with a fake model.
+returns. `make_client()` and `make_verifier()` return None in the app (MatchAnalyst then builds the
+OpenAI clients); tests replace them with fakes. The cost of an answer includes the verifier's calls,
+priced with the verifier's model.
 """
 
 from __future__ import annotations
@@ -32,6 +33,11 @@ def make_client(model: str) -> Any | None:
     return None
 
 
+def make_verifier() -> Any | None:
+    """The verifier's client; None lets MatchAnalyst build the default one (with the default client)."""
+    return None
+
+
 def start_tracing() -> str:
     """Connect to Phoenix if it is running; returns the status line to show."""
     settings = load_settings()
@@ -52,8 +58,10 @@ class Conversation:
         self.model = model
         self.guardrails = guardrails
         self.analyst = MatchAnalyst(client=make_client(model), retriever=retriever, model=model,
-                                    guardrails=guardrails, stateless=False)
+                                    guardrails=guardrails, stateless=False, verifier=make_verifier())
         self.meter = TokenMeter(self.analyst.client)
+        verifier = self.analyst.verifier
+        self.verifier_meter = TokenMeter(verifier) if verifier is not None else None
         self.log = log or ChatLog()
         logger.info("new conversation: %s, guardrails %s, saved to chats/%s",
                     model, "on" if guardrails else "off", self.log.path.name)
@@ -69,6 +77,9 @@ class Conversation:
             raise
         latency = time.perf_counter() - t0
         prompt, completion = self.meter.take()
+        checked = self.verifier_meter.take() if self.verifier_meter else (0, 0)
+        verifier_model = self.analyst.verifier_model
+        cost = estimate_cost(prompt, completion, self.model) + estimate_cost(*checked, verifier_model or "")
         flush()   # the trace reaches Phoenix now, not at the next batch
         message = {
             "role": "assistant",
@@ -78,7 +89,8 @@ class Conversation:
             "guard": dict(self.analyst.last_guard),
             "guard_note": self.analyst.guard_note,
             "meta": {"latency_s": latency, "prompt_tokens": prompt, "completion_tokens": completion,
-                     "cost_usd": estimate_cost(prompt, completion, self.model), "model": self.model},
+                     "cost_usd": cost, "model": self.model,
+                     "verifier_model": verifier_model, "verifier_tokens": sum(checked)},
         }
         logger.info("answer: %.1f s, %d+%d tokens, %.4f $, %d searches, cards %s",
                     latency, prompt, completion, message["meta"]["cost_usd"], len(message["calls"]),
