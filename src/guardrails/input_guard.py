@@ -81,7 +81,9 @@ MAX_FOLLOW_UP_WORDS = 4
 FOLLOW_UP_START = frozenset("e ma and but quindi allora ok okay invece perche why so".split())
 FOLLOW_UP_WORDS = frozenset(
     "questo questa quello quella questi quelli cosi esempio esempi spiega spiegami spiegare meglio "
-    "dettagli dettaglio riassumi this that these those example examples explain detail details".split()
+    "dettagli dettaglio riassumi this that these those example examples explain detail details "
+    # who the conversation is about ("quali sono i suoi punti deboli?" after a question on a coach)
+    "suo sua suoi sue lui lei his her him their them".split()
 )
 THANKS_WORDS = frozenset("grazie thanks thank".split())
 ABOUT_YOU_RE = re.compile(r"\b(?:chi sei|cosa sai fare|cosa fai|who are you|what can you do)\b")

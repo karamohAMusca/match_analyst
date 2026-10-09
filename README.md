@@ -151,8 +151,11 @@ python -m scripts.review_chats --all      # every saved chat
 
 It runs the automatic checks of `eval_agent` on every saved answer, against the text of the cards
 it consulted: citations only to consulted cards, names and numbers present in those cards or in
-the coach's questions, tool use, answer language; then the chat's totals (flagged answers,
-questions stopped, rewrites, time, tokens, cost).
+the coach's questions, tool use, answer language. An answer built on cards read earlier in the
+same chat is checked against those cards, and a "Non lo so" is not flagged for citing nothing.
+Each answer shows its tokens: in a long chat they grow turn after turn, because the conversation
+memory keeps the cards read before (from about 1,700 to 54,000 tokens in a 15-question chat). Then
+the chat's totals (flagged answers, questions stopped, rewrites, time, tokens, cost).
 
 What happens while chatting (app and CLI) is written to `logs/match_analyst.log`: new
 conversation and its file, every question (its length, not its text), the input guard's verdict,

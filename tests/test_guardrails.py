@@ -64,8 +64,11 @@ def test_follow_up_word_limit_is_exact():
 def test_follow_up_goes_through_only_in_a_conversation():
     assert check_question("E perché?").reason == "off_topic"
     for follow_up in ("E perché?", "Come mai?", "Ma quanto dura in media?", "Puoi farmi un esempio concreto?",
-                      "Quindi cosa cambieresti durante la settimana?", "Can you explain that better?"):
+                      "Quindi cosa cambieresti durante la settimana?", "Can you explain that better?",
+                      "quali sono i suoi punti deboli?", "What are his main weaknesses then?"):
         assert check_question(follow_up, in_conversation=True).reason == "follow_up", follow_up
+    # Found in the app: "quali sono i suoi punti deboli?" after a question on Gasperini was stopped (E13).
+    assert check_question("quali sono i suoi punti deboli?").reason == "off_topic"     # no conversation
 
 
 def test_off_topic_is_stopped_even_in_a_conversation():

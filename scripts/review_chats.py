@@ -9,8 +9,11 @@ saved answer against the text of the cards it consulted (read from corpus/, the 
 index): citations only to consulted cards, names and numbers present in those cards or in the
 coach's questions (grounding), tool use, answer language, malformed or copied citations. A chat has
 no gold answer: required facts and expected cards are not checked, and "Non lo so" is counted, not
-judged. Then the chat's totals: answers, flagged answers, questions stopped, rewrites, time,
-tokens, cost.
+judged (an answer that says it is not flagged for citing nothing). An answer given without a new
+search, from cards read in earlier turns of the same chat, is checked against those cards: the
+memory counts as consultation. Each line shows the tokens of that answer, so the cost of a long chat
+growing turn after turn is visible. Then the chat's totals: answers, flagged answers, questions
+stopped, rewrites, time, tokens, cost.
 """
 
 from __future__ import annotations
@@ -44,20 +47,25 @@ def card_texts() -> dict[str, str]:
 
 def review(answers: list[dict[str, Any]], cards: dict[str, str]) -> list[dict[str, Any]]:
     """The checks of every answer of a chat, in order."""
-    rows, earlier = [], []
+    rows, earlier, read_before = [], [], []
     for a in answers:
         guard = a.get("guard") or {}
+        calls = len(a.get("calls") or [])
         row = {"question": a["question"], "guard": guard, "meta": a.get("meta") or {},
-               "consulted": a.get("consulted") or [], "problems": [],
+               "consulted": a.get("consulted") or [], "problems": [], "from_memory": False,
                "abstained": any(x in normalize(a["content"]) for x in ABSTENTION)}
         if guard.get("input") in ANSWERED:
-            question = {"question": a["question"], "expected_tool_use": "search", "requires_abstention": False,
-                        "relevant_sources": [], "type": "chat", "language": detect_language(a["question"])}
-            source_text = "\n".join(cards.get(c, "") for c in row["consulted"])
-            check = check_answer(a["content"], question, row["consulted"], len(a.get("calls") or []),
-                                 source_text, "\n".join(earlier))
+            consulted = row["consulted"]
+            if not calls and read_before:   # answered from cards read earlier in the chat
+                consulted, calls, row["from_memory"] = read_before, 1, True
+            question = {"question": a["question"], "expected_tool_use": "search",
+                        "requires_abstention": row["abstained"], "relevant_sources": [], "type": "chat",
+                        "language": detect_language(a["question"])}
+            source_text = "\n".join(cards.get(c, "") for c in consulted)
+            check = check_answer(a["content"], question, consulted, calls, source_text, "\n".join(earlier))
             row["problems"] = problems(check)
             earlier.append(a["question"])
+            read_before += [c for c in row["consulted"] if c not in read_before]
         rows.append(row)
     return rows
 
@@ -81,9 +89,11 @@ def report(path: Path, rows: list[dict[str, Any]]) -> str:
         status = "OK" if not r["problems"] else "CHECK"
         extra = "  ".join(x for x in (guard_label(r["guard"]), "Non lo so" if r["abstained"] else "") if x)
         question = " ".join(r["question"].split())
-        lines.append(f"#{i:<2} {status:5} {m.get('latency_s', 0):5.1f} s  {m.get('cost_usd', 0):.4f} $  "
+        tokens = m.get("prompt_tokens", 0) + m.get("completion_tokens", 0)
+        lines.append(f"#{i:<2} {status:5} {m.get('latency_s', 0):5.1f} s  {tokens:6} tok  {m.get('cost_usd', 0):.4f} $  "
                      f"{question[:70] + ('…' if len(question) > 70 else '')}")
-        lines.append(f"    cards: {', '.join(r['consulted']) or '—'}" + (f"  | {extra}" if extra else ""))
+        cards = ", ".join(r["consulted"]) or ("— (cards read earlier in the chat)" if r["from_memory"] else "—")
+        lines.append(f"    cards: {cards}" + (f"  | {extra}" if extra else ""))
         lines.extend(f"    - {p}" for p in r["problems"])
     metas = [r["meta"] for r in rows]
     flagged = sum(1 for r in rows if r["problems"])

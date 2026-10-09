@@ -48,6 +48,23 @@ def test_a_wrong_answer_is_flagged(chat, capsys):
     assert "names/numbers not in the consulted cards" in out and "Totals: 1 flagged" in out
 
 
+def test_memory_and_dont_know_are_not_false_alarms():
+    # Found reviewing a real chat: an answer built on a card read two turns before, and a "Non lo so"
+    # after a search, were flagged as errors.
+    cards = review_chats.card_texts()
+    searched = {"tool": "search_cards"}
+    first = {"question": "Come gioca Inzaghi?", "content": "Gioca con il 3-5-2 [coach_inzaghi].",
+             "consulted": ["coach_inzaghi"], "calls": [searched], "guard": {"input": "football"}}
+    from_memory = {"question": "e in difesa?", "content": "Fuori possesso diventa un 5-3-2 [coach_inzaghi].",
+                   "consulted": [], "calls": [], "guard": {"input": "follow_up"}}
+    dont_know = {"question": "Qual è il giocatore che ha reso meglio?", "content": "Non lo so. Le schede non lo dicono.",
+                 "consulted": ["coach_inzaghi"], "calls": [searched], "guard": {"input": "football"}}
+    rows = review_chats.review([first, from_memory, dont_know], cards)
+    assert [r["problems"] for r in rows] == [[], [], []] and rows[1]["from_memory"]
+    alone = review_chats.review([from_memory], cards)[0]                       # no card read before
+    assert any(p.startswith("wrong tool use") for p in alone["problems"])
+
+
 def test_no_chat_saved_yet(capsys):
     assert review_chats.main(["--all"]) == 1
     assert "No chat saved" in capsys.readouterr().out
