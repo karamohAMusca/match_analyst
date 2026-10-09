@@ -146,6 +146,23 @@ def test_verifier_turns_unsupported_statements_into_issues():
     assert issues == [] and error.startswith("judge error")
 
 
+def test_the_verifier_checks_the_roles_the_gold_run_judge_stays_the_same(monkeypatch):
+    # Run agent_20261009-105844 (Q37): the plain check quoted "il pressing a uomo dell'Atalanta" as the
+    # evidence of "l'Atalanta ha sfruttato il pressing a uomo del Leverkusen" and called it supported.
+    import src.evaluation.judge as judge
+    seen = []
+    real = judge._structured
+    monkeypatch.setattr(judge, "_structured", lambda llm, cls, system, user: seen.append((cls, system)) or real(llm, cls, system, user))
+    answer, context = "Il City ha vinto 1-0 [case_x].", "[case_x]\nCity 1-0 Inter."
+    judge.judge_faithfulness_claims(FakeJudge(), context, answer, "Domanda")          # the gold run's judge
+    verify_answer(FakeJudge(), answer, "Domanda", context)                           # the verifier
+    assert [(c.__name__, s is judge.VERIFY_PROMPT) for c, s in seen[1::2]] == [("StatementVerdicts", True),
+                                                                             ("RoleCheckedVerdicts", False)]
+    assert seen[3][1] == judge.ROLES_PROMPT and "who does what to whom" in judge.ROLES_PROMPT
+    fields = list(judge.RoleCheckedVerdict.model_fields)                            # roles before the decision
+    assert fields.index("roles_in_evidence") < fields.index("supported")
+
+
 def test_earlier_questions_of_a_chat_count_as_known_text():
     # Found reviewing the two-turn test: the opponent named in turn 1 was "ungrounded" in turn 2.
     card = "Uscire dal pressing alto: cercare la verticale e il terzo uomo."

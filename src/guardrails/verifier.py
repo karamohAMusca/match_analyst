@@ -11,6 +11,10 @@ answer split into statements, then each one checked against the cards, with the 
 sentence as evidence). Each unsupported statement becomes an Issue, fixed by the single rewrite
 of the output guardrail together with the other problems: corrected with what the cards say, not
 just deleted.
+The check writes who does what to whom in each statement and in its evidence before deciding
+(`check_roles`): in run agent_20261009-105844 the plain check quoted the right sentence as evidence
+of the swapped one and called it supported (Q37), while the same model on the same input caught it
+in 4 of 4 reruns: a single decision, not a lack of knowledge.
 Model: gpt-4.1-mini, the judge chosen on 2026-09-29 (it caught Q18 and Q12, gpt-4o-mini did
 not). Two calls per checked answer. A failed verification never blocks the answer: it is reported.
 Measuring it: the gold run's judge uses the same method and model, so a gold run alone would
@@ -36,7 +40,7 @@ def verify_answer(llm: Any, answer: str, question: str, context: str,
     their own team is not an invention.
     """
     coach = "\n".join(q for q in (earlier_questions, question) if q)
-    verdict = judge_faithfulness_claims(llm, context, answer, coach)
+    verdict = judge_faithfulness_claims(llm, context, answer, coach, check_roles=True)
     if verdict.get("error"):
         return [], verdict["reason"]
     return [Issue(

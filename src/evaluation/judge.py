@@ -99,6 +99,16 @@ VERIFY_PROMPT = (
     "Be consistent: if the evidence you quote states the statement, supported must be true. "
     "Return one verdict per statement, in the same order."
 )
+# The verifier's variant (src/guardrails/verifier.py): before deciding, the judge writes who does
+# what to whom in the statement and in the closest sentence of the context. Found in run
+# agent_20261009-105844 (Q37): it quoted "il pressing a uomo dell'Atalanta produce due gol" as the
+# evidence of "l'Atalanta ha sfruttato il pressing a uomo del Leverkusen" and called it supported.
+ROLES_PROMPT = VERIFY_PROMPT + (
+    " For each statement, first quote the closest sentence of the context, then write who does what "
+    "to whom in the statement and in that sentence (actor, action, receiver, match or season). If "
+    "the actor and the receiver are swapped, or the action belongs to another person, team, match "
+    "or season, supported = false."
+)
 
 
 class Verdict(BaseModel):
@@ -118,6 +128,20 @@ class StatementVerdict(BaseModel):
 
 class StatementVerdicts(BaseModel):
     verdicts: list[StatementVerdict] = Field(description="One verdict per statement, in order")
+
+
+class RoleCheckedVerdict(BaseModel):
+    """A verdict whose fields come in the order the judge fills them: the roles before the decision."""
+
+    statement: str = Field(description="The statement, as given")
+    evidence: str = Field(description="The closest sentence of the context, verbatim, or 'none'")
+    roles_in_statement: str = Field(description="Who does what to whom in the statement")
+    roles_in_evidence: str = Field(description="Who does what to whom in the evidence")
+    supported: bool = Field(description="True only if the evidence states the statement with the same roles")
+
+
+class RoleCheckedVerdicts(BaseModel):
+    verdicts: list[RoleCheckedVerdict] = Field(description="One verdict per statement, in order")
 
 
 # The typed answers of the judge: its disk cache (scripts/gold_run.py) can rebuild these.
@@ -143,12 +167,16 @@ def judge_faithfulness(llm: Any, context: str, answer: str) -> dict[str, Any]:
     return _verdict(llm, FAITHFULNESS_PROMPT, f"CONTEXT:\n{context}\n\nANSWER:\n{answer}")
 
 
-def judge_faithfulness_claims(llm: Any, context: str, answer: str, question: str = "") -> dict[str, Any]:
+def judge_faithfulness_claims(llm: Any, context: str, answer: str, question: str = "",
+                              check_roles: bool = False) -> dict[str, Any]:
     """Claim by claim: {"score", "reason", "claims"}; score = supported statements / statements.
 
     `claims` lists every statement with `supported` and `evidence`. An answer that only says
-    "Non lo so" has no statement to check and scores 1.0.
+    "Non lo so" has no statement to check and scores 1.0. `check_roles` (the verifier) makes the
+    judge write who does what in the statement and in the evidence before deciding; the gold run
+    keeps the default, so its scores stay comparable with the earlier runs.
     """
+    verdicts_cls, verify_prompt = (RoleCheckedVerdicts, ROLES_PROMPT) if check_roles else (StatementVerdicts, VERIFY_PROMPT)
     try:
         statements = _structured(llm, Statements, STATEMENTS_PROMPT,
                                  f"QUESTION:\n{question}\n\nANSWER:\n{answer}").statements
@@ -158,7 +186,7 @@ def judge_faithfulness_claims(llm: Any, context: str, answer: str, question: str
                 return {"score": 1.0, "reason": "abstention: no statement to check", "claims": []}
             return {"score": 0.0, "reason": "judge error: no statement extracted", "claims": [], "error": True}
         numbered = "\n".join(f"{i}. {s}" for i, s in enumerate(statements, 1))
-        verdicts = _structured(llm, StatementVerdicts, VERIFY_PROMPT,
+        verdicts = _structured(llm, verdicts_cls, verify_prompt,
                                f"QUESTION:\n{question}\n\nCONTEXT:\n{context}\n\nSTATEMENTS:\n{numbered}").verdicts
     except Exception as e:  # a failed judgement must not stop the run, and must not look like a pass
         return {"score": 0.0, "reason": f"judge error: {type(e).__name__}: {e}", "claims": [], "error": True}

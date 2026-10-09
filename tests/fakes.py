@@ -100,11 +100,13 @@ class FakeJudge(MockClient):
             answer = re.sub(r"\[[^\]]*\]", "", text.split("ANSWER:\n", 1)[1])
             sentences = [s.strip(" .") for s in re.split(r"(?<=\.)\s+|\n+", answer)]
             content = output_cls(statements=[s for s in sentences if s and not s.lower().startswith("non lo so")])
-        elif output_cls.__name__ == "StatementVerdicts":
+        elif output_cls.__name__ in ("StatementVerdicts", "RoleCheckedVerdicts"):   # RoleChecked: the verifier
             statements = re.findall(r"^\d+\. (.+)$", text.split("STATEMENTS:\n", 1)[1], re.M)
+            roles = ({"roles_in_statement": "scripted", "roles_in_evidence": "scripted"}
+                     if output_cls.__name__ == "RoleCheckedVerdicts" else {})
             content = output_cls(verdicts=[
                 {"statement": s, "supported": not any(m in s for m in self.unsupported),
-                 "evidence": "not in the context" if any(m in s for m in self.unsupported) else "scripted"}
+                 "evidence": "not in the context" if any(m in s for m in self.unsupported) else "scripted", **roles}
                 for s in statements])
         else:
             score = next(v for key, v in self.scores.items() if key in (system_prompt or ""))
