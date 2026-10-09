@@ -23,6 +23,7 @@ Tech stack:
 - **LLM Engine**: `gpt-4o-mini`; clients are built by datapizza's `ClientFactory` (`LLM_PROVIDER` in `src/core/config.py`).
 - **Observability**: OpenTelemetry bridge exporting traces to Arize Phoenix on `http://localhost:6006/v1/traces`.
 - **Frontend**: Streamlit.
+- **MCP server**: `mcp_server.py` with the reference SDK `mcp>=2` (`MCPServer`, spec 2026-07-28, stateless); datapizza-ai 0.1.0 has no MCP server and its MCP client (`datapizza.tools.mcp_client`) speaks only the 1.x protocol: do not use it.
 
 Useful commands (from the project root, virtual environment active):
 
@@ -34,6 +35,7 @@ Useful commands (from the project root, virtual environment active):
 | `python -m scripts.review_chats [--all \| <file>]` | automatic checks on the chats saved by the app (`chats/`) | no |
 | `python -m scripts.eval_retrieval --offline --no-save` | retrieval results of every configuration, from the cached question vectors | no (Qdrant running) |
 | `python -m scripts.verify --save / --check --cmd "<command>" --baseline <file>` | saves the output of a command, then checks that it did not change | no |
+| `python mcp_server.py` | the knowledge base as an MCP server for Claude Desktop and other hosts (stdio; `MCP_HTTP=1` for Streamable HTTP) | only `search_cards` (and Qdrant) |
 | `python -m scripts.start` | Qdrant + Phoenix + the app; the log live in the terminal, the review of the session's chats on Ctrl+C | yes |
 | `python -m scripts.ingest`, `scripts.eval_agent`, `scripts.gold_run` | index sync, answer checks, gold run with the LLM judge | yes |
 
@@ -52,6 +54,7 @@ Useful commands (from the project root, virtual environment active):
   - `src/guardrails/`: strict input/output validation; non-football queries MUST be intercepted before reaching the LLM.
   - `src/observability/`: tracing to Arize Phoenix (OpenTelemetry spans translated to OpenInference), optional at runtime; the log of the app and the CLI (`logs.py`: Python `logging`, `logs/match_analyst.log`, git-ignored). Never log the API key; the text of the questions only goes to `chats/`.
   - `src/ui/`: logic of the Streamlit app (`app.py` at the root only renders): `backend.py` (a conversation and the numbers of each answer), `view.py` (pure formatting functions, tested offline). `chat_log.py` saves every conversation to `chats/` (git-ignored: it holds what the users typed). The app is tested with Streamlit's `AppTest` and the scripted fake model.
+  - `src/mcp_server/`: the MCP server (`mcp_server.py` at the root only starts it): read-only tools `search_cards` (the agent's `CorpusTools`), `read_card`, `list_cards` (cards read from `corpus/`, no Qdrant), `card://{document_id}` resources and the `prepare_match` prompt. It never involves the agent, so it does not change the measured answers. In stdio, stdout is the protocol channel: nothing may print there (datapizza's console log handler is moved to stderr at start). Tested in-process with `mcp.Client` and with one real stdio session.
   - `design-system/`: tokens, components and answer states of the app as HTML previews (for Claude Design); a new design comes back only through `.streamlit/config.toml` and the `CSS` block of `src/ui/view.py`.
   - `scripts/`: maintenance scripts, run as `python -m scripts.<name>`.
   - `tests/`: offline tests (no API keys, no network), run with `python -m pytest`.
