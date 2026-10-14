@@ -82,7 +82,7 @@ def test_llm_and_retrieval_spans_carry_what_phoenix_shows(exported):
     assert any("llm.input_messages.0.message.content" in s.attributes for s in llm)
     retrieve = next(s for s in spans if s.name == "retrieve")
     assert retrieve.attributes["openinference.span.kind"] == "RETRIEVER"
-    assert retrieve.attributes["input.value"] == ENGLISH_QUESTION
+    assert retrieve.attributes["input.value"].startswith(ENGLISH_QUESTION)   # the fake model searches with its input
     assert retrieve.attributes["retrieval.documents.0.document.id"]
     rewrite = next(s for s in spans if s.name == "rewrite")
     assert "--- context ---\n[" in rewrite.attributes["input.value"]              # the cards the model read

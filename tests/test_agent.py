@@ -57,6 +57,9 @@ def test_prompt_rules():
     p = MATCH_ANALYST_SYSTEM_PROMPT
     assert "without tools" in p                            # greetings: no search
     assert "A greeting followed by a football question" in p and "with the tools" in p   # E14
+    assert "do not end with a sentence that sums up or evaluates" in p and "No closing sentence." in p
+    assert "report what that source says, from its card, and nothing else" in p
+    assert "is that team's example" in p                                                  # E18
     assert "call search_cards before answering" in p
     assert "Those ids are the only valid citations" in p and "Never write a list of sources" in p
     assert 'begin with the exact words "Non lo so."' in p and "not \"non ho trovato informazioni\"" in p

@@ -211,6 +211,11 @@ guardrails did.
   lead" when no score was mentioned) is not taken for granted (E6).
   A wrong fact goes into the single rewrite; if it is still there, the sentence is removed. On every saved answer of the real runs (766), the facts flagged are exactly
   the known errors (E3, E4, E5).
+  A **closing summary** with no citation ("Queste regole aiutano a mantenere l'equilibrio", "In
+  sintesi..."), the most frequent unsupported statement of the reference gold run, is removed: it
+  carries no cited fact (a style question's conclusion, "X is the closest to your team", is kept).
+  An English question reaches the model with a one-line reminder to answer in English: with the
+  rule of the system prompt alone, every English answer was drafted in Italian and rewritten.
 - *verifier*, optional (`src/guardrails/verifier.py`, a second model after the writer: a sequential
   architecture): the checks above see names, numbers and citations, not who did what ("Inter
   defended a lead" passes them, while the card says City won). The verifier runs the gold run's

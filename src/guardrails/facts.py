@@ -240,6 +240,9 @@ def _pairs_in(sentence: str, coaches: Iterable[str]) -> list[tuple[str, str]]:
         rf"\b(?P<coach>{coach})(?:\s+\w+){{0,2}}\s+(?:allenava|guidava|alla guida|sulla panchina|in panchina|"
         rf"allenatore|coach|manager|coached|managed)\s+(?:(?:del|della|dello|dell'|di|of|the)\s*)?(?:\w+\s+)?(?P<team>{team})\b",
         rf"\b(?P<coach>{coach})'s\s+(?P<team>{team})\b",
+        # E3 (Q18): "Pioli ... il suo Milan": a possessive pointing back to the coach of the same sentence
+        rf"\b(?P<coach>{coach})\b[^.;]*?\b(?:il\s+suo|la\s+sua|del\s+suo|della\s+sua|al\s+suo|alla\s+sua|"
+        rf"col\s+suo|con\s+il\s+suo|his)\s+(?:\w+\s+)?(?P<team>{team})\b",
     )
     proper = unicodedata.normalize("NFKD", sentence).encode("ascii", "ignore").decode()
     found = []
@@ -258,6 +261,32 @@ def _coach_had_team(team: str, coach: str) -> bool:
         return True
     card = coaches.get(coach, "")
     return any(re.search(rf"\b{re.escape(name)}\b", card) for name in TEAMS[team])
+
+
+# ---------------------------------------------------------------- the closing summary
+# A last sentence that sums up or evaluates, with no citation ("Queste regole aiutano a mantenere
+# l'equilibrio", "Questi cambiamenti riflettono un'evoluzione"): in the reference gold run most of the
+# statements the judge found unsupported were such additions. It carries no cited fact, so it is removed.
+_CLOSING_RE = re.compile(
+    r"^(?:quest[aoie]|tali|in sintesi|in conclusione|in breve|nel complesso|complessivamente|"
+    r"this|these|overall|in summary|in short|in conclusion)\b", re.IGNORECASE)
+# ...unless it is the answer to a style question ("Inzaghi potrebbe essere più affine al tuo stile")
+_RESEMBLANCE_RE = re.compile(r"simil|somigli|affin|resembl|closest|more like", re.IGNORECASE)
+
+
+def closing_summary(answer: str) -> str | None:
+    """The answer's last sentence when it sums up or evaluates without a citation: on its own line,
+    not a bullet nor the real-case line, opening with "Questo/Queste", "In sintesi", "This", ...;
+    None otherwise, when nothing else of the answer cites a card, or when it says which coach the
+    coach's team resembles (the answer of a style question)."""
+    lines = [line.strip() for line in answer.strip().splitlines() if line.strip()]
+    if len(lines) < 2 or _LEAD_RE.sub("", lines[-1]) != lines[-1] or CASE_LINE_RE.match(lines[-1]):
+        return None
+    last = (sentences(lines[-1]) or [""])[-1]
+    if (not _CLOSING_RE.match(last) or BRACKETS_RE.search(last) or _RESEMBLANCE_RE.search(last)
+            or not BRACKETS_RE.search("\n".join(lines[:-1]))):
+        return None
+    return last
 
 
 # ---------------------------------------------------------------- thresholds

@@ -24,10 +24,11 @@ from datapizza.clients import ClientFactory
 from datapizza.core.clients.client import Client
 from datapizza.type import ROLE, TextBlock
 
-from src.agent.prompts import MATCH_ANALYST_SYSTEM_PROMPT, REWRITE_REQUEST
+from src.agent.prompts import ENGLISH_REMINDER, MATCH_ANALYST_SYSTEM_PROMPT, REWRITE_REQUEST
 from src.core.config import LLM_PROVIDER, load_settings, require_api_key
-from src.guardrails.facts import (FACT_KINDS, collapse_real_cases, expand_real_cases, fact_issues, man_down_answer,
-                                  perspective_issues, premise_issues, remove_sentences, writes_man_down)
+from src.guardrails.facts import (FACT_KINDS, closing_summary, collapse_real_cases, expand_real_cases, fact_issues,
+                                  man_down_answer, perspective_issues, premise_issues, remove_sentences,
+                                  writes_man_down)
 from src.guardrails.language import detect_language
 from src.guardrails.input_guard import check_question
 from src.evaluation.judge import JUDGE_MAX_RETRIES, JUDGE_TEMPERATURE, JUDGE_TIMEOUT_S
@@ -168,12 +169,17 @@ class MatchAnalyst:
                 composed = self._answer_man_down(question)
                 if composed:
                     return composed
-        response = self.agent.run(question)
+        english = detect_language(question) == "en"
+        response = self.agent.run(question + ENGLISH_REMINDER if english else question)
         draft = response.text if hasattr(response, "text") else str(response)
         answer = self._compose(draft)
         if self.guardrails:
             with span("output_guard", "GUARDRAIL", answer) as guard:
                 answer = self._review(question, answer)
+                if closing := closing_summary(answer):   # a summary with no citation: no cited fact lost
+                    self.last_guard["closing"] = closing
+                    answer = remove_sentences(answer, [closing])
+                    log.info("output guard: closing summary without a citation removed")
                 set_output(guard, json.dumps(self.last_guard, ensure_ascii=False))
         if answer != draft:
             self._remember(answer)
@@ -205,7 +211,7 @@ class MatchAnalyst:
         """The coach's questions of this conversation so far, read from datapizza's memory (its USER
         turns): only the ones that reached the agent, as a question stopped by the input guard never
         enters the memory. Empty for a stateless agent, which forgets after every question."""
-        return [block.content for turn in self.agent._memory if turn.role == ROLE.USER
+        return [block.content.removesuffix(ENGLISH_REMINDER) for turn in self.agent._memory if turn.role == ROLE.USER
                 for block in turn if isinstance(block, TextBlock)]
 
     def _review(self, question: str, answer: str) -> str:
@@ -322,6 +328,8 @@ class MatchAnalyst:
             notes.append("risposta corretta automaticamente (" + ", ".join(fixed) + ")")
         if guard.get("removed"):
             notes.append(f"{len(guard['removed'])} frasi tolte perché le schede dicono altro")
+        if guard.get("closing"):
+            notes.append("tolta la frase di chiusura senza fonte")
         if guard.get("remaining"):
             notes.append("da verificare: " + "; ".join(guard["remaining"]))
         if guard.get("error"):

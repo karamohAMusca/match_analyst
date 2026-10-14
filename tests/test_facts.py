@@ -12,8 +12,8 @@ from datapizza.type import ROLE
 from scripts.review_chats import card_texts
 from src.agent.analyst_agent import MatchAnalyst
 from src.core.config import PROJECT_ROOT
-from src.guardrails.facts import (CASE_LINE_RE, collapse_real_cases, expand_real_cases, fact_issues, perspective_issues,
-                                  premise_issues, remove_sentences, sentences, writes_man_down)
+from src.guardrails.facts import (CASE_LINE_RE, closing_summary, collapse_real_cases, expand_real_cases, fact_issues,
+                                  perspective_issues, premise_issues, remove_sentences, sentences, writes_man_down)
 from tests.fakes import ScriptedLLM
 
 UEL = "case_2024_uel_final_atalanta_leverkusen"
@@ -130,6 +130,10 @@ def kinds(text: str, cards: dict, consulted: list[str]) -> list[str]:
     ("Scaloni sulla panchina del PSG ha vinto [coach_scaloni].", ["coach_team"]),
     ("Italiano all'Atalanta cercava la verticale [coach_italiano].", ["coach_team"]),
     ("Italiano's Atalanta pressed high [coach_italiano].", ["coach_team"]),
+    ("Pioli spiega come giocava il suo Milan campione d'Italia [coach_pioli].", ["coach_team"]),       # Q18
+    ("According to Pioli's thesis, his Milan pressed on the flanks [coach_pioli].", ["coach_team"]),
+    ("Pioli allenava la Primavera del Chievo con il suo 4-4-2 [coach_pioli].", []),
+    ("Gasperini con la sua Atalanta marca a uomo [coach_gasperini].", []),
     ("La tesi non parla del Milan di Pioli, ma del Chievo [coach_pioli].", []),        # a correction, not a claim
     ("L'Atalanta di Gasperini marca a uomo [coach_gasperini].", []),
     ("L'Arsenal era guidato da Mikel Arteta [case_2026_ucl_final_psg_arsenal].", []),    # the pair of the final
@@ -185,7 +189,7 @@ def test_a_wrong_fact_is_removed_also_when_the_rewrite_fails(retriever):
 def test_every_saved_answer_is_flagged_only_where_wrong(cards):
     """Every answer saved since the first runs (agent runs, gold runs and their re-judges): each
     sentence flagged is one of the known errors (E3, E4, E5), and each of them is flagged."""
-    known = {"Q35": "inferiore a 10", "Q18": "di Pioli", "Q12": "Atalanta di Italiano"}
+    known = {"Q35": ("inferiore a 10",), "Q18": ("di Pioli", "suo Milan"), "Q12": ("Atalanta di Italiano",)}
     runs, seen = PROJECT_ROOT / "eval" / "runs", set()
     for path in sorted(runs.glob("agent_2026*.json")) + sorted(runs.glob("gold_2026*.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -194,7 +198,7 @@ def test_every_saved_answer_is_flagged_only_where_wrong(cards):
             if not consulted:
                 continue
             for issue in fact_issues(row["answer"], "\n".join(cards[c] for c in consulted)):
-                assert qid in known and known[qid] in issue.detail, (path.name, qid, issue.detail)
+                assert qid in known and any(k in issue.detail for k in known[qid]), (path.name, qid, issue.detail)
                 seen.add(qid)
     assert seen == set(known)
 
@@ -292,3 +296,55 @@ def test_no_side_flag_on_the_saved_answers():
         data = json.loads(path.read_text(encoding="utf-8"))
         for row in data.get("questions") or data.get("rows") or []:
             assert not perspective_issues(row["answer"], row["question"]), (path.name, row.get("question_id"))
+
+
+# ---------------------------------------------------------------- step 5: the closing summary
+@pytest.mark.parametrize("answer, closing", [
+    ("Con palla libera la linea scivola [coach_pioli].\n\nQueste regole aiutano a mantenere l'equilibrio.",   # Q03
+     "Queste regole aiutano a mantenere l'equilibrio."),
+    ("- Possesso dal 54% al 60,8% [coach_de_zerbi].\nQuesti cambiamenti riflettono un'evoluzione.",             # Q27
+     "Questi cambiamenti riflettono un'evoluzione."),
+    ("Possession rose to 60.8% [coach_de_zerbi].\nThis evolution led to a more solid defense.",
+     "This evolution led to a more solid defense."),
+    ("Il PPDA sale a 13,44 [glossary_metriche].\nIn sintesi, il pressing cala [glossary_metriche].", None),     # cited
+    ("Il PPDA sale a 13,44 [glossary_metriche].\n- Questo indica meno pressing.", None),                       # a bullet
+    ("Abbassate il blocco [situation_difendere_un_vantaggio].\nCaso reale: [case_2023_ucl_final_city_inter]", None),
+    ("Queste regole aiutano.", None),                                                                          # nothing else
+    ("La linea scivola.\nQuesto aiuta.", None),                                                              # no citation at all
+    ("Inzaghi usa i braccetti [coach_inzaghi].\nIn sintesi, Inzaghi potrebbe essere più affine al tuo stile.", None),
+])
+def test_the_closing_summary(answer, closing):
+    assert closing_summary(answer) == closing
+
+
+def test_the_agent_removes_the_closing_summary(retriever):
+    llm = ScriptedLLM(answer="Con palla libera la linea scivola indietro [situation_attaccare_un_blocco_basso].\n\n"
+                             "Queste regole aiutano a mantenere l'equilibrio.")
+    analyst = MatchAnalyst(client=llm, retriever=retriever)
+    answer = analyst.analyze("Come si attacca un blocco basso?")
+    assert "Queste regole" not in answer and analyst.last_guard["closing"].startswith("Queste regole")
+    assert "tolta la frase di chiusura senza fonte" in analyst.guard_note
+
+
+def test_an_english_question_carries_the_reminder(retriever):
+    llm = ScriptedLLM()
+    chat = MatchAnalyst(client=llm, retriever=retriever, stateless=False)
+    chat.analyze("How do we attack a deep low block with a 4-3-3?")
+    assert llm.seen[0][0].endswith("(Answer in English: translate what you take from the Italian cards.)")
+    assert chat.coach_questions == ["How do we attack a deep low block with a 4-3-3?"]   # the coach's words only
+    chat.analyze("Come si attacca un blocco basso?")
+    assert not llm.seen[-1][0].endswith("cards.)")
+
+
+def test_closing_summaries_on_the_saved_answers():
+    # Every closing sentence found in the saved answers is a summary or an evaluation, never a cited fact.
+    runs = PROJECT_ROOT / "eval" / "runs"
+    found = 0
+    for path in sorted(runs.glob("agent_2026*.json")) + sorted(runs.glob("gold_2026*.json")):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        for row in data.get("questions") or data.get("rows") or []:
+            closing = closing_summary(row["answer"])
+            if closing:
+                found += 1
+                assert "[" not in closing and closing in row["answer"], (path.name, closing)
+    assert found >= 40

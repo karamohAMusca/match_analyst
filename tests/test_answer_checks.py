@@ -19,6 +19,16 @@ def test_good_answer_passes():
     assert problems(check) == [] and check["facts_found"] == "2/2"
 
 
+def test_the_real_case_label_is_not_an_ungrounded_name():
+    # Run 20261014-135939, Q42: "Italian" of the label flagged, the guardrail had checked label and id only.
+    english = {**FOOTBALL, "question": "How do we attack a low block?", "required_facts": [], "forbidden_claims": []}
+    answer = ("Attack the half-spaces [coach_pioli].\n\nReal case (card text, in Italian): Finale Mondiale 2026: "
+              "la Spagna batte l'Argentina [case_2026_wc_final_spain_argentina].")
+    source = "Pioli: half-spaces. Finale Mondiale 2026: la Spagna batte l'Argentina."
+    check = check_answer(answer, english, ["coach_pioli"], tool_calls=1, source_text=source)
+    assert check["ungrounded"] == []
+
+
 def test_citation_problems_are_caught():
     answer = "Gioco di posizione [note_gioco_di_posizione] e scudetto [Soncin, p. 19]."
     issues = problems(check_answer(answer, FOOTBALL, ["coach_pioli"], tool_calls=1))

@@ -66,7 +66,8 @@ def check_answer(
         "cited": cited,
         "invalid_citations": [c for c in cited if c not in consulted and c not in mentioned],
         "indirect_citations": [c for c in cited if c not in consulted and c in mentioned],
-        "ungrounded": (ungrounded_terms(body, source_text, f"{question['question']}\n{earlier_questions}")
+        # the real case as the guardrail checks it: label and id ("Real case (card text, in Italian)" is not a fact)
+        "ungrounded": (ungrounded_terms(collapse_real_cases(body), source_text, f"{question['question']}\n{earlier_questions}")
                        if grounding_applies else []),
         "malformed_citations": malformed,
         "copied_headers": copied_headers,
