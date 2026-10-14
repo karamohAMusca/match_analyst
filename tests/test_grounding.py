@@ -72,6 +72,17 @@ def test_english_answer_may_translate_countries_and_competitions():
     assert ungrounded_terms("In the final, Spain beat Brazil.", card) == ["Brazil"]
 
 
+def test_english_titles_are_not_names_but_their_numbers_are_checked():
+    # E16, chat of 2026-10-01: a right answer got a rewrite attempt for its Title Case headings.
+    card = "Finale Mondiale 2026: la Spagna batte l'Argentina; Cubarsì completa 124 passaggi."
+    answer = ("### Key Aspects of Spain's Victory\n"
+              "- **Offensive Strategy**: Spain built from the back, Cubarsì completing 124 passes.")
+    assert ungrounded_terms(answer, card) == []
+    assert ungrounded_terms("### Key Aspects of the 2022 Final\n- Spain beat Argentina.", card) == ["2022"]
+    # Italian labels capitalise their first word only: a name there is still checked
+    assert {"Luis", "Enrique"} <= set(ungrounded_terms("- **Il PSG di Luis Enrique**: la Spagna batte l'Argentina.", card))
+
+
 def test_hyphenated_chain_of_names():
     # Run agent_20260928-171548: "(Vitinha-Doué-Hakimi)" flagged although the card names all three.
     card = "Vitinha imbuca per Doué, che serve Hakimi."

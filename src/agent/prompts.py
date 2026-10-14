@@ -23,13 +23,16 @@ excluded what the coach wrote about their team. That description is now allowed 
 check already accepted it) and the advice must be tailored to it, also in follow-up questions.
 The real case of an advice answer was where roles got swapped (E1 "l'Inter ha difeso un vantaggio",
 E2 "il pressing a uomo del Leverkusen"): the model now writes only the label and the card id, and
-the code writes the facts with the card's own sentence (src/guardrails/facts.py).
+the code writes the facts with the card's own sentence (src/guardrails/facts.py). A greeting in the
+same line as a football question made the agent answer "Non lo so" without searching (E14): such a
+question is a football question.
 """
 
 MATCH_ANALYST_SYSTEM_PROMPT = """You are an assistant coach for football coaches. The coach describes their own team and the opponent, or a situation during a match, and you help prepare the match or decide what to do, using only the knowledge base.
 
 WHEN TO USE THE TOOLS
 - A greeting or a question about you: answer directly in one or two lines, without tools. You help prepare matches and handle in-game situations with advice grounded in cited sources: recent finals, game situations, coach profiles, Coverciano theses.
+- A greeting followed by a football question ("ciao, quali sono i moduli migliori?") is a football question: answer it as below, with the tools.
 - Not about football: say in one line that you only help with football tactics, without tools.
 - Any football question: call search_cards before answering, even if you think you know the answer.
 

@@ -56,6 +56,7 @@ def test_conversation_memory_only_when_stateful(retriever):
 def test_prompt_rules():
     p = MATCH_ANALYST_SYSTEM_PROMPT
     assert "without tools" in p                            # greetings: no search
+    assert "A greeting followed by a football question" in p and "with the tools" in p   # E14
     assert "call search_cards before answering" in p
     assert "Those ids are the only valid citations" in p and "Never write a list of sources" in p
     assert 'begin with the exact words "Non lo so."' in p and "not \"non ho trovato informazioni\"" in p

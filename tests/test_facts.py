@@ -233,6 +233,11 @@ def test_a_score_given_before_counts_for_the_side():
     ("E se restassimo in 10?", "Siamo in vantaggio 1-0 al 75'.", False),
     ("We are down to ten men and losing, what now?", "", False),
     ("L'avversario resta in 10, come lo sfruttiamo?", "", False),
+    ("What if we went down to 10 at the 90th?", "", True),
+    ("What if we get a player sent off?", "", True),
+    ("What if one of our players is sent off at the 70th?", "", True),
+    ("E se ci espellono un difensore?", "", True),
+    ("What if they go down to ten men?", "", False),
 ])
 def test_the_man_down_answer_is_written_only_without_a_score(question, earlier, written):
     assert writes_man_down(question, earlier) == written

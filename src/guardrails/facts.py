@@ -279,8 +279,11 @@ SIDES = {
     "a man down": (
         re.compile(r"\b(?:restiamo|restassimo|rimaniamo|rimanessimo|siamo rimasti|finiamo|giochiamo|siamo)\s+"
                    r"in\s+(?:10|dieci)\b|\b(?:abbiamo|con)\s+un\s+uomo\s+in\s+meno\b|\bsiamo\s+in\s+inferiorita\b|"
-                   r"\b(?:ci\s+(?:hanno\s+)?espuls\w*|espuls\w*\s+(?:un\s+)?(?:nostro|mio))\b|"
-                   r"\bwe(?:'re| are| were)?\s+(?:down to|left with)\s+(?:10|ten)\b|\bwe(?:'re| are)\s+a man down\b"),
+                   r"\b(?:ci\s+(?:hanno\s+)?espuls\w*|ci\s+espellono|espuls\w*\s+(?:un\s+)?(?:nostro|mio))\b|"
+                   r"\bwe(?:'re| are| were| went| go| get| got)?\s+(?:down to|left with|reduced to|playing with)\s+"
+                   r"(?:10|ten)\b|\bwe(?:'re| are| were)?\s+a man down\b|"
+                   r"\bwe\s+(?:have|had|get|got)\s+(?:a|one)\s+(?:player|man)\s+sent off\b|"
+                   r"\bone of (?:our|my) players\s+(?:is|was|gets|got)\s+sent off\b"),
         "situation_giocare_in_superiorita_numerica", None),
     "ahead": (
         re.compile(r"\b(?:siamo|stiamo)\s+(?:in\s+vantaggio|vincendo|avanti)\b|\bwe(?:'re| are)\s+(?:winning|ahead|leading)\b"),

@@ -185,9 +185,11 @@ guardrails did.
 
 **Guardrails** (`src/guardrails/`, code that prevents instead of a prompt that asks):
 - *input*: prompt-injection attempts, off-topic and oversized questions get a fixed reply and
-  never reach the model; greetings get the presentation without a model call;
+  never reach the model; greetings get the presentation without a model call (a greeting followed by
+  a football question is a football question, E14);
 - *output*: the answer must be in the language of the question, its names and numbers must appear
-  in the consulted cards, and it must cite `[card_id]`s it actually consulted. On a problem the
+  in the consulted cards (in an English answer, the Title Case words of headings and bold labels are
+  not names, E16; their numbers are still checked), and it must cite `[card_id]`s it actually consulted. On a problem the
   model gets a precise note and rewrites the answer once; the rewrite is kept only if it is not
   worse, and what happened is always reported;
 - *real case* (`src/guardrails/facts.py`, no model call): the real match of an advice answer is where
