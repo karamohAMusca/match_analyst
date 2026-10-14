@@ -197,6 +197,11 @@ guardrails did.
   that cites it, else the match card's outcome), so its roles cannot be swapped. A line about
   something else (a match of a thesis, a season of a coach) that cites a consulted card stays as
   written and is checked like any sentence; a final no consulted card speaks of is removed.
+  **Coach-team pairs** ("the Atalanta of Italiano", "PSG was coached by Scaloni") must be in the cards
+  (the team in the coach's card, or the pair of a final), and **thresholds** about a metric ("PPDA
+  below 10") must be written in them. A wrong fact goes into the single rewrite; if it is still there,
+  the sentence is removed. On every saved answer of the real runs (766), the facts flagged are exactly
+  the known errors (E3, E4, E5).
 - *verifier*, optional (`src/guardrails/verifier.py`, a second model after the writer: a sequential
   architecture): the checks above see names, numbers and citations, not who did what ("Inter
   defended a lead" passes them, while the card says City won). The verifier runs the gold run's

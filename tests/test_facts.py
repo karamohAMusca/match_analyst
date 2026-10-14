@@ -1,6 +1,6 @@
-"""The real case written from the card (src/guardrails/facts.py), offline: E1 and E2 of
-eval/error_log.md, the agent's flow with answers written by the test, and the real-case lines of the
-saved answers of real runs."""
+"""Facts about real matches, coaches and teams (src/guardrails/facts.py), offline: the errors of
+eval/error_log.md one by one (E1, E2: the real case; E3, E4, E5: pairs and thresholds), the agent's
+flow with answers written by the test, and the saved answers of real runs as a bench."""
 
 from __future__ import annotations
 
@@ -11,7 +11,8 @@ import pytest
 from scripts.review_chats import card_texts
 from src.agent.analyst_agent import MatchAnalyst
 from src.core.config import PROJECT_ROOT
-from src.guardrails.facts import CASE_LINE_RE, collapse_real_cases, expand_real_cases
+from src.guardrails.facts import (CASE_LINE_RE, collapse_real_cases, expand_real_cases, fact_issues,
+                                  remove_sentences, sentences)
 from tests.fakes import ScriptedLLM
 
 UEL = "case_2024_uel_final_atalanta_leverkusen"
@@ -98,7 +99,9 @@ def test_every_real_case_line_of_the_saved_answers(cards):
     as written; only a line citing no card goes (and every line of the old runs that did not save
     the consulted cards)."""
     runs, outcome = PROJECT_ROOT / "eval" / "runs", {"card": 0, "kept": 0, "removed": 0}
-    for path in sorted(runs.glob("agent_2026*.json")) + sorted(runs.glob("gold_2026*.json")):
+    frozen = [p for p in sorted(runs.glob("agent_2026*.json")) + sorted(runs.glob("gold_2026*.json"))
+              if p.stem.split("_")[1] < "20261010"]      # the runs written before this change
+    for path in frozen:
         data = json.loads(path.read_text(encoding="utf-8"))
         for row in data.get("questions") or data.get("rows") or []:
             for match in CASE_LINE_RE.finditer(row["answer"]):
@@ -112,3 +115,84 @@ def test_every_real_case_line_of_the_saved_answers(cards):
                     outcome["card"] += 1
                     assert out.rstrip(".").endswith("]") and "[case_" in out, (path.name, out)
     assert outcome == {"card": 92, "kept": 24, "removed": 8}
+
+
+# ---------------------------------------------------------------- step 2: coach-team pairs and thresholds
+def kinds(text: str, cards: dict, consulted: list[str]) -> list[str]:
+    return [i.kind for i in fact_issues(text, "\n".join(cards[c] for c in consulted))]
+
+
+@pytest.mark.parametrize("sentence, expected", [
+    ("Italiano pressa alto come l'Atalanta di Italiano [coach_italiano].", ["coach_team"]),          # E4
+    ("Nella tesi Pioli descrive il Milan di Pioli campione d'Italia [coach_pioli].", ["coach_team"]),  # E3
+    ("Il PSG era allenato da **Lionel Scaloni** in quella finale [coach_scaloni].", ["coach_team"]),  # gold 123326, Q21
+    ("Scaloni sulla panchina del PSG ha vinto [coach_scaloni].", ["coach_team"]),
+    ("Italiano all'Atalanta cercava la verticale [coach_italiano].", ["coach_team"]),
+    ("Italiano's Atalanta pressed high [coach_italiano].", ["coach_team"]),
+    ("La tesi non parla del Milan di Pioli, ma del Chievo [coach_pioli].", []),        # a correction, not a claim
+    ("L'Atalanta di Gasperini marca a uomo [coach_gasperini].", []),
+    ("L'Arsenal era guidato da Mikel Arteta [case_2026_ucl_final_psg_arsenal].", []),    # the pair of the final
+    ("Scaloni, allenatore dell'Argentina, sceglie il 4-4-2 [coach_scaloni].", []),
+    ("L'Inter di Conte ha registrato un PPDA di 9,08 nel 2019-20 [glossary_metriche].", []),
+    ("Guardiola's City kept the ball [coach_guardiola].", []),
+    ("Un calcio di stampo italiano, con più di 20 passaggi [coach_italiano].", []),     # an adjective, no metric
+])
+def test_coach_team_pairs(cards, sentence, expected):
+    consulted = ["coach_italiano", "coach_pioli", "coach_gasperini", "glossary_metriche", "coach_guardiola",
+                 "coach_scaloni", "case_2026_ucl_final_psg_arsenal"]
+    assert kinds(sentence, cards, consulted) == expected
+
+
+def test_e5_invented_threshold(cards):
+    e5 = ("Un valore di PPDA (Passes Per Defensive Action) inferiore a 10 indica un pressing di livello "
+          "d'élite [glossary_metriche].")
+    assert kinds(e5, cards, ["glossary_metriche"]) == ["threshold"]
+    assert kinds("Con il possesso sotto il 40% servono transizioni [glossary_metriche].", cards,
+                 ["glossary_metriche"]) == ["threshold"]
+    assert kinds("Un PPDA di 9,08 nel 2019-20, più basso di quello del 2020-21 [glossary_metriche].", cards,
+                 ["glossary_metriche"]) == []                                       # a value, not a threshold
+
+
+def test_sentences_and_removal():
+    text = "Primo [coach_pioli, p. 4]. Secondo (Spalla, pp. 45-46) qui. Terzo!"
+    assert sentences(text) == ["Primo [coach_pioli, p. 4].", "Secondo (Spalla, pp. 45-46) qui.", "Terzo!"]
+    answer = "Intro [a_b].\n- **Soglia:** Un PPDA inferiore a 10 è élite [x_y].\n- Altro [c_d]."
+    assert remove_sentences(answer, ["Un PPDA inferiore a 10 è élite [x_y]."]) == "Intro [a_b].\n- Altro [c_d]."
+    assert remove_sentences("Solo questa [x_y].", ["Solo questa [x_y]."]) == "Non lo so."
+
+
+PPDA = "Quale valore di PPDA indica un pressing d'élite?"
+E5_SENTENCE = "Un PPDA inferiore a 10 indica un pressing d'élite [glossary_metriche]."
+
+
+def test_a_wrong_fact_still_there_after_the_rewrite_is_removed(retriever):
+    llm = ScriptedLLM(answer=f"Il PPDA misura il pressing [glossary_metriche]. {E5_SENTENCE}",
+                      rewrite=f"Il PPDA misura il pressing [glossary_metriche]. {E5_SENTENCE}")   # still there
+    analyst = MatchAnalyst(client=llm, retriever=retriever)
+    assert analyst.analyze(PPDA) == "Il PPDA misura il pressing [glossary_metriche]."
+    assert analyst.last_guard["removed"] == [E5_SENTENCE] and "1 frasi tolte" in analyst.guard_note
+    assert not any(r.startswith("threshold") for r in analyst.last_guard["remaining"])
+
+
+def test_a_wrong_fact_is_removed_also_when_the_rewrite_fails(retriever):
+    llm = ScriptedLLM(answer=f"Il PPDA misura il pressing [glossary_metriche]. {E5_SENTENCE}")   # no rewrite: it fails
+    analyst = MatchAnalyst(client=llm, retriever=retriever)
+    assert analyst.analyze(PPDA) == "Il PPDA misura il pressing [glossary_metriche]."
+    assert analyst.last_guard["error"]
+
+
+def test_every_saved_answer_is_flagged_only_where_wrong(cards):
+    """Every answer saved since the first runs (agent runs, gold runs and their re-judges): each
+    sentence flagged is one of the known errors (E3, E4, E5), and each of them is flagged."""
+    known = {"Q35": "inferiore a 10", "Q18": "di Pioli", "Q12": "Atalanta di Italiano"}
+    runs, seen = PROJECT_ROOT / "eval" / "runs", set()
+    for path in sorted(runs.glob("agent_2026*.json")) + sorted(runs.glob("gold_2026*.json")):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        for row in data.get("questions") or data.get("rows") or []:
+            consulted, qid = row.get("consulted") or [], row.get("question_id") or row["id"]
+            if not consulted:
+                continue
+            for issue in fact_issues(row["answer"], "\n".join(cards[c] for c in consulted)):
+                assert qid in known and known[qid] in issue.detail, (path.name, qid, issue.detail)
+                seen.add(qid)
+    assert seen == set(known)

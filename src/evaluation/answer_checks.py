@@ -18,7 +18,7 @@ import re
 import unicodedata
 from typing import Any
 
-from src.guardrails.facts import collapse_real_cases
+from src.guardrails.facts import collapse_real_cases, fact_issues
 from src.guardrails.grounding import ungrounded_terms
 from src.guardrails.language import detect_language
 from src.guardrails.output_guard import ABSTENTION, BRACKETS_RE, CARD_MENTION_RE, citation_ids
@@ -82,6 +82,8 @@ def check_answer(
         "cites_something": bool(cited) if expects_tools and not question["requires_abstention"] else None,
         "words": len(re.findall(r"\w+", body)),
         "advice": question["type"] in ADVICE_TYPES,
+        "wrong_facts": ([i.describe() for i in fact_issues(body, source_text)]
+                        if source_text is not None and consulted else []),
     }
 
 
@@ -123,6 +125,8 @@ def problems(check: dict[str, Any]) -> list[str]:
         out.append("no [document_id] citation")
     if check["advice"] and check["words"] > MAX_ADVICE_WORDS:
         out.append(f"advice too long: {check['words']} words")
+    if check.get("wrong_facts"):
+        out.append(f"wrong facts (coach-team pair or threshold): {check['wrong_facts'][:2]}")
     if check["forbidden_found"]:
         out.append(f"forbidden claims: {check['forbidden_found']}")
     if check["facts_found"] and check["facts_found"].split("/")[0] != check["facts_found"].split("/")[1]:

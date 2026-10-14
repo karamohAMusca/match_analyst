@@ -1,13 +1,14 @@
 """The assistant coach agent (datapizza-ai `Agent` with the corpus tools), wrapped by the guardrails:
 
     question -> input guard -> agent (search, read, answer) -> real case from the card
-             -> output guard (+ optional verifier) -> (one rewrite) -> answer
+             -> output guard (+ fact checks, + optional verifier) -> (one rewrite) -> wrong facts removed -> answer
 
 The input guard stops injection attempts, off-topic questions and oversized inputs before any
 model call; the output guard checks language, grounding and citations, and the verifier (a second
 model, src/guardrails/verifier.py) checks every statement against the consulted cards. On a
 problem, the model rewrites the answer once. The real case of an advice answer is written by code
-from the card (src/guardrails/facts.py): the model only picks the match. What the guards did is in `last_guard` and
+from the card (src/guardrails/facts.py): the model only picks the match. Coach-team pairs and
+thresholds are checked by rules (same module); a wrong fact still there after the rewrite is removed. What the guards did is in `last_guard` and
 `guard_note`: a silent guardrail is indistinguishable from a broken one.
 """
 
@@ -25,7 +26,7 @@ from datapizza.type import ROLE, TextBlock
 
 from src.agent.prompts import MATCH_ANALYST_SYSTEM_PROMPT, REWRITE_REQUEST
 from src.core.config import LLM_PROVIDER, load_settings, require_api_key
-from src.guardrails.facts import collapse_real_cases, expand_real_cases
+from src.guardrails.facts import FACT_KINDS, collapse_real_cases, expand_real_cases, fact_issues, remove_sentences
 from src.guardrails.input_guard import check_question
 from src.evaluation.judge import JUDGE_MAX_RETRIES, JUDGE_TEMPERATURE, JUDGE_TIMEOUT_S
 from src.guardrails.output_guard import Issue, review_answer
@@ -49,6 +50,8 @@ ISSUE_NOTES = {
     "unknown_citation": "citazioni di schede non consultate",
     "no_citation": "nessuna scheda citata",
     "unsupported": "affermazioni non confermate dalle schede",
+    "coach_team": "allenatore abbinato a una squadra che le schede non gli danno",
+    "threshold": "soglia che le schede non indicano",
 }
 
 
@@ -202,22 +205,36 @@ class MatchAnalyst:
         except Exception as e:  # network/API error: keep the first answer, say it in the report
             self.last_guard["error"] = f"{type(e).__name__}: {e}"
             log.warning("output guard: rewrite failed, first answer kept", exc_info=True)
-            return answer
+            return self._drop_wrong_facts(answer, issues)
         rewritten = self._compose(rewritten) if rewritten else rewritten
         remaining = (self._check(collapse_real_cases(rewritten), question, consulted, source_text, context, earlier)
                      if rewritten else issues)
         if not rewritten or len(remaining) > len(issues):
             log.warning("output guard: rewrite discarded (%d problems left instead of %d)", len(remaining), len(issues))
-            return answer
+            return self._drop_wrong_facts(answer, issues)
         log.info("output guard: rewrite kept, %d problems left", len(remaining))
         self.last_guard["rewritten"] = True
         self.last_guard["remaining"] = [i.describe() for i in remaining]
-        return rewritten
+        return self._drop_wrong_facts(rewritten, remaining)
+
+    def _drop_wrong_facts(self, answer: str, issues: list[Issue]) -> str:
+        """Remove the sentences with a wrong fact (coach-team pair, threshold) still there after the
+        rewrite, or when there was no rewrite: a wrong fact found never reaches the coach."""
+        wrong = [i for i in issues if i.kind in FACT_KINDS]
+        if not wrong:
+            return answer
+        self.last_guard["removed"] = [i.detail for i in wrong]
+        self.last_guard["remaining"] = [d for d in self.last_guard.get("remaining", [])
+                                        if not d.startswith(FACT_KINDS)]
+        log.warning("output guard: %d sentences with a wrong fact removed", len(wrong))
+        return remove_sentences(answer, self.last_guard["removed"])
 
     def _check(self, answer: str, question: str, consulted: list[str], source_text: str, context: str,
                earlier: str) -> list[Issue]:
         """The deterministic checks, then the verifier (only when the answer rests on cards)."""
         issues = review_answer(answer, question, consulted, source_text, earlier)
+        if consulted:
+            issues += fact_issues(answer, source_text)
         if self.verifier is None or not consulted:
             return issues
         with span("verifier", "GUARDRAIL", answer) as current:
@@ -274,6 +291,8 @@ class MatchAnalyst:
         if guard.get("rewritten"):
             fixed = dict.fromkeys(ISSUE_NOTES[i.split(":")[0]] for i in guard["issues"])
             notes.append("risposta corretta automaticamente (" + ", ".join(fixed) + ")")
+        if guard.get("removed"):
+            notes.append(f"{len(guard['removed'])} frasi tolte perché le schede dicono altro")
         if guard.get("remaining"):
             notes.append("da verificare: " + "; ".join(guard["remaining"]))
         if guard.get("error"):

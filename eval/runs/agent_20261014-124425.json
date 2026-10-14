@@ -1,0 +1,303 @@
+{
+  "run": "20261014-124425",
+  "model": "gpt-4o-mini",
+  "guardrails": true,
+  "verifier": null,
+  "questions": [
+    {
+      "question_id": "Q12",
+      "type": "multi_doc",
+      "question": "Confronta come Klopp e Italiano usano la pressione senza palla.",
+      "answer": "Klopp e Italiano adottano approcci distinti nella pressione senza palla, pur condividendo l'obiettivo di recuperare il pallone rapidamente.\n\n- **Klopp** utilizza il gegenpressing come principio centrale, cercando di riconquistare il pallone subito dopo averlo perso, in una fase in cui l'avversario è vulnerabile. La squadra deve essere compatta e disciplinata, chiudendo le linee di passaggio e sapendo quando fermare la pressione per evitare di essere colpiti in contropiede [coach_klopp].\n  \n- **Italiano**, d'altra parte, predilige una linea difensiva alta e coraggiosa, con marcature a uomo aggressive. Non ama un gioco attendista e punta a recuperare palla il più velocemente possibile, enfatizzando il pressing sul primo controllo avversario [coach_italiano].\n\nCaso reale: Europa League 2024: il pressing a uomo dell'Atalanta produce due gol da palloni recuperati [case_2024_uel_final_atalanta_leverkusen].",
+      "consulted": [
+        "coach_klopp",
+        "coach_guardiola",
+        "coach_italiano",
+        "coach_gasperini",
+        "coach_pioli",
+        "situation_pressing_alto_e_riaggressione",
+        "coach_de_zerbi"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "Klopp pressione senza palla",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_klopp",
+            "coach_guardiola",
+            "coach_italiano",
+            "coach_gasperini",
+            "coach_pioli"
+          ]
+        },
+        {
+          "tool": "search_cards",
+          "query": "Italiano pressione senza palla",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "situation_pressing_alto_e_riaggressione",
+            "coach_gasperini",
+            "coach_italiano",
+            "coach_de_zerbi",
+            "coach_guardiola"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [],
+        "rewritten": false,
+        "remaining": []
+      },
+      "check": {
+        "cited": [
+          "coach_klopp",
+          "coach_italiano",
+          "case_2024_uel_final_atalanta_leverkusen"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [
+          "case_2024_uel_final_atalanta_leverkusen"
+        ],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "answer_language": "it",
+        "language_ok": true,
+        "relevant_consulted": [
+          "coach_klopp",
+          "coach_italiano"
+        ],
+        "expected_sources": [
+          "coach_klopp",
+          "coach_italiano"
+        ],
+        "facts_found": "3/3",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 126,
+        "advice": false,
+        "wrong_facts": []
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q18",
+      "type": "trap",
+      "question": "Nella sua tesi Pioli spiega come giocava il suo Milan campione d'Italia?",
+      "answer": "Nella sua tesi, Pioli descrive un sistema di gioco 4-4-2 a zona, utilizzato con la Primavera del Chievo, evidenziando l'importanza delle catene laterali e della compattezza difensiva. \n\n- **Compattezza ed equilibrio:** il 4-4-2 offre una squadra corta e aggressiva, sfruttando le fasce per attaccare [coach_pioli, p. 4].\n- **Catene laterali:** il terzino, il centrocampista centrale e l'esterno collaborano per creare superiorità numerica [coach_pioli, p. 6].\n- **Pressing sulle fasce:** gli attaccanti indirizzano il gioco avversario, trasformando la squadra in un 3-4-3 durante la fase di pressing [coach_pioli, pp. 8-11].\n- **Movimento senza palla:** enfatizza il contro-movimento per smarcarsi e occupare sempre le fasce [coach_pioli, pp. 16-23].\n- **Idea di fondo:** \"si gioca alla domenica come ci si allena durante la settimana\" [coach_pioli, p. 25].",
+      "consulted": [
+        "coach_pioli",
+        "note_difesa_reparto_uomo",
+        "note_gioco_di_posizione",
+        "note_allenare_con_variabilita",
+        "note_gioco_relazionale"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "tesi Pioli Milan campione d'Italia",
+          "categories": [
+            "thesis_note"
+          ],
+          "cards": [
+            "coach_pioli",
+            "note_difesa_reparto_uomo",
+            "note_gioco_di_posizione",
+            "note_allenare_con_variabilita",
+            "note_gioco_relazionale"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [],
+        "rewritten": false,
+        "remaining": []
+      },
+      "check": {
+        "cited": [
+          "coach_pioli"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "answer_language": "it",
+        "language_ok": true,
+        "relevant_consulted": [
+          "coach_pioli"
+        ],
+        "expected_sources": [
+          "coach_pioli"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 130,
+        "advice": false,
+        "wrong_facts": []
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q21",
+      "type": "out_of_corpus",
+      "question": "Chi ha vinto la finale di Champions League 2026 e con chi era in panchina il PSG?",
+      "answer": "Il Paris Saint-Germain ha vinto la finale di Champions League 2026 contro l'Arsenal, con un punteggio di 1-1 (4-3 ai rigori) [case_2026_ucl_final_psg_arsenal]. \n\nIl PSG era guidato in panchina da un allenatore non specificato [case_2026_ucl_final_psg_arsenal]. \n\n- L'Arsenal è passato in vantaggio al 6' con un gol di Havertz [case_2026_ucl_final_psg_arsenal].\n- Il PSG ha pareggiato su rigore al 61' con Dembélé [case_2026_ucl_final_psg_arsenal].\n- Alla fine dei tempi regolamentari, il PSG ha effettuato 18 tiri, di cui 4 in porta, contro i 4 tiri (1 in porta) dell'Arsenal [case_2026_ucl_final_psg_arsenal]. \n\nCaso reale: Finale Champions League 2026: Paris Saint-Germain 1-1 Arsenal (4-3 d.c.r.). L'Arsenal passa subito in vantaggio con il suo unico tiro in porta; il PSG spinge per tutta la partita, pareggia su rigore e vince ai rigori (Wikipedia en) [case_2026_ucl_final_psg_arsenal].",
+      "consulted": [
+        "case_2023_ucl_final_city_inter",
+        "case_2026_ucl_final_psg_arsenal",
+        "case_2026_wc_final_spain_argentina",
+        "case_2025_ucl_final_psg_inter",
+        "case_2024_uel_final_atalanta_leverkusen",
+        "case_2022_wc_final_argentina_france"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "finale Champions League 2026",
+          "categories": [
+            "match_case"
+          ],
+          "cards": [
+            "case_2023_ucl_final_city_inter",
+            "case_2026_ucl_final_psg_arsenal",
+            "case_2026_wc_final_spain_argentina",
+            "case_2025_ucl_final_psg_inter",
+            "case_2024_uel_final_atalanta_leverkusen"
+          ]
+        },
+        {
+          "tool": "search_cards",
+          "query": "PSG panchina",
+          "categories": [
+            "match_case"
+          ],
+          "cards": [
+            "case_2025_ucl_final_psg_inter",
+            "case_2026_wc_final_spain_argentina",
+            "case_2026_ucl_final_psg_arsenal",
+            "case_2022_wc_final_argentina_france",
+            "case_2023_ucl_final_city_inter"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [
+          "ungrounded: Luis, Enrique"
+        ],
+        "rewritten": true,
+        "remaining": []
+      },
+      "check": {
+        "cited": [
+          "case_2026_ucl_final_psg_arsenal"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": false,
+        "answer_language": "it",
+        "language_ok": true,
+        "relevant_consulted": [
+          "case_2026_ucl_final_psg_arsenal"
+        ],
+        "expected_sources": [
+          "case_2026_ucl_final_psg_arsenal"
+        ],
+        "facts_found": "2/2",
+        "forbidden_found": [],
+        "cites_something": null,
+        "words": 136,
+        "advice": false,
+        "wrong_facts": []
+      },
+      "problems": [
+        "missing \"Non lo so\""
+      ]
+    },
+    {
+      "question_id": "Q35",
+      "type": "trap",
+      "question": "Quale valore di PPDA indica un pressing di livello d'élite?",
+      "answer": "Non lo so. Il PPDA (Passes Per Defensive Action) indica quanto spesso una squadra prova a riconquistare palla nelle prime fasi della costruzione avversaria: più è basso, più il pressing è aggressivo [glossary_metriche]. Ad esempio, l'Inter di Conte ha registrato un PPDA di 9,08 nella stagione 2019-20, evidenziando un pressing molto efficace [glossary_metriche].",
+      "consulted": [
+        "glossary_metriche",
+        "glossary_moduli",
+        "situation_pressing_alto_e_riaggressione",
+        "coach_de_zerbi",
+        "situation_difendere_un_vantaggio"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "valore PPDA pressing d'élite",
+          "categories": [
+            "glossary"
+          ],
+          "cards": [
+            "glossary_metriche",
+            "glossary_moduli",
+            "situation_pressing_alto_e_riaggressione",
+            "coach_de_zerbi",
+            "situation_difendere_un_vantaggio"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [
+          "threshold: Un valore di PPDA (Passes Per Defensive Action) inferiore a 10 indica un pressing di livello d'élite, poiché più il valore è basso, più il pressing è considerato aggressivo [glossary_metriche]."
+        ],
+        "rewritten": true,
+        "remaining": []
+      },
+      "check": {
+        "cited": [
+          "glossary_metriche"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "answer_language": "it",
+        "language_ok": true,
+        "relevant_consulted": [
+          "glossary_metriche"
+        ],
+        "expected_sources": [
+          "glossary_metriche"
+        ],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 56,
+        "advice": false,
+        "wrong_facts": []
+      },
+      "problems": []
+    }
+  ]
+}
