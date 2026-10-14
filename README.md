@@ -190,6 +190,13 @@ guardrails did.
   in the consulted cards, and it must cite `[card_id]`s it actually consulted. On a problem the
   model gets a precise note and rewrites the answer once; the rewrite is kept only if it is not
   worse, and what happened is always reported;
+- *real case* (`src/guardrails/facts.py`, no model call): the real match of an advice answer is where
+  roles got swapped ("Inter defended a lead in the 2023 final", "Leverkusen's man-to-man press"),
+  with every name in the cards. The model now writes only `Caso reale: [case_id]`, and the code writes
+  the facts with the card's own sentence on that final (the line of a consulted game-situation card
+  that cites it, else the match card's outcome), so its roles cannot be swapped. A line about
+  something else (a match of a thesis, a season of a coach) that cites a consulted card stays as
+  written and is checked like any sentence; a final no consulted card speaks of is removed.
 - *verifier*, optional (`src/guardrails/verifier.py`, a second model after the writer: a sequential
   architecture): the checks above see names, numbers and citations, not who did what ("Inter
   defended a lead" passes them, while the card says City won). The verifier runs the gold run's

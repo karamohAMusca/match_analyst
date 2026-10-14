@@ -18,6 +18,7 @@ import re
 import unicodedata
 from typing import Any
 
+from src.guardrails.facts import collapse_real_cases
 from src.guardrails.grounding import ungrounded_terms
 from src.guardrails.language import detect_language
 from src.guardrails.output_guard import ABSTENTION, BRACKETS_RE, CARD_MENTION_RE, citation_ids
@@ -60,7 +61,7 @@ def check_answer(
     expects_tools = question["expected_tool_use"] != "none"
     abstained = any(a in text for a in ABSTENTION)
     grounding_applies = source_text is not None and expects_tools and bool(consulted)
-    language = detect_language(body)
+    language = detect_language(collapse_real_cases(body))   # the real case is the card's Italian sentence
     return {
         "cited": cited,
         "invalid_citations": [c for c in cited if c not in consulted and c not in mentioned],

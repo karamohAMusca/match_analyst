@@ -1,11 +1,13 @@
 """The assistant coach agent (datapizza-ai `Agent` with the corpus tools), wrapped by the guardrails:
 
-    question -> input guard -> agent (search, read, answer) -> output guard + verifier -> (one rewrite) -> answer
+    question -> input guard -> agent (search, read, answer) -> real case from the card
+             -> output guard (+ optional verifier) -> (one rewrite) -> answer
 
 The input guard stops injection attempts, off-topic questions and oversized inputs before any
 model call; the output guard checks language, grounding and citations, and the verifier (a second
 model, src/guardrails/verifier.py) checks every statement against the consulted cards. On a
-problem, the model rewrites the answer once. What the guards did is in `last_guard` and
+problem, the model rewrites the answer once. The real case of an advice answer is written by code
+from the card (src/guardrails/facts.py): the model only picks the match. What the guards did is in `last_guard` and
 `guard_note`: a silent guardrail is indistinguishable from a broken one.
 """
 
@@ -23,6 +25,7 @@ from datapizza.type import ROLE, TextBlock
 
 from src.agent.prompts import MATCH_ANALYST_SYSTEM_PROMPT, REWRITE_REQUEST
 from src.core.config import LLM_PROVIDER, load_settings, require_api_key
+from src.guardrails.facts import collapse_real_cases, expand_real_cases
 from src.guardrails.input_guard import check_question
 from src.evaluation.judge import JUDGE_MAX_RETRIES, JUDGE_TEMPERATURE, JUDGE_TIMEOUT_S
 from src.guardrails.output_guard import Issue, review_answer
@@ -155,12 +158,19 @@ class MatchAnalyst:
                 return verdict.reply or ""
             log.info("input guard: %s", verdict.reason)
         response = self.agent.run(question)
-        answer = response.text if hasattr(response, "text") else str(response)
+        draft = response.text if hasattr(response, "text") else str(response)
+        answer = self._compose(draft)
         if self.guardrails:
             with span("output_guard", "GUARDRAIL", answer) as guard:
                 answer = self._review(question, answer)
                 set_output(guard, json.dumps(self.last_guard, ensure_ascii=False))
+        if answer != draft:
+            self._remember(answer)
         return answer
+
+    def _compose(self, answer: str) -> str:
+        """The real-case line written with the card's own sentence (src/guardrails/facts.py)."""
+        return expand_real_cases(answer, self.consulted_cards, self.corpus_tools.retriever.card_text)
 
     @property
     def coach_questions(self) -> list[str]:
@@ -178,7 +188,9 @@ class MatchAnalyst:
         cards = {c: self.corpus_tools.retriever.card_text(c) or "" for c in consulted}
         source_text, context = "\n".join(cards.values()), card_context(cards)
         earlier = "\n".join(self.coach_questions[:-1])   # the memory already holds the current question
-        issues = self._check(answer, question, consulted, source_text, context, earlier)
+        # Checks and rewrite see the real-case line as the model is asked to write it (label and id):
+        # the card's sentence is not the model's to check or to rewrite.
+        issues = self._check(collapse_real_cases(answer), question, consulted, source_text, context, earlier)
         self.last_guard["issues"] = [i.describe() for i in issues]
         self.last_guard["remaining"] = list(self.last_guard["issues"])
         if not issues:
@@ -186,12 +198,13 @@ class MatchAnalyst:
             return answer
         log.info("output guard: %d problems, one rewrite: %s", len(issues), self.last_guard["issues"])
         try:
-            rewritten = self._rewrite(question, answer, issues, context)
+            rewritten = self._rewrite(question, collapse_real_cases(answer), issues, context)
         except Exception as e:  # network/API error: keep the first answer, say it in the report
             self.last_guard["error"] = f"{type(e).__name__}: {e}"
             log.warning("output guard: rewrite failed, first answer kept", exc_info=True)
             return answer
-        remaining = (self._check(rewritten, question, consulted, source_text, context, earlier)
+        rewritten = self._compose(rewritten) if rewritten else rewritten
+        remaining = (self._check(collapse_real_cases(rewritten), question, consulted, source_text, context, earlier)
                      if rewritten else issues)
         if not rewritten or len(remaining) > len(issues):
             log.warning("output guard: rewrite discarded (%d problems left instead of %d)", len(remaining), len(issues))
@@ -199,7 +212,6 @@ class MatchAnalyst:
         log.info("output guard: rewrite kept, %d problems left", len(remaining))
         self.last_guard["rewritten"] = True
         self.last_guard["remaining"] = [i.describe() for i in remaining]
-        self._remember(rewritten)
         return rewritten
 
     def _check(self, answer: str, question: str, consulted: list[str], source_text: str, context: str,

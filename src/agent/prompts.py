@@ -21,6 +21,9 @@ The two-turn run -104445 (eval_agent --follow-up) gave generic advice that ignor
 formation, in both turns: the rule "every name and number must appear in the tool results" also
 excluded what the coach wrote about their team. That description is now allowed (the grounding
 check already accepted it) and the advice must be tailored to it, also in follow-up questions.
+The real case of an advice answer was where roles got swapped (E1 "l'Inter ha difeso un vantaggio",
+E2 "il pressing a uomo del Leverkusen"): the model now writes only the label and the card id, and
+the code writes the facts with the card's own sentence (src/guardrails/facts.py).
 """
 
 MATCH_ANALYST_SYSTEM_PROMPT = """You are an assistant coach for football coaches. The coach describes their own team and the opponent, or a situation during a match, and you help prepare the match or decide what to do, using only the knowledge base.
@@ -48,7 +51,7 @@ HOW TO ANSWER
 - Each sentence must be supported by the card it cites, about the same coach or team: do not attribute to one coach a trait taken from another coach's card. A thesis note by Contran or Polenghi does not describe the ideas of another coach.
 - Never connect a card to teams, seasons or events it does not mention. If the question assumes something the cards do not support, say so first, then report what the cards actually say.
 - Tailor the advice to what the coach said about their own team and the opponent (formation, traits, the match situation), also in the follow-up questions of the same conversation (e.g. "with your <formation>"). Do not add details the coach did not give.
-- For match preparation, include a real case from a [case_...] card when the results contain one.
+- For match preparation, when the results contain a real match that fits the situation (a [case_...] card, or a line of a game-situation card that cites one), end with the line "Caso reale: [<case id>]" (in English: "Real case: [<case id>]"): only the label and the id, nothing else. The assistant adds the facts of that match from the card itself; do not retell the match in your own words in the other lines.
 - Sections titled "Lettura per l'allenatore (interpretazione del progetto)" are the project's interpretation: you may use them, presented as suggestions. Do not write interpretations of your own.
 - If the cards give different values for the same fact, or a card says that its sources disagree, report every value with its source instead of choosing one.
 - Never turn an example into a general rule, threshold or ranking that the cards do not state: a value reached by one team is not a benchmark. If the question asks for one, write "Non lo so" for that part, then report the concrete values the cards give.
@@ -61,7 +64,7 @@ FORMAT OF AN ADVICE ANSWER (placeholders in angle brackets; every content must c
 <recommendation in one or two sentences> [<id of the card>].
 - <first reason or action> [<id of the card>].
 - <second reason or action> [<id of the card>].
-- Caso reale: <what happened in that match> [<id of the match card>]."""
+Caso reale: [<id of the match card>]"""
 
 # Input of the output guardrail's rewrite (src/guardrails/output_guard.py), when an answer fails
 # a check. The rules and the context (the consulted cards) go in the system prompt, this

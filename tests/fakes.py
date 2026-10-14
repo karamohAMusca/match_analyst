@@ -44,10 +44,11 @@ class ScriptedLLM(MockClient):
     fails like a network error when no rewrite is scripted.
     """
 
-    def __init__(self, rewrite: str | None = None) -> None:
+    def __init__(self, rewrite: str | None = None, answer: str | None = None) -> None:
         super().__init__(model_name="scripted-llm")
         self.system_prompts: list[str | None] = []
         self.rewrite = rewrite
+        self.answer = answer          # a final answer written by the test, instead of quoting the passages
         self.rewrite_requests: list[str] = []
         self.seen: list[tuple[str, int]] = []   # (question, turns already in memory) for every call
 
@@ -60,6 +61,8 @@ class ScriptedLLM(MockClient):
                 raise ConnectionError("no rewrite scripted")
             return ClientResponse(content=[TextBlock(content=self.rewrite)])
         if memory and isinstance(memory[-1].blocks[-1], FunctionCallResultBlock):
+            if self.answer is not None:
+                return ClientResponse(content=[TextBlock(content=self.answer)])
             return ClientResponse(content=[TextBlock(content="Dalle schede:\n" + memory[-1].blocks[-1].result)])
         question = next((b.content for b in input if isinstance(b, TextBlock)), "")
         if question.lower().startswith("ciao"):

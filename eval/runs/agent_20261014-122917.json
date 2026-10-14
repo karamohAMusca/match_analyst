@@ -1,0 +1,695 @@
+{
+  "run": "20261014-122917",
+  "model": "gpt-4o-mini",
+  "guardrails": true,
+  "verifier": null,
+  "questions": [
+    {
+      "question_id": "Q05",
+      "type": "single_hop",
+      "question": "Cos'è la zona di rifinitura secondo Soncin e perché è importante contro un blocco basso?",
+      "answer": "La zona di rifinitura, secondo Soncin, è lo spazio situato tra i centrocampisti e i difensori avversari, particolarmente negli half-space. È cruciale contro un blocco basso perché consente di attaccare la linea difensiva con tagli, combinazioni rapide e passaggi filtranti, sfruttando gli spazi che si creano tra le linee avversarie [situation_attaccare_un_blocco_basso].\n\n- Arrivare nella zona di rifinitura permette di attaccare efficacemente la linea difensiva avversaria [situation_attaccare_un_blocco_basso].\n- Le combinazioni rapide e gli inserimenti sono più efficaci in questa zona, dove la densità difensiva è maggiore [situation_attaccare_un_blocco_basso].\n- Occupare la zona di rifinitura facilita la creazione di superiorità numerica e posizionale [situation_attaccare_un_blocco_basso].\nCaso reale: Mondiale 2026: la Spagna batte il 4-4-2 basso argentino con possesso che avanza (182 linee rotte, 251 ricezioni nell'ultimo terzo) e riaggressione; decide un cambio offensivo nei supplementari [case_2026_wc_final_spain_argentina].",
+      "consulted": [
+        "situation_attaccare_un_blocco_basso",
+        "note_gioco_di_posizione",
+        "note_allenare_con_variabilita",
+        "note_difesa_reparto_uomo",
+        "note_gioco_relazionale"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "zona di rifinitura Soncin",
+          "categories": [
+            "thesis_note"
+          ],
+          "cards": [
+            "situation_attaccare_un_blocco_basso",
+            "note_gioco_di_posizione",
+            "note_allenare_con_variabilita",
+            "note_difesa_reparto_uomo",
+            "note_gioco_relazionale"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [],
+        "rewritten": false,
+        "remaining": []
+      },
+      "check": {
+        "cited": [
+          "situation_attaccare_un_blocco_basso",
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "answer_language": "it",
+        "language_ok": true,
+        "relevant_consulted": [
+          "situation_attaccare_un_blocco_basso"
+        ],
+        "expected_sources": [
+          "situation_attaccare_un_blocco_basso"
+        ],
+        "facts_found": "1/3",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 133,
+        "advice": false
+      },
+      "problems": [
+        "required facts found 1/3"
+      ]
+    },
+    {
+      "question_id": "Q09",
+      "type": "single_hop",
+      "question": "Come ha costruito il PSG il 2-0 nella finale di Champions League 2025 contro l'Inter?",
+      "answer": "Il PSG ha costruito il 2-0 nella finale di Champions League 2025 contro l'Inter attraverso un pressing aggressivo e transizioni rapide. \n\n- **Pressing feroce:** Il PSG ha iniziato la partita con un pressing intenso, sorprendendo l'Inter e creando opportunità fin da subito [case_2025_ucl_final_psg_inter].\n- **Primo gol:** Il primo gol è arrivato grazie a un errore della difesa interista, con Hakimi che ha segnato a porta vuota dopo un'azione rapida [case_2025_ucl_final_psg_inter].\n- **Contropiede per il secondo gol:** Otto minuti dopo, il PSG ha raddoppiato con un contropiede orchestrato da Kvaratskhelia e Dembélé, culminato in un tiro di Doué deviato [case_2025_ucl_final_psg_inter].\n\nCaso reale: Finale Champions League 2025: Paris Saint-Germain 5-0 Inter. Il PSG vince la Champions League per la prima volta nella sua storia: pressing feroce dall'inizio e transizioni veloci contro un'Inter \"apparentemente timida\" (Wikipedia it) [case_2025_ucl_final_psg_inter].",
+      "consulted": [
+        "case_2025_ucl_final_psg_inter",
+        "case_2023_ucl_final_city_inter",
+        "case_2026_ucl_final_psg_arsenal",
+        "case_2022_wc_final_argentina_france",
+        "case_2024_uel_final_atalanta_leverkusen"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "PSG 2-0 finale Champions League 2025 Inter",
+          "categories": [
+            "match_case"
+          ],
+          "cards": [
+            "case_2025_ucl_final_psg_inter",
+            "case_2023_ucl_final_city_inter",
+            "case_2026_ucl_final_psg_arsenal",
+            "case_2022_wc_final_argentina_france",
+            "case_2024_uel_final_atalanta_leverkusen"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [],
+        "rewritten": false,
+        "remaining": []
+      },
+      "check": {
+        "cited": [
+          "case_2025_ucl_final_psg_inter"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "answer_language": "it",
+        "language_ok": true,
+        "relevant_consulted": [
+          "case_2025_ucl_final_psg_inter"
+        ],
+        "expected_sources": [
+          "case_2025_ucl_final_psg_inter"
+        ],
+        "facts_found": "3/4",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 140,
+        "advice": false
+      },
+      "problems": [
+        "required facts found 3/4"
+      ]
+    },
+    {
+      "question_id": "Q12",
+      "type": "multi_doc",
+      "question": "Confronta come Klopp e Italiano usano la pressione senza palla.",
+      "answer": "Jürgen Klopp e Vincenzo Italiano adottano approcci distinti nella pressione senza palla, pur condividendo l'obiettivo di recuperare il pallone rapidamente.\n\nKlopp utilizza il **gegenpressing**, cercando di riconquistare il pallone immediatamente dopo averlo perso, sfruttando la vulnerabilità dell'avversario in quel momento. La sua squadra è compatta e organizzata, con un pressing alto che richiede velocità e disciplina [coach_klopp].\n\nItaliano, d'altra parte, predilige una **linea difensiva alta** e marcature a uomo aggressive. Non ama un gioco attendista e punta a recuperare palla il più velocemente possibile, enfatizzando il pressing sul primo controllo dell'avversario [coach_italiano].\n\n- Klopp enfatizza il recupero immediato in zone alte, creando occasioni [coach_klopp].\n- Italiano utilizza una difesa coraggiosa per alzare il baricentro e pressare [coach_italiano].\nCaso reale: Europa League 2024: il pressing a uomo dell'Atalanta produce due gol da palloni recuperati [case_2024_uel_final_atalanta_leverkusen].",
+      "consulted": [
+        "coach_klopp",
+        "coach_guardiola",
+        "coach_italiano",
+        "coach_gasperini",
+        "coach_pioli",
+        "situation_pressing_alto_e_riaggressione",
+        "coach_de_zerbi"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "Klopp pressione senza palla",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_klopp",
+            "coach_guardiola",
+            "coach_italiano",
+            "coach_gasperini",
+            "coach_pioli"
+          ]
+        },
+        {
+          "tool": "search_cards",
+          "query": "Italiano pressione senza palla",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "situation_pressing_alto_e_riaggressione",
+            "coach_gasperini",
+            "coach_italiano",
+            "coach_de_zerbi",
+            "coach_guardiola"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [],
+        "rewritten": false,
+        "remaining": []
+      },
+      "check": {
+        "cited": [
+          "coach_klopp",
+          "coach_italiano",
+          "case_2024_uel_final_atalanta_leverkusen"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [
+          "case_2024_uel_final_atalanta_leverkusen"
+        ],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "answer_language": "it",
+        "language_ok": true,
+        "relevant_consulted": [
+          "coach_klopp",
+          "coach_italiano"
+        ],
+        "expected_sources": [
+          "coach_klopp",
+          "coach_italiano"
+        ],
+        "facts_found": "3/3",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 137,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q13",
+      "type": "situational",
+      "question": "Domenica affrontiamo una squadra che si chiude in un 4-4-2 basso. Noi giochiamo 4-3-3. Come la prepariamo?",
+      "answer": "Per affrontare una squadra che si chiude in un 4-4-2 basso, è fondamentale sfruttare la vostra formazione 4-3-3 per creare superiorità numerica e attaccare gli spazi tra le linee avversarie.\n\n- **Utilizzare le zone intermedie:** Attaccate la zona di rifinitura, cercando di posizionarvi tra i centrocampisti e i difensori avversari per creare opportunità di passaggio e combinazioni rapide [situation_attaccare_un_blocco_basso].\n- **Sfruttare l'ampiezza:** Allargate il gioco per attirare i difensori avversari e creare spazi interni. Movimenti combinati tra terzini e esterni possono essere efficaci [situation_gioco_sulle_fasce].\n- **Riaggressione:** Dopo un'azione offensiva, mantenete la pressione per riconquistare rapidamente il possesso e sfruttare eventuali errori avversari [situation_attaccare_un_blocco_basso].\n\nCaso reale: Mondiale 2026: la Spagna batte il 4-4-2 basso argentino con possesso che avanza (182 linee rotte, 251 ricezioni nell'ultimo terzo) e riaggressione; decide un cambio offensivo nei supplementari [case_2026_wc_final_spain_argentina].",
+      "consulted": [
+        "situation_attaccare_un_blocco_basso",
+        "situation_costruzione_dal_basso",
+        "situation_difendere_un_vantaggio",
+        "situation_uscire_dal_pressing_alto",
+        "situation_giocare_in_superiorita_numerica",
+        "situation_gioco_sulle_fasce",
+        "glossary_moduli",
+        "glossary_metriche"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "attaccare un blocco basso",
+          "categories": [
+            "game_situation"
+          ],
+          "cards": [
+            "situation_attaccare_un_blocco_basso",
+            "situation_costruzione_dal_basso",
+            "situation_difendere_un_vantaggio",
+            "situation_uscire_dal_pressing_alto",
+            "situation_giocare_in_superiorita_numerica"
+          ]
+        },
+        {
+          "tool": "search_cards",
+          "query": "4-4-2",
+          "categories": [
+            "glossary"
+          ],
+          "cards": [
+            "situation_gioco_sulle_fasce",
+            "glossary_moduli",
+            "glossary_metriche",
+            "situation_attaccare_un_blocco_basso",
+            "situation_costruzione_dal_basso"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [],
+        "rewritten": false,
+        "remaining": []
+      },
+      "check": {
+        "cited": [
+          "situation_attaccare_un_blocco_basso",
+          "situation_gioco_sulle_fasce",
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "answer_language": "it",
+        "language_ok": true,
+        "relevant_consulted": [
+          "situation_attaccare_un_blocco_basso"
+        ],
+        "expected_sources": [
+          "situation_attaccare_un_blocco_basso",
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 140,
+        "advice": true
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q14",
+      "type": "situational",
+      "question": "Siamo in superiorità numerica negli ultimi 20 minuti e l'avversario si è abbassato. Cosa facciamo?",
+      "answer": "In una situazione di superiorità numerica con l'avversario che si è abbassato, è fondamentale sfruttare gli spazi e mantenere la pazienza. Ecco alcune strategie:\n\n- **Leggere dove manca l'uomo:** osserva lo schieramento avversario per identificare le zone in cui sfruttare la superiorità numerica [situation_giocare_in_superiorita_numerica].\n- **Occupare la zona di rifinitura:** un giocatore libero alle spalle del centrocampo avversario può innescare azioni pericolose [situation_giocare_in_superiorita_numerica].\n- **Attaccare la linea:** utilizza combinazioni rapide e movimenti per superare la difesa avversaria [situation_attaccare_un_blocco_basso].\n- **Non concedere ripartenze:** mantieni marcature preventive per evitare contropiedi avversari [situation_giocare_in_superiorita_numerica].\n\nCaso reale: Mettere freschezza in attacco — nel Mondiale 2026 la Spagna, 11 contro 10 dal 90'+3', segna al 106' con due giocatori entrati dalla panchina (sponda di Nico Williams, gol di Ferran Torres) [case_2026_wc_final_spain_argentina].",
+      "consulted": [
+        "situation_giocare_in_superiorita_numerica",
+        "situation_rimontare_uno_svantaggio",
+        "situation_uscire_dal_pressing_alto",
+        "situation_gioco_sulle_fasce",
+        "situation_difendere_un_vantaggio",
+        "situation_attaccare_un_blocco_basso",
+        "situation_costruzione_dal_basso"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "superiorità numerica",
+          "categories": [
+            "game_situation"
+          ],
+          "cards": [
+            "situation_giocare_in_superiorita_numerica",
+            "situation_rimontare_uno_svantaggio",
+            "situation_uscire_dal_pressing_alto",
+            "situation_gioco_sulle_fasce",
+            "situation_difendere_un_vantaggio"
+          ]
+        },
+        {
+          "tool": "search_cards",
+          "query": "basso blocco",
+          "categories": [
+            "game_situation"
+          ],
+          "cards": [
+            "situation_attaccare_un_blocco_basso",
+            "situation_difendere_un_vantaggio",
+            "situation_giocare_in_superiorita_numerica",
+            "situation_rimontare_uno_svantaggio",
+            "situation_costruzione_dal_basso"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [],
+        "rewritten": false,
+        "remaining": []
+      },
+      "check": {
+        "cited": [
+          "situation_giocare_in_superiorita_numerica",
+          "situation_attaccare_un_blocco_basso",
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "answer_language": "it",
+        "language_ok": true,
+        "relevant_consulted": [
+          "situation_giocare_in_superiorita_numerica"
+        ],
+        "expected_sources": [
+          "situation_giocare_in_superiorita_numerica",
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 123,
+        "advice": true
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q33",
+      "type": "single_hop",
+      "question": "Pressare di più nel terzo offensivo porta più punti in classifica?",
+      "answer": "Pressare nel terzo offensivo può portare a una correlazione positiva con i punti in classifica, ma non è l'unico fattore determinante. I dati mostrano che una maggiore pressione in questa zona può migliorare le possibilità di recupero palla e creare opportunità di attacco, ma non garantisce automaticamente una classifica migliore [situation_pressing_alto_e_riaggressione].\n\n- Il pressing alto mira a recuperare palla rapidamente o costringere l'avversario a lanci lunghi [situation_pressing_alto_e_riaggressione].\n- La riaggressione immediata può fermare le ripartenze avversarie e offrire più soluzioni offensive [situation_pressing_alto_e_riaggressione].\n- Tuttavia, se il pressing non ha successo, si possono creare situazioni di vulnerabilità in difesa [situation_pressing_alto_e_riaggressione].\nCaso reale: Champions 2025: PSG \"furioso nel pressing\" dal primo minuto, 5-0 all'Inter [case_2025_ucl_final_psg_inter].",
+      "consulted": [
+        "situation_pressing_alto_e_riaggressione",
+        "glossary_metriche",
+        "glossary_moduli",
+        "situation_uscire_dal_pressing_alto",
+        "situation_difendere_un_vantaggio"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "pressare nel terzo offensivo punti in classifica",
+          "categories": [
+            "glossary"
+          ],
+          "cards": [
+            "situation_pressing_alto_e_riaggressione",
+            "glossary_metriche",
+            "glossary_moduli",
+            "situation_uscire_dal_pressing_alto",
+            "situation_difendere_un_vantaggio"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [],
+        "rewritten": false,
+        "remaining": []
+      },
+      "check": {
+        "cited": [
+          "situation_pressing_alto_e_riaggressione",
+          "case_2025_ucl_final_psg_inter"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [
+          "case_2025_ucl_final_psg_inter"
+        ],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "answer_language": "it",
+        "language_ok": true,
+        "relevant_consulted": [
+          "situation_pressing_alto_e_riaggressione"
+        ],
+        "expected_sources": [
+          "situation_pressing_alto_e_riaggressione"
+        ],
+        "facts_found": "1/1",
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 114,
+        "advice": false
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q36",
+      "type": "situational",
+      "question": "Affrontiamo una squadra che marca a uomo a tutto campo come l'Atalanta di Gasperini. Come la prepariamo?",
+      "answer": "Per affrontare una squadra che marca a uomo a tutto campo come l'Atalanta di Gasperini, è fondamentale sfruttare gli spazi che si creano e adottare un gioco rapido e verticale.\n\n- **Utilizzare giocate rapide e verticalizzazioni** per saltare il pressing avversario e sfruttare gli spazi lasciati liberi dalla marcatura a uomo [situation_uscire_dal_pressing_alto].\n- **Adattare la struttura di costruzione** per mettere in difficoltà la difesa avversaria, creando superiorità numerica in alcune zone del campo [situation_uscire_dal_pressing_alto].\n- **Movimenti senza palla** per eludere la marcatura e liberare gli inserimenti dei centrocampisti, approfittando della mancanza di coperture di reparto [coach_gasperini].\n\nCaso reale: Europa League 2024: il Leverkusen, pressato a uomo dall'Atalanta, perde palla in uscita (2-0) e nel secondo tempo tiene un possesso \"sterile\", subendo il contropiede del 3-0 [case_2024_uel_final_atalanta_leverkusen].",
+      "consulted": [
+        "coach_gasperini",
+        "situation_uscire_dal_pressing_alto",
+        "situation_pressing_alto_e_riaggressione",
+        "situation_difendere_un_vantaggio",
+        "situation_gioco_sulle_fasce",
+        "coach_de_zerbi",
+        "coach_italiano",
+        "coach_inzaghi",
+        "coach_pioli"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "marcatura a uomo a tutto campo Gasperini",
+          "categories": [
+            "game_situation"
+          ],
+          "cards": [
+            "coach_gasperini",
+            "situation_uscire_dal_pressing_alto",
+            "situation_pressing_alto_e_riaggressione",
+            "situation_difendere_un_vantaggio",
+            "situation_gioco_sulle_fasce"
+          ]
+        },
+        {
+          "tool": "search_cards",
+          "query": "Gasperini",
+          "categories": [
+            "coach_profile"
+          ],
+          "cards": [
+            "coach_gasperini",
+            "coach_de_zerbi",
+            "coach_italiano",
+            "coach_inzaghi",
+            "coach_pioli"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [],
+        "rewritten": false,
+        "remaining": []
+      },
+      "check": {
+        "cited": [
+          "situation_uscire_dal_pressing_alto",
+          "coach_gasperini",
+          "case_2024_uel_final_atalanta_leverkusen"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [
+          "case_2024_uel_final_atalanta_leverkusen"
+        ],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "answer_language": "it",
+        "language_ok": true,
+        "relevant_consulted": [
+          "situation_uscire_dal_pressing_alto",
+          "coach_gasperini"
+        ],
+        "expected_sources": [
+          "situation_uscire_dal_pressing_alto",
+          "coach_gasperini"
+        ],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 127,
+        "advice": true
+      },
+      "problems": []
+    },
+    {
+      "question_id": "Q37",
+      "type": "follow_up",
+      "question": "E se invece ci pressano alti a uomo?",
+      "answer": "Per affrontare una squadra che pressa alta a uomo, il tuo 4-3-3 deve adattarsi per sfruttare gli spazi liberati. Ecco come preparare la partita:\n\n- **Muovere rapidamente la palla**: cerca di attirare più avversari verso il portatore di palla, per liberare linee di passaggio e cercare l'esterno alto o il terzino [situation_uscire_dal_pressing_alto].\n- **Adattare la struttura di costruzione**: utilizza formazioni come 2+2 o 3+1 per creare superiorità numerica e mettere in difficoltà la pressione avversaria [situation_uscire_dal_pressing_alto].\n- **Verticalizzazioni improvvise**: approfitta degli spazi creati dalla pressione per effettuare passaggi rapidi e cercare duelli in parità numerica [situation_uscire_dal_pressing_alto].\n\nCaso reale: Europa League 2024: il Leverkusen, pressato a uomo dall'Atalanta, perde palla in uscita (2-0) e nel secondo tempo tiene un possesso \"sterile\", subendo il contropiede del 3-0 [case_2024_uel_final_atalanta_leverkusen].",
+      "consulted": [
+        "situation_uscire_dal_pressing_alto",
+        "situation_pressing_alto_e_riaggressione",
+        "situation_difendere_un_vantaggio",
+        "situation_giocare_in_superiorita_numerica",
+        "situation_gioco_sulle_fasce"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "pressing alto a uomo",
+          "categories": [
+            "game_situation"
+          ],
+          "cards": [
+            "situation_uscire_dal_pressing_alto",
+            "situation_pressing_alto_e_riaggressione",
+            "situation_difendere_un_vantaggio",
+            "situation_giocare_in_superiorita_numerica",
+            "situation_gioco_sulle_fasce"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [],
+        "rewritten": false,
+        "remaining": []
+      },
+      "check": {
+        "cited": [
+          "situation_uscire_dal_pressing_alto",
+          "case_2024_uel_final_atalanta_leverkusen"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [
+          "case_2024_uel_final_atalanta_leverkusen"
+        ],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "answer_language": "it",
+        "language_ok": true,
+        "relevant_consulted": [
+          "situation_uscire_dal_pressing_alto"
+        ],
+        "expected_sources": [
+          "situation_uscire_dal_pressing_alto"
+        ],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 131,
+        "advice": false
+      },
+      "problems": [],
+      "previous_turn": "Q13",
+      "previous_question": "Domenica affrontiamo una squadra che si chiude in un 4-4-2 basso. Noi giochiamo 4-3-3. Come la prepariamo?",
+      "previous_answer": "Per affrontare una squadra che si chiude in un 4-4-2 basso, il tuo 4-3-3 deve puntare a sfruttare gli spazi tra le linee e le fasce. Ecco come preparare la partita:\n\n- **Attaccare le zone intermedie**: cerca di arrivare nella zona di rifinitura, sfruttando gli spazi tra i centrocampisti e i difensori avversari per effettuare tagli e combinazioni rapide [situation_attaccare_un_blocco_basso].\n- **Utilizzare l'ampiezza**: allarga il gioco per costringere la difesa avversaria a muoversi, creando opportunità per attaccare centralmente o crossare [situation_gioco_sulle_fasce].\n- **Scaglionamento**: posiziona almeno due giocatori in ampiezza e tre o quattro nella zona centrale per creare superiorità numerica [situation_attaccare_un_blocco_basso].\n\nCaso reale: Mondiale 2026: la Spagna batte il 4-4-2 basso argentino con possesso che avanza (182 linee rotte, 251 ricezioni nell'ultimo terzo) e riaggressione; decide un cambio offensivo nei supplementari [case_2026_wc_final_spain_argentina]."
+    },
+    {
+      "question_id": "Q42",
+      "type": "situational",
+      "question": "On Sunday we face a team sitting in a deep 4-4-2 block. We play 4-3-3. How should we prepare?",
+      "answer": "To face an opponent set up in a deep 4-4-2 block, your team should adopt specific strategies to maximize the effectiveness of the 4-3-3.\n\n- **Attack the intermediate zones:** Aim to reach the final third, exploiting the spaces between the opponent's midfielders and defenders for quick cuts and combinations [situation_attaccare_un_blocco_basso].\n- **Utilize width:** Spread the play to create spaces and isolate duels on the weak side, using overlaps and combined movements [situation_gioco_sulle_fasce].\n- **Counter-pressing:** Maintain high pressure to quickly regain possession and stay in the opponent's half [situation_attaccare_un_blocco_basso].\n\nReal case (card text, in Italian): Mondiale 2026: la Spagna batte il 4-4-2 basso argentino con possesso che avanza (182 linee rotte, 251 ricezioni nell'ultimo terzo) e riaggressione; decide un cambio offensivo nei supplementari [case_2026_wc_final_spain_argentina].",
+      "consulted": [
+        "situation_attaccare_un_blocco_basso",
+        "situation_costruzione_dal_basso",
+        "situation_difendere_un_vantaggio",
+        "situation_uscire_dal_pressing_alto",
+        "situation_gioco_sulle_fasce",
+        "glossary_moduli",
+        "glossary_metriche",
+        "coach_de_zerbi"
+      ],
+      "tool_calls": [
+        {
+          "tool": "search_cards",
+          "query": "attaccare un blocco basso 4-4-2",
+          "categories": [
+            "game_situation"
+          ],
+          "cards": [
+            "situation_attaccare_un_blocco_basso",
+            "situation_costruzione_dal_basso",
+            "situation_difendere_un_vantaggio",
+            "situation_uscire_dal_pressing_alto",
+            "situation_gioco_sulle_fasce"
+          ]
+        },
+        {
+          "tool": "search_cards",
+          "query": "4-3-3",
+          "categories": [
+            "glossary"
+          ],
+          "cards": [
+            "situation_gioco_sulle_fasce",
+            "glossary_moduli",
+            "glossary_metriche",
+            "situation_attaccare_un_blocco_basso",
+            "coach_de_zerbi"
+          ]
+        }
+      ],
+      "guard": {
+        "input": "football",
+        "issues": [
+          "language: it instead of en"
+        ],
+        "rewritten": true,
+        "remaining": []
+      },
+      "check": {
+        "cited": [
+          "situation_attaccare_un_blocco_basso",
+          "situation_gioco_sulle_fasce",
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "invalid_citations": [],
+        "indirect_citations": [
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "ungrounded": [],
+        "malformed_citations": [],
+        "copied_headers": [],
+        "author_citations": [],
+        "tool_use_ok": true,
+        "abstention_ok": null,
+        "answer_language": "en",
+        "language_ok": true,
+        "relevant_consulted": [
+          "situation_attaccare_un_blocco_basso"
+        ],
+        "expected_sources": [
+          "situation_attaccare_un_blocco_basso",
+          "case_2026_wc_final_spain_argentina"
+        ],
+        "facts_found": null,
+        "forbidden_found": [],
+        "cites_something": true,
+        "words": 130,
+        "advice": true
+      },
+      "problems": []
+    }
+  ]
+}

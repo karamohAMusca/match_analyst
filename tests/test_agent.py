@@ -63,7 +63,7 @@ def test_prompt_rules():
     assert "Never connect a card to teams, seasons or events it does not mention" in p
     assert "must appear in the tool results" in p and "Never add them from your own knowledge" in p
     assert "do not attribute to one coach a trait taken from another coach's card" in p
-    assert "include a real case" in p
+    assert '"Caso reale: [<case id>]"' in p and "only the label and the id" in p   # the code writes the facts
     assert "attaccare_un_blocco_basso" not in p      # no gold answer leaked into the prompt
     assert 'categories ["coach_profile"]' in p and "first search that coach's profile" in p
     assert "does not describe the ideas of another coach" in p
