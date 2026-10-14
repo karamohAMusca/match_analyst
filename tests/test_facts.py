@@ -13,7 +13,8 @@ from scripts.review_chats import card_texts
 from src.agent.analyst_agent import MatchAnalyst
 from src.core.config import PROJECT_ROOT
 from src.guardrails.facts import (CASE_LINE_RE, closing_summary, collapse_real_cases, expand_real_cases, fact_issues,
-                                  perspective_issues, premise_issues, remove_sentences, sentences, writes_man_down)
+                                  perspective_issues, premise_issues, remove_sentences, sentences, unmarked_unknown,
+                                  writes_man_down)
 from tests.fakes import ScriptedLLM
 
 UEL = "case_2024_uel_final_atalanta_leverkusen"
@@ -348,3 +349,50 @@ def test_closing_summaries_on_the_saved_answers():
                 found += 1
                 assert "[" not in closing and closing in row["answer"], (path.name, closing)
     assert found >= 40
+
+
+# ---------------------------------------------------------------- step 5b: an unknown said without "Non lo so" (Q21)
+@pytest.mark.parametrize("answer, unknown", [
+    ("Il PSG ha vinto ai rigori [case_2026_ucl_final_psg_arsenal].\n\nIl PSG era guidato in panchina da un allenatore "
+     "non specificato [case_2026_ucl_final_psg_arsenal].",                      # gold 20261014-141635, Q21
+     "Il PSG era guidato in panchina da un allenatore non specificato [case_2026_ucl_final_psg_arsenal]."),
+    ("Non ho informazioni specifiche sul PPDA della Fiorentina.", "Non ho informazioni specifiche sul PPDA della Fiorentina."),
+    ("PSG won on penalties [x_y]. The cards do not name PSG's coach.", "The cards do not name PSG's coach."),
+    ("Non lo so. Non ci sono informazioni specifiche sul PPDA della Fiorentina.", None),   # already said
+    ("Abbassate il blocco [situation_difendere_un_vantaggio].\nCaso reale: Mondiale 2026 — nessun tiro, "
+     "nome non indicato [case_2026_wc_final_spain_argentina].", None),          # the card's own sentence
+    ("Il PSG ha vinto ai rigori [case_2026_ucl_final_psg_arsenal].", None),
+])
+def test_an_unknown_said_without_non_lo_so(answer, unknown):
+    assert unmarked_unknown(answer) == unknown
+
+
+def test_the_agent_marks_the_unknown_with_non_lo_so(retriever):
+    llm = ScriptedLLM(answer="Il PSG ha vinto ai rigori [case_2026_ucl_final_psg_arsenal].\n\nIl PSG era guidato in "
+                             "panchina da un allenatore non specificato [case_2026_ucl_final_psg_arsenal].")
+    analyst = MatchAnalyst(client=llm, retriever=retriever)
+    answer = analyst.analyze("Chi ha vinto la finale di Champions League 2026 e chi era in panchina il PSG?")
+    assert "\n\nNon lo so. Il PSG era guidato in panchina da un allenatore non specificato" in answer
+    assert "segnato con «Non lo so»" in analyst.guard_note
+
+
+def test_unmarked_unknowns_on_the_saved_answers():
+    # On every saved answer, an unknown said without "Non lo so" is an abstention missed: Q19 and Q21 only.
+    runs, seen = PROJECT_ROOT / "eval" / "runs", set()
+    for path in sorted(runs.glob("agent_2026*.json")) + sorted(runs.glob("gold_2026*.json")):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        for row in data.get("questions") or data.get("rows") or []:
+            if unmarked_unknown(row["answer"]):
+                seen.add(row.get("question_id") or row["id"])
+    assert seen == {"Q19", "Q21"}
+
+
+def test_a_name_written_in_part_is_cut_back_without_a_rewrite(retriever):
+    # E9, Q31: asked to remove "Philipp" and "Monaco", the rewrite removed Lahm and Bayern too.
+    llm = ScriptedLLM(answer="Il falso terzino nasce al Bayern Monaco, con Philipp Lahm in mezzo al campo [coach_guardiola].")
+    analyst = MatchAnalyst(client=llm, retriever=retriever)
+    answer = analyst.analyze("Da dove nasce il falso terzino di Guardiola?")
+    assert "coach_guardiola" in analyst.consulted_cards
+    assert answer == "Il falso terzino nasce al Bayern, con Lahm in mezzo al campo [coach_guardiola]."
+    assert llm.rewrite_requests == [] and analyst.last_guard["trimmed"] == ["Monaco", "Philipp"]
+    assert "tolto: Monaco, Philipp" in analyst.guard_note

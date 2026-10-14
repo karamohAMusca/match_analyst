@@ -289,6 +289,30 @@ def closing_summary(answer: str) -> str | None:
     return last
 
 
+# ---------------------------------------------------------------- an unknown said without "Non lo so"
+# Q21 (gold run 20261014-141635): "Il PSG era guidato in panchina da un allenatore non specificato":
+# the detail is not in the cards, but without the words "Non lo so" neither the coach (the app boxes
+# the paragraphs that start with them) nor the abstention measure can see it. On every saved answer,
+# such a sentence in an answer that never says "Non lo so" is an abstention missed (Q19, Q21).
+_UNKNOWN_RE = re.compile(
+    r"\bnon (?:e |viene |vengono |sono |risulta |risultano )?(?:specificat|indicat|menzionat|nominat|precisat|riportat)\w*|"
+    r"\b(?:le schede|la scheda|il corpus|le fonti|i documenti) non (?:dicono|indicano|specificano|riportano|menzionano|"
+    r"nominano|forniscono|contengono)\b|\bnon (?:ho|ci sono|abbiamo) (?:informazioni|dati|dettagli)\b|"
+    r"\bnot (?:specified|mentioned|named|stated|given|indicated|reported)\b|\bunspecified\b|\bunnamed\b|"
+    r"\b(?:the cards|the card|the sources) do(?:es)? not (?:say|name|mention|specify|state|give)\b")
+_ABSTAINED_RE = re.compile(r"non lo so|i don't know|i do not know")
+
+
+def unmarked_unknown(answer: str) -> str | None:
+    """The first sentence saying that a detail is not in the cards ("un allenatore non specificato",
+    "non ci sono informazioni"), in an answer that never says "Non lo so" / "I don't know"; the
+    real-case line (the card's own sentence) is not read. None otherwise."""
+    if _ABSTAINED_RE.search(_normalize(answer)):
+        return None
+    lines = (line for line in answer.splitlines() if not CASE_LINE_RE.match(line))
+    return next((s for line in lines for s in sentences(line) if _UNKNOWN_RE.search(_normalize(s))), None)
+
+
 # ---------------------------------------------------------------- thresholds
 _THRESHOLD_RE = re.compile(
     r"\b(?:(?:inferiore|superiore|minore|maggiore)\s+(?:a|al|allo|alla|ai|di)|(?:sotto|sopra|oltre)"

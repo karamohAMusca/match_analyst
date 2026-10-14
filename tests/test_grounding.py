@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from src.evaluation.answer_checks import check_answer, problems
-from src.guardrails.grounding import ungrounded_terms
+from src.guardrails.grounding import trim_name_parts, ungrounded_terms
 
 CARD = ("Finale Champions League 2026: Paris Saint-Germain 1-1 Arsenal (4-3 d.c.r.). "
         "0-1 al 6', con Havertz; al 61' Dembélé trasforma il rigore.")
@@ -88,3 +88,18 @@ def test_hyphenated_chain_of_names():
     card = "Vitinha imbuca per Doué, che serve Hakimi."
     assert ungrounded_terms("Un'azione rapida (Vitinha-Doué-Hakimi).", card) == []
     assert ungrounded_terms("Un'azione rapida (Vitinha-Dembélé).", card) == ["Vitinha-Dembélé"]
+
+
+def test_a_name_written_in_part_by_the_cards_is_cut_back_to_their_words():
+    # E9, run agent_20261014-135939 (Q31): the rewrite asked to remove "Philipp" removed "Lahm" too.
+    card = "Falso terzino: al Bayern chiede a Lahm di spostarsi in mezzo al campo; al City con Walker e Cancelo."
+    answer = ("Guardiola al Bayern Monaco chiese a Philipp Lahm di accentrarsi [coach_guardiola].\n"
+              "- Al Manchester City con Kyle Walker e Joao Cancelo [coach_guardiola].")
+    trimmed, cut = trim_name_parts(answer, card + " Guardiola")
+    assert trimmed == ("Guardiola al Bayern chiese a Lahm di accentrarsi [coach_guardiola].\n"
+                       "- Al City con Walker e Cancelo [coach_guardiola].")
+    assert cut == ["Monaco", "Philipp", "Manchester", "Kyle", "Joao"] and ungrounded_terms(trimmed, card + " Guardiola") == []
+    # a name with no part in the cards stays, for the check and the rewrite
+    assert trim_name_parts("Il PSG era allenato da Luis Enrique [x_y].", CARD) == ("Il PSG era allenato da Luis Enrique [x_y].", [])
+    # "Il" at the start of a sentence is not the part of a name the cards write
+    assert trim_name_parts("Il PSG vinse la finale [x_y].", "Il gioco: la finale.")[1] == []

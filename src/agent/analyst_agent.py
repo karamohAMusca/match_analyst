@@ -28,7 +28,8 @@ from src.agent.prompts import ENGLISH_REMINDER, MATCH_ANALYST_SYSTEM_PROMPT, REW
 from src.core.config import LLM_PROVIDER, load_settings, require_api_key
 from src.guardrails.facts import (FACT_KINDS, closing_summary, collapse_real_cases, expand_real_cases, fact_issues,
                                   man_down_answer, perspective_issues, premise_issues, remove_sentences,
-                                  writes_man_down)
+                                  unmarked_unknown, writes_man_down)
+from src.guardrails.grounding import trim_name_parts
 from src.guardrails.language import detect_language
 from src.guardrails.input_guard import check_question
 from src.evaluation.judge import JUDGE_MAX_RETRIES, JUDGE_TEMPERATURE, JUDGE_TIMEOUT_S
@@ -180,6 +181,10 @@ class MatchAnalyst:
                     self.last_guard["closing"] = closing
                     answer = remove_sentences(answer, [closing])
                     log.info("output guard: closing summary without a citation removed")
+                if unknown := unmarked_unknown(answer):   # a detail the cards do not give, said without "Non lo so"
+                    self.last_guard["unknown"] = unknown
+                    answer = answer.replace(unknown, ("I don't know. " if english else "Non lo so. ") + unknown, 1)
+                    log.info("output guard: a detail the cards do not give marked with \"Non lo so\"")
                 set_output(guard, json.dumps(self.last_guard, ensure_ascii=False))
         if answer != draft:
             self._remember(answer)
@@ -222,6 +227,7 @@ class MatchAnalyst:
         cards = {c: self.corpus_tools.retriever.card_text(c) or "" for c in consulted}
         source_text, context = "\n".join(cards.values()), card_context(cards)
         earlier = "\n".join(self.coach_questions[:-1])   # the memory already holds the current question
+        answer = self._trim_names(answer, source_text, f"{question}\n{earlier}")
         # Checks and rewrite see the real-case line as the model is asked to write it (label and id):
         # the card's sentence is not the model's to check or to rewrite.
         issues = self._check(collapse_real_cases(answer), question, consulted, source_text, context, earlier)
@@ -237,7 +243,8 @@ class MatchAnalyst:
             self.last_guard["error"] = f"{type(e).__name__}: {e}"
             log.warning("output guard: rewrite failed, first answer kept", exc_info=True)
             return self._drop_wrong_facts(answer, issues)
-        rewritten = self._compose(rewritten) if rewritten else rewritten
+        if rewritten:
+            rewritten = self._trim_names(self._compose(rewritten), source_text, f"{question}\n{earlier}")
         remaining = (self._check(collapse_real_cases(rewritten), question, consulted, source_text, context, earlier)
                      if rewritten else issues)
         if not rewritten or len(remaining) > len(issues):
@@ -247,6 +254,15 @@ class MatchAnalyst:
         self.last_guard["rewritten"] = True
         self.last_guard["remaining"] = [i.describe() for i in remaining]
         return self._drop_wrong_facts(rewritten, remaining)
+
+    def _trim_names(self, answer: str, source_text: str, known: str) -> str:
+        """A name the cards write only in part cut back to their words, without a model call
+        ("Philipp Lahm" -> "Lahm"): asked to the rewrite, the whole name went (E9)."""
+        answer, cut = trim_name_parts(answer, source_text, known)
+        if cut:
+            self.last_guard["trimmed"] = list(dict.fromkeys(self.last_guard.get("trimmed", []) + cut))
+            log.info("output guard: name parts not in the cards removed: %s", cut)
+        return answer
 
     def _drop_wrong_facts(self, answer: str, issues: list[Issue]) -> str:
         """Remove the sentences with a wrong fact (coach-team pair, threshold) still there after the
@@ -330,6 +346,10 @@ class MatchAnalyst:
             notes.append(f"{len(guard['removed'])} frasi tolte perché le schede dicono altro")
         if guard.get("closing"):
             notes.append("tolta la frase di chiusura senza fonte")
+        if guard.get("trimmed"):
+            notes.append("nomi scritti come nelle schede (tolto: " + ", ".join(guard["trimmed"]) + ")")
+        if guard.get("unknown"):
+            notes.append("segnato con «Non lo so» un dettaglio che le schede non danno")
         if guard.get("remaining"):
             notes.append("da verificare: " + "; ".join(guard["remaining"]))
         if guard.get("error"):

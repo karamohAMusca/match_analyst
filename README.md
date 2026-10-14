@@ -216,6 +216,9 @@ guardrails did.
   carries no cited fact (a style question's conclusion, "X is the closest to your team", is kept).
   An English question reaches the model with a one-line reminder to answer in English: with the
   rule of the system prompt alone, every English answer was drafted in Italian and rewritten.
+  A name the cards write only in part ("Philipp Lahm", "Bayern Monaco") is cut back to their words
+  by code, before the checks: asked to the rewrite, the whole name went, Lahm included (E9). A detail
+  said to be missing without the words "Non lo so" ("un allenatore non specificato") gets them (E19).
 - *verifier*, optional (`src/guardrails/verifier.py`, a second model after the writer: a sequential
   architecture): the checks above see names, numbers and citations, not who did what ("Inter
   defended a lead" passes them, while the card says City won). The verifier runs the gold run's
