@@ -26,8 +26,8 @@ from datapizza.type import ROLE, TextBlock
 
 from src.agent.prompts import ENGLISH_REMINDER, MATCH_ANALYST_SYSTEM_PROMPT, REWRITE_REQUEST
 from src.core.config import LLM_PROVIDER, load_settings, require_api_key
-from src.guardrails.facts import (FACT_KINDS, closing_summary, collapse_real_cases, expand_real_cases, fact_issues,
-                                  man_down_answer, perspective_issues, premise_issues, remove_sentences,
+from src.guardrails.facts import (FACT_KINDS, closing_summary, collapse_real_cases, effect_tails, expand_real_cases,
+                                  fact_issues, man_down_answer, perspective_issues, premise_issues, remove_sentences,
                                   unmarked_unknown, writes_man_down)
 from src.guardrails.grounding import trim_name_parts
 from src.guardrails.language import detect_language
@@ -177,6 +177,11 @@ class MatchAnalyst:
         if self.guardrails:
             with span("output_guard", "GUARDRAIL", answer) as guard:
                 answer = self._review(question, answer)
+                if tails := effect_tails(answer):   # what a fact "creates" or "shows", added by the writer (E20)
+                    self.last_guard["tails"] = tails
+                    for tail in tails:
+                        answer = answer.replace(tail, "", 1)
+                    log.info("output guard: %d effect tails removed", len(tails))
                 if closing := closing_summary(answer):   # a summary with no citation: no cited fact lost
                     self.last_guard["closing"] = closing
                     answer = remove_sentences(answer, [closing])
@@ -344,6 +349,10 @@ class MatchAnalyst:
             notes.append("risposta corretta automaticamente (" + ", ".join(fixed) + ")")
         if guard.get("removed"):
             notes.append(f"{len(guard['removed'])} frasi tolte perché le schede dicono altro")
+        if guard.get("tails"):
+            count = len(guard["tails"])
+            notes.append("tolta un'aggiunta non scritta nelle schede" if count == 1 else
+                         f"tolte {count} aggiunte non scritte nelle schede")
         if guard.get("closing"):
             notes.append("tolta la frase di chiusura senza fonte")
         if guard.get("trimmed"):

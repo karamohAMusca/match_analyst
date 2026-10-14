@@ -243,6 +243,8 @@ def _pairs_in(sentence: str, coaches: Iterable[str]) -> list[tuple[str, str]]:
         # E3 (Q18): "Pioli ... il suo Milan": a possessive pointing back to the coach of the same sentence
         rf"\b(?P<coach>{coach})\b[^.;]*?\b(?:il\s+suo|la\s+sua|del\s+suo|della\s+sua|al\s+suo|alla\s+sua|"
         rf"col\s+suo|con\s+il\s+suo|his)\s+(?:\w+\s+)?(?P<team>{team})\b",
+        # gold run 20261014-145440 (Q18): "l'approccio di Pioli anche nel Milan"
+        rf"\b(?P<coach>{coach})(?:\s+\w+){{0,2}}\s+(?:nel|nella|al|alla|col|in)\s+(?P<team>{team})\b",
     )
     proper = unicodedata.normalize("NFKD", sentence).encode("ascii", "ignore").decode()
     found = []
@@ -287,6 +289,36 @@ def closing_summary(answer: str) -> str | None:
             or not BRACKETS_RE.search("\n".join(lines[:-1]))):
         return None
     return last
+
+
+# ---------------------------------------------------------------- effects the cards do not state
+# What a fact "creates", "allows" or "shows", added after a comma ("..., creando opportunità di tiro",
+# "..., evidenziando un pressing molto efficace"): the prompt forbids it, yet in the gold runs of
+# 2026-10-14 such tails were most of the statements the judge found unsupported, and the judge is not
+# consistent on them either (the same tail supported in one run, not in the next): they are the
+# writer's reading, not the card's. Cut by code; a tail with a number or a name is kept (", creando 182
+# linee rotte": a fact of the card). Simulated on the verdicts of those runs: faithfulness 0.944 ->
+# 0.955 and 0.946 -> 0.965, no required fact of the gold set lost.
+_EFFECT_GERUNDS = ("creando|permettendo|consentendo|favorendo|garantendo|aumentando|migliorando|evidenziando|"
+                   "dimostrando|suggerendo|facilitando|rendendo|contribuendo|generando|mostrando|sottolineando|"
+                   "riflettendo|creating|allowing|enabling|leading|resulting|highlighting|demonstrating|showing|"
+                   "suggesting|making|increasing|improving|reflecting|ensuring|helping")
+_EFFECT_TAIL_RE = re.compile(rf",\s+(?:così\s+|cosi\s+|thus\s+)?(?:{_EFFECT_GERUNDS})\b[^\[\]\n]*?"
+                             r"(?=\s*\[|[.;!?](?:\s|$)|$)", re.IGNORECASE)
+
+
+def effect_tails(answer: str) -> list[str]:
+    """The effect tails of `answer` (", creando ...", ", evidenziando ..."), exactly as written, from
+    the comma to the citation or the end of the sentence; not those with a number or a name, and not
+    in the real-case line (the card's own sentence)."""
+    tails = []
+    for line in answer.splitlines():
+        if CASE_LINE_RE.match(line):
+            continue
+        for m in _EFFECT_TAIL_RE.finditer(line):
+            if not re.search(r"\d", m.group(0)) and not re.search(r"(?<=\s)[A-Z][a-zà-ù]+", m.group(0)):
+                tails.append(m.group(0))
+    return tails
 
 
 # ---------------------------------------------------------------- an unknown said without "Non lo so"

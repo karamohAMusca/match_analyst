@@ -219,6 +219,10 @@ guardrails did.
   A name the cards write only in part ("Philipp Lahm", "Bayern Monaco") is cut back to their words
   by code, before the checks: asked to the rewrite, the whole name went, Lahm included (E9). A detail
   said to be missing without the words "Non lo so" ("un allenatore non specificato") gets them (E19).
+  An **effect added after a comma** ("..., creando opportunità di tiro", "..., evidenziando un pressing
+  molto efficace"), the writer's reading and not the card's, is cut (E20); a tail with a number or a
+  name stays. Simulated on the judge's verdicts of two gold runs, it raised faithfulness by 0.011 and
+  0.019, no required fact lost; it also cuts some right tails, so answers get shorter.
 - *verifier*, optional (`src/guardrails/verifier.py`, a second model after the writer: a sequential
   architecture): the checks above see names, numbers and citations, not who did what ("Inter
   defended a lead" passes them, while the card says City won). The verifier runs the gold run's

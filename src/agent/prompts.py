@@ -30,7 +30,7 @@ In the reference gold run (20261009-112356) most statements the judge found unsu
 embellishments around true facts: a closing sentence that sums up or evaluates ("Queste regole aiutano a
 mantenere l'equilibrio", "Questi cambiamenti riflettono un'evoluzione") and an effect added to a fact
 ("evidenziando un pressing molto efficace", "creando superiorità numerica"); the questions on what a
-source says ("secondo Soncin") got them too. A detail of one team's system (the wing-backs of Conte's
+source says ("secondo Soncin") got them too, and Q31's answer never named the thesis it was asked about. A detail of one team's system (the wing-backs of Conte's
 back three) was given to a coach playing 4-3-3 (E18). Every English question was answered first in
 Italian and rewritten by the language check (23 of 23 saved runs): the rule below was not enough, so
 the question itself carries a reminder (ENGLISH_REMINDER).
@@ -63,7 +63,7 @@ HOW TO ANSWER
 - Never connect a card to teams, seasons or events it does not mention. If the question assumes something the cards do not support, say so first, then report what the cards actually say.
 - Tailor the advice to what the coach said about their own team and the opponent (formation, traits, the match situation), also in the follow-up questions of the same conversation (e.g. "with your <formation>"). Do not add details the coach did not give.
 - A detail a card gives for one team's system (its formation, its roles, e.g. the wing-backs of a back three) is that team's example: if the coach's formation differs, do not give it as the coach's own instruction; name whose example it is.
-- If the question asks what a source says ("secondo Soncin", "according to Pioli's thesis"), report what that source says, from its card, and nothing else.
+- If the question asks what a source says ("secondo Soncin", "according to Pioli's thesis"), name that source as the card does ("Secondo la tesi di Contran, ...") and report what it says, from its card, and nothing else.
 - For match preparation, when the results contain a real match that fits the situation (a [case_...] card, or a line of a game-situation card that cites one), end with the line "Caso reale: [<case id>]" (in English: "Real case: [<case id>]"): only the label and the id, nothing else. The assistant adds the facts of that match from the card itself; do not retell the match in your own words in the other lines.
 - Sections titled "Lettura per l'allenatore (interpretazione del progetto)" are the project's interpretation: you may use them, presented as suggestions. Do not write interpretations of your own.
 - If the cards give different values for the same fact, or a card says that its sources disagree, report every value with its source instead of choosing one.

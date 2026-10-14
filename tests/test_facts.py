@@ -12,7 +12,8 @@ from datapizza.type import ROLE
 from scripts.review_chats import card_texts
 from src.agent.analyst_agent import MatchAnalyst
 from src.core.config import PROJECT_ROOT
-from src.guardrails.facts import (CASE_LINE_RE, closing_summary, collapse_real_cases, expand_real_cases, fact_issues,
+from src.guardrails.facts import (CASE_LINE_RE, closing_summary, collapse_real_cases, effect_tails, expand_real_cases,
+                                  fact_issues,
                                   perspective_issues, premise_issues, remove_sentences, sentences, unmarked_unknown,
                                   writes_man_down)
 from tests.fakes import ScriptedLLM
@@ -132,6 +133,8 @@ def kinds(text: str, cards: dict, consulted: list[str]) -> list[str]:
     ("Italiano all'Atalanta cercava la verticale [coach_italiano].", ["coach_team"]),
     ("Italiano's Atalanta pressed high [coach_italiano].", ["coach_team"]),
     ("Pioli spiega come giocava il suo Milan campione d'Italia [coach_pioli].", ["coach_team"]),       # Q18
+    ("Questi concetti possono riflettere l'approccio di Pioli anche nel Milan [coach_pioli].", ["coach_team"]),
+    ("Guardiola al Bayern chiede a Lahm di accentrarsi [coach_guardiola].", []),
     ("According to Pioli's thesis, his Milan pressed on the flanks [coach_pioli].", ["coach_team"]),
     ("Pioli allenava la Primavera del Chievo con il suo 4-4-2 [coach_pioli].", []),
     ("Gasperini con la sua Atalanta marca a uomo [coach_gasperini].", []),
@@ -396,3 +399,47 @@ def test_a_name_written_in_part_is_cut_back_without_a_rewrite(retriever):
     assert answer == "Il falso terzino nasce al Bayern, con Lahm in mezzo al campo [coach_guardiola]."
     assert llm.rewrite_requests == [] and analyst.last_guard["trimmed"] == ["Monaco", "Philipp"]
     assert "tolto: Monaco, Philipp" in analyst.guard_note
+
+
+# ---------------------------------------------------------------- step 5c: effects the cards do not state (E20)
+@pytest.mark.parametrize("answer, tails", [
+    ("È importante perché permette combinazioni e tagli, creando opportunità di tiro o passaggi filtranti "
+     "[situation_attaccare_un_blocco_basso].", [", creando opportunità di tiro o passaggi filtranti"]),   # Q05
+    ("L'Inter di Conte ha un PPDA di 9,08, evidenziando un pressing molto efficace [glossary_metriche].",
+     [", evidenziando un pressing molto efficace"]),                                                       # Q35
+    ("Al City passa da un 3-2-5 a un 2-3-5, creando così superiorità numerica [coach_guardiola].",
+     [", creando così superiorità numerica"]),                                                             # Q31
+    ("The PPDA rose to 13.44, showing a shift to a more compact defense.", [", showing a shift to a more compact defense"]),
+    ("La Spagna avanza, creando 182 linee rotte [case_2026_wc_final_spain_argentina].", []),               # a number
+    ("Pressing alto, evidenziando la superiorità della Spagna [x_y].", []),                                # a name
+    ("Gli attaccanti indirizzano il gioco, trasformando la squadra in un 3-4-3 [coach_pioli].", []),        # not an effect
+    ("Abbassate il blocco [situation_difendere_un_vantaggio].\nCaso reale: Reggere e poi colpire, creando poco "
+     "[case_2023_ucl_final_city_inter].", []),                                                             # the card's own line
+])
+def test_effect_tails(answer, tails):
+    assert effect_tails(answer) == tails
+
+
+def test_the_agent_cuts_the_effect_tails(retriever):
+    llm = ScriptedLLM(answer="Il blocco basso si attacca nella zona di rifinitura, creando opportunità di tiro "
+                             "[situation_attaccare_un_blocco_basso].")
+    analyst = MatchAnalyst(client=llm, retriever=retriever)
+    answer = analyst.analyze("Come si attacca un blocco basso?")
+    assert answer == "Il blocco basso si attacca nella zona di rifinitura [situation_attaccare_un_blocco_basso]."
+    assert "tolta un'aggiunta non scritta nelle schede" in analyst.guard_note
+
+
+def test_cutting_the_effect_tails_keeps_every_required_fact():
+    # Every saved answer of a gold question: the facts the gold set requires are still there after the cut.
+    gold = {q["question_id"]: q for q in json.loads((PROJECT_ROOT / "eval" / "gold_set.json").read_text(encoding="utf-8"))["questions"]}
+    runs, cut = PROJECT_ROOT / "eval" / "runs", 0
+    for path in sorted(runs.glob("agent_2026*.json")) + sorted(runs.glob("gold_2026*.json")):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        for row in data.get("questions") or data.get("rows") or []:
+            qid, after = row.get("question_id") or row["id"], row["answer"]
+            for tail in effect_tails(row["answer"]):
+                after, cut = after.replace(tail, "", 1), cut + 1
+            for group in gold[qid]["required_facts"] if qid in gold else []:
+                before_has = any(alt.lower() in row["answer"].lower() for alt in group)
+                assert not before_has or any(alt.lower() in after.lower() for alt in group), (path.name, qid, group)
+    assert cut > 100
