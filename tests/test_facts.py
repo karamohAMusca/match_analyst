@@ -7,12 +7,13 @@ from __future__ import annotations
 import json
 
 import pytest
+from datapizza.type import ROLE
 
 from scripts.review_chats import card_texts
 from src.agent.analyst_agent import MatchAnalyst
 from src.core.config import PROJECT_ROOT
-from src.guardrails.facts import (CASE_LINE_RE, collapse_real_cases, expand_real_cases, fact_issues,
-                                  remove_sentences, sentences)
+from src.guardrails.facts import (CASE_LINE_RE, collapse_real_cases, expand_real_cases, fact_issues, perspective_issues,
+                                  premise_issues, remove_sentences, sentences, writes_man_down)
 from tests.fakes import ScriptedLLM
 
 UEL = "case_2024_uel_final_atalanta_leverkusen"
@@ -196,3 +197,93 @@ def test_every_saved_answer_is_flagged_only_where_wrong(cards):
                 assert qid in known and known[qid] in issue.detail, (path.name, qid, issue.detail)
                 seen.add(qid)
     assert seen == set(known)
+
+
+# ---------------------------------------------------------------- step 3: whose side the advice is for (E17)
+@pytest.mark.parametrize("question, answer, flagged", [
+    ("E se restassimo in 10 al 90'?",                                       # E17, chat of 2026-10-09
+     "Sfruttate la vostra superiorità [situation_giocare_in_superiorita_numerica].", True),
+    ("E se restassimo in 10 al 90'?",
+     "Non lo so: le schede non hanno consigli per chi resta in 10. L'avversario allargherà il gioco "
+     "[situation_giocare_in_superiorita_numerica].", False),
+    ("L'avversario resta in 10, cosa facciamo?", "Allargate [situation_giocare_in_superiorita_numerica].", False),
+    ("We are down to ten men, what now?", "Use the extra man [situation_giocare_in_superiorita_numerica].", True),
+    ("Stiamo perdendo 1-0 al 70'", "Difendete compatti [situation_difendere_un_vantaggio].", True),
+    ("Stiamo perdendo 1-0 al 70'", "Alzate il ritmo [situation_rimontare_uno_svantaggio]. Loro si chiuderanno "
+                                   "[situation_difendere_un_vantaggio].", False),
+    ("Siamo in vantaggio, come difendiamo?", "Abbassate il blocco [situation_difendere_un_vantaggio].", False),
+    ("Siamo in 10 e stiamo vincendo 1-0, che facciamo?",                   # a man down with a lead: its card
+     "Abbassate il blocco [situation_difendere_un_vantaggio]. Loro allargheranno il gioco "
+     "[situation_giocare_in_superiorita_numerica].", False),
+])
+def test_the_advice_is_for_the_coachs_side(question, answer, flagged):
+    assert bool(perspective_issues(answer, question)) == flagged
+
+
+def test_a_score_given_before_counts_for_the_side():
+    answer = ("Abbassate il blocco [situation_difendere_un_vantaggio]. Loro allargheranno il gioco "
+              "[situation_giocare_in_superiorita_numerica].")
+    assert perspective_issues(answer, "E se restassimo in 10?")
+    assert not perspective_issues(answer, "E se restassimo in 10?", "Stiamo vincendo 1-0 al 75'.")
+
+
+@pytest.mark.parametrize("question, earlier, written", [
+    ("E se restassimo in 10 al 90'?", "Domenica affrontiamo un 4-4-2 basso. Noi giochiamo 4-3-3.", True),  # E17
+    ("Siamo in 10 e stiamo vincendo 1-0, che facciamo?", "", False),
+    ("E se restassimo in 10?", "Siamo in vantaggio 1-0 al 75'.", False),
+    ("We are down to ten men and losing, what now?", "", False),
+    ("L'avversario resta in 10, come lo sfruttiamo?", "", False),
+])
+def test_the_man_down_answer_is_written_only_without_a_score(question, earlier, written):
+    assert writes_man_down(question, earlier) == written
+
+
+def test_the_agent_asks_for_the_coachs_side(retriever):
+    llm = ScriptedLLM(answer="Difendete compatti [situation_difendere_un_vantaggio].",
+                      rewrite="Alzate il ritmo [situation_rimontare_uno_svantaggio].")
+    analyst = MatchAnalyst(client=llm, retriever=retriever)
+    answer = analyst.analyze("Stiamo perdendo 1-0 al 70', come la riprendiamo?")
+    assert any(i.startswith("perspective") for i in analyst.last_guard["issues"])
+    assert "written for the other side" in llm.rewrite_requests[0] and answer.startswith("Alzate il ritmo")
+
+
+def test_a_man_down_gets_the_answer_written_from_the_cards(retriever):
+    # E17 after the side check: the model, asked to keep the two sides apart, still mixed them.
+    llm = ScriptedLLM(answer="Sfruttate la vostra superiorità [situation_giocare_in_superiorita_numerica].")
+    chat = MatchAnalyst(client=llm, retriever=retriever, stateless=False)
+    answer = chat.analyze("E se restassimo in 10 al 90'?")
+    assert llm.seen == []                                                         # no model call
+    assert answer.startswith("Non lo so: nelle schede non ci sono consigli per chi gioca con un uomo in meno.")
+    assert "«l'avversario» siete voi" in answer and "- Leggere dove manca l'uomo — " in answer
+    assert ("Caso reale dalla parte di chi era in 10: Mondiale 2026 (perso 1-0 d.t.s.)" in answer
+            and answer.endswith("in dieci dal 90'+3' [coach_scaloni]."))          # Argentina's side, not Spain's
+    assert chat.consulted_cards == ["situation_giocare_in_superiorita_numerica", "coach_scaloni"]
+    assert "risposta composta con le schede" in chat.guard_note
+    assert [t.role for t in chat.agent._memory][-2:] == [ROLE.USER, ROLE.ASSISTANT]   # the chat goes on
+
+
+def test_a_man_down_with_a_lead_is_answered_by_the_model(retriever):
+    llm = ScriptedLLM(answer="Abbassate il blocco [situation_difendere_un_vantaggio].")
+    analyst = MatchAnalyst(client=llm, retriever=retriever)
+    answer = analyst.analyze("Siamo in 10 e stiamo vincendo 1-0 all'80', che facciamo?")
+    assert llm.seen and answer.startswith("Abbassate il blocco") and "composed" not in analyst.last_guard
+
+
+@pytest.mark.parametrize("answer, coach, flagged", [
+    ("Dovete gestire la situazione con attenzione per mantenere il vantaggio.",          # E17 chat, 2026-10-14
+     "Noi giochiamo 4-3-3 contro un 4-4-2 basso.\nE se restassimo in 10 al 90'?", True),
+    ("Dovete difendere il vantaggio [situation_difendere_un_vantaggio].", "Siamo in vantaggio 1-0 al 80'.", False),
+    ("Per recuperare lo svantaggio alzate il ritmo [situation_rimontare_uno_svantaggio].", "Stiamo perdendo 2 a 1.", False),
+    ("Abbassate il blocco [situation_difendere_un_vantaggio].", "Come chiudiamo le partite?", False),
+])
+def test_a_score_the_coach_never_gave_is_not_taken_for_granted(answer, coach, flagged):
+    assert bool(premise_issues(answer, coach)) == flagged
+
+
+def test_no_side_flag_on_the_saved_answers():
+    # The chat of E17 is git-ignored (chats/): its turn is the first case above.
+    runs = PROJECT_ROOT / "eval" / "runs"
+    for path in sorted(runs.glob("agent_2026*.json")) + sorted(runs.glob("gold_2026*.json")):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        for row in data.get("questions") or data.get("rows") or []:
+            assert not perspective_issues(row["answer"], row["question"]), (path.name, row.get("question_id"))

@@ -199,8 +199,15 @@ guardrails did.
   written and is checked like any sentence; a final no consulted card speaks of is removed.
   **Coach-team pairs** ("the Atalanta of Italiano", "PSG was coached by Scaloni") must be in the cards
   (the team in the coach's card, or the pair of a final), and **thresholds** about a metric ("PPDA
-  below 10") must be written in them. A wrong fact goes into the single rewrite; if it is still there,
-  the sentence is removed. On every saved answer of the real runs (766), the facts flagged are exactly
+  below 10") must be written in them. **The side** of a game situation: if the coach says "we are down
+  to ten" (or behind, or ahead), the card written for the other side (playing 11 v 10, defending a
+  lead, coming back) may only describe the opponent's moves, never be the coach's own advice (E17).
+  With **a man down**, which has no card, and no score given, the answer is written by code: "Non lo so" for the advice,
+  the options of the 11 v 10 card as what the opponent will try (its own words, with a note that
+  there "the opponent" is the coach's team), and a real case from the side that was down to ten
+  (Argentina in the 2026 final), with no model call. A **score the coach never gave** ("keep your
+  lead" when no score was mentioned) is not taken for granted (E6).
+  A wrong fact goes into the single rewrite; if it is still there, the sentence is removed. On every saved answer of the real runs (766), the facts flagged are exactly
   the known errors (E3, E4, E5).
 - *verifier*, optional (`src/guardrails/verifier.py`, a second model after the writer: a sequential
   architecture): the checks above see names, numbers and citations, not who did what ("Inter

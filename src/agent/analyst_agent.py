@@ -26,7 +26,9 @@ from datapizza.type import ROLE, TextBlock
 
 from src.agent.prompts import MATCH_ANALYST_SYSTEM_PROMPT, REWRITE_REQUEST
 from src.core.config import LLM_PROVIDER, load_settings, require_api_key
-from src.guardrails.facts import FACT_KINDS, collapse_real_cases, expand_real_cases, fact_issues, remove_sentences
+from src.guardrails.facts import (FACT_KINDS, collapse_real_cases, expand_real_cases, fact_issues, man_down_answer,
+                                  perspective_issues, premise_issues, remove_sentences, writes_man_down)
+from src.guardrails.language import detect_language
 from src.guardrails.input_guard import check_question
 from src.evaluation.judge import JUDGE_MAX_RETRIES, JUDGE_TEMPERATURE, JUDGE_TIMEOUT_S
 from src.guardrails.output_guard import Issue, review_answer
@@ -52,6 +54,8 @@ ISSUE_NOTES = {
     "unsupported": "affermazioni non confermate dalle schede",
     "coach_team": "allenatore abbinato a una squadra che le schede non gli danno",
     "threshold": "soglia che le schede non indicano",
+    "perspective": "consigli della situazione opposta (ad esempio superiorità invece di inferiorità)",
+    "premise": "risultato dato per scontato (ad esempio un vantaggio mai detto)",
 }
 
 
@@ -160,6 +164,10 @@ class MatchAnalyst:
                     log.info("input guard: %s, fixed reply without the model", verdict.reason)
                 return verdict.reply or ""
             log.info("input guard: %s", verdict.reason)
+            if writes_man_down(question, "\n".join(self.coach_questions)):   # the memory: earlier questions only
+                composed = self._answer_man_down(question)
+                if composed:
+                    return composed
         response = self.agent.run(question)
         draft = response.text if hasattr(response, "text") else str(response)
         answer = self._compose(draft)
@@ -169,6 +177,23 @@ class MatchAnalyst:
                 set_output(guard, json.dumps(self.last_guard, ensure_ascii=False))
         if answer != draft:
             self._remember(answer)
+        return answer
+
+    def _answer_man_down(self, question: str) -> str | None:
+        """A man down has no card of its own: the answer is written by code from the cards
+        (src/guardrails/facts.py, `man_down_answer`), without a model call, and kept in the memory."""
+        retriever = self.corpus_tools.retriever
+        card_ids = list(dict.fromkeys(c.metadata["document_id"] for c in retriever.chunks))
+        composed = man_down_answer(card_ids, retriever.card_text, english=detect_language(question) == "en")
+        if composed is None:
+            return None
+        answer, used = composed
+        self.corpus_tools.calls.extend({"tool": "read_card", "document_id": c, "found": True} for c in used)
+        self.last_guard["composed"] = "a man down"
+        if not self.stateless:
+            self.agent._memory.add_turn([TextBlock(content=question)], ROLE.USER)
+            self.agent._memory.add_turn([TextBlock(content=answer)], ROLE.ASSISTANT)
+        log.info("a man down: answer written from the cards %s, no model call", used)
         return answer
 
     def _compose(self, answer: str) -> str:
@@ -234,7 +259,8 @@ class MatchAnalyst:
         """The deterministic checks, then the verifier (only when the answer rests on cards)."""
         issues = review_answer(answer, question, consulted, source_text, earlier)
         if consulted:
-            issues += fact_issues(answer, source_text)
+            issues += (fact_issues(answer, source_text) + perspective_issues(answer, question, earlier)
+                       + premise_issues(answer, f"{question}\n{earlier}"))
         if self.verifier is None or not consulted:
             return issues
         with span("verifier", "GUARDRAIL", answer) as current:
@@ -287,6 +313,9 @@ class MatchAnalyst:
         guard = self.last_guard
         if guard.get("input") in INPUT_NOTES:
             return f"Guardrail: {INPUT_NOTES[guard['input']]}."
+        if guard.get("composed") == "a man down":
+            return ("Guardrail: nessuna scheda per chi gioca con un uomo in meno: risposta composta con le "
+                    "schede, cosa farà l'avversario.")
         notes = []
         if guard.get("rewritten"):
             fixed = dict.fromkeys(ISSUE_NOTES[i.split(":")[0]] for i in guard["issues"])
