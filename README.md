@@ -5,10 +5,13 @@ The coach describes their own team and the opponent; the assistant helps prepare
 in-game situations, with advice **grounded in cited sources** (Coverciano theses, recent finals,
 match data), giving priority to recent (2022–2026) winning tactics. Questions in Italian or English.
 
-> **Status:** complete and checked from a clean install (2026-09-29): knowledge base, hybrid
-> retrieval, the agent with its corpus tools, input/output guardrails, conversation memory, tracing
-> in Phoenix, the Streamlit app and the evaluation with an LLM judge. The knowledge base is also an
-> MCP server, usable from Claude Desktop and other hosts (2026-10-09).
+> **Status:** complete: knowledge base, hybrid retrieval, the agent with its corpus tools,
+> input/output guardrails (the facts of a real match, coaches and teams, the side of a game
+> situation, unsupported additions: 20 errors found and handled, see `eval/error_log.md`),
+> conversation memory, tracing in Phoenix, the Streamlit app and the evaluation with an LLM judge.
+> The knowledge base is also an MCP server, usable from Claude Desktop and other hosts. Final
+> gold run (2026-10-21): faithfulness 0.958, relevancy 0.926, abstention 3/3, recall@5 0.95,
+> p95 9.0 s, 0.0011 $ per answer ([results](#results-41-questions-answers-with-guardrails-on-judge-gpt-41-mini)).
 
 ---
 
@@ -347,11 +350,34 @@ latency p50 5.0 s / p95 10.1 s, about 0.0012 $ per answer. gpt-4o-mini is the de
 faithfulness at about a third of the cost, and no wrong attribution on the trap question;
 gpt-4.1-mini gives more complete answers and can be chosen in the app.
 
-**Current reference** (live run `gold_20261009-112356`, gpt-4o-mini with guardrails, after the
-prompt tailored to the coach, the input-guard fixes and the E9 rewrite instruction): faithfulness
-0.923, relevancy 0.974, abstention 3/3, recall@5 0.95, MRR 0.84, p50 4.1 s / p95 7.2 s, 0.0012 $ per
-answer. With the verifier (`-114805`): faithfulness 0.949, relevancy 0.966, p95 32.3 s, 0.0064 $
-per answer, so it stays off by default.
+**Final run** (live run `gold_20261021-111545`, gpt-4o-mini with guardrails, after the fixes of the
+errors in `eval/error_log.md`) against the reference of 2026-10-09 (`gold_20261009-112356`, before
+them), same judge, same agent model:
+
+| Metric | Reference 2026-10-09 | Final 2026-10-21 | Rule of acceptance |
+|---|---|---|---|
+| faithfulness | 0.923 | **0.958** (+0.035) | at least +0.03 and at least 0.85: passes |
+| relevancy | 0.974 | 0.926 (−0.047) | lower, see below |
+| abstention out of corpus | 3/3 | 3/3 | — |
+| recall@5 / MRR | 0.95 / 0.84 | 0.95 / 0.84 | at most −0.02: passes (retrieval untouched) |
+| latency p50 / p95 | 4.1 s / 7.2 s | 4.8 s / 9.0 s | p95 about 10 s: passes |
+| cost per answer | 0.0012 $ | 0.0011 $ | within budget |
+
+The runs in between (`-141635`, `-143834`, `-145440`, `eval/runs/README.md`) show the gain step by
+step: 0.944, 0.946, 0.953, 0.958. The first of them also showed what a fix can break: the abstention
+fell to 2/3 until a missing detail said without "Non lo so" got the words by code (E19).
+With the verifier (`-114805`, before these fixes): faithfulness 0.949, relevancy 0.966, p95 32.3 s,
+0.0064 $ per answer, so it stays off by default.
+
+**What the numbers do not say.** The gold set holds few of the errors found in the app (the real
+case, the side of a game situation, the greeting, the premise): they are checked by tests on the
+saved answers and in the app, not by this table. Faithfulness moved by +0.035 while 20 errors were
+fixed. The relevancy fell because of a few right answers marked down, not because answers got
+worse: Q35 asks for a PPDA threshold that the cards do not give and the answer says "Non lo so"
+(the reference answered with an invented threshold and had 1.0), Q07 and Q32 leave a half
+unanswered or do not name the source. Known limits, in the error log: a source conflict left out
+(E7), questions on two cards answered with one (E8), a role taken from the question (E15), and the
+relevancy judge, which rewards an answer that sounds complete.
 
 **Choosing the judge**, on answers whose errors are known (runs `gold_20260929-094225`, `-094857`,
 `-101624`):
