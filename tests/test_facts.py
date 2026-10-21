@@ -14,7 +14,7 @@ from src.agent.analyst_agent import MatchAnalyst
 from src.core.config import PROJECT_ROOT
 from src.guardrails.facts import (CASE_LINE_RE, closing_summary, collapse_real_cases, effect_tails, expand_real_cases,
                                   fact_issues,
-                                  perspective_issues, premise_issues, remove_sentences, sentences, unmarked_unknown,
+                                  perspective_issues, premise_issues, remove_sentences, sentences, tidy, unmarked_unknown,
                                   writes_man_down)
 from tests.fakes import ScriptedLLM
 
@@ -443,3 +443,17 @@ def test_cutting_the_effect_tails_keeps_every_required_fact():
                 before_has = any(alt.lower() in row["answer"].lower() for alt in group)
                 assert not before_has or any(alt.lower() in after.lower() for alt in group), (path.name, qid, group)
     assert cut > 100
+
+
+# ---------------------------------------------------------------- tidy: the three steps after the review, in order
+def test_tidy_cuts_the_tails_then_the_closing_then_marks_the_unknown():
+    answer = ("La linea sale, creando superiorità numerica [coach_pioli].\n"
+              "Il PSG era guidato da un allenatore non specificato [case_2026_ucl_final_psg_arsenal].\n"
+              "Queste regole aiutano a mantenere l'equilibrio.")
+    tidied, done = tidy(answer, english=False)
+    assert tidied == ("La linea sale [coach_pioli].\nNon lo so. Il PSG era guidato da un allenatore non "
+                      "specificato [case_2026_ucl_final_psg_arsenal].")
+    assert list(done) == ["tails", "closing", "unknown"]
+    assert tidy("PSG won [x_y]. The cards do not name the coach.", english=True)[0].endswith(
+        "I don't know. The cards do not name the coach.")
+    assert tidy("La linea sale [coach_pioli].", english=False) == ("La linea sale [coach_pioli].", {})

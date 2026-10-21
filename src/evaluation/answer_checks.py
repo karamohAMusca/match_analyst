@@ -15,13 +15,13 @@ Citation parsing, grounding and language detection are the ones of the guardrail
 from __future__ import annotations
 
 import re
-import unicodedata
 from typing import Any
 
 from src.guardrails.facts import collapse_real_cases, fact_issues, perspective_issues, premise_issues
 from src.guardrails.grounding import ungrounded_terms
 from src.guardrails.language import detect_language
 from src.guardrails.output_guard import ABSTENTION, BRACKETS_RE, CARD_MENTION_RE, citation_ids
+from src.guardrails.text import normalize   # also used by scripts/review_chats.py through this module
 
 AUTHOR_CITATION_RE = re.compile(r"\[(?:Soncin|Spalla|Dileo|Pioli|Italiano|Contran|Polenghi|Wikipedia|FIFA|StatsBomb)[^\]]*\]")
 ADVICE_TYPES = {"situational", "style_match"}
@@ -31,11 +31,6 @@ COPIED_HEADER_RE = re.compile(r"^\s*(?:-{3}\s*Fonte\b.*|\[[a-z0-9_]+\]\s+[^\n]*�
 FORMATION_RE = re.compile(r"\b\d-\d-\d(?:-\d)?\b")
 # Typographic dashes a model may write in "4–3–3" (en dash, em dash, non-breaking hyphen, minus...).
 DASHES_RE = re.compile(r"[‐-―−]")
-
-
-def normalize(text: str) -> str:
-    text = unicodedata.normalize("NFKD", text.replace("’", "'")).encode("ascii", "ignore").decode()
-    return re.sub(r"\s+", " ", text.lower())
 
 
 def check_answer(

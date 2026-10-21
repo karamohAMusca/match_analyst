@@ -26,9 +26,8 @@ from datapizza.type import ROLE, TextBlock
 
 from src.agent.prompts import ENGLISH_REMINDER, MATCH_ANALYST_SYSTEM_PROMPT, REWRITE_REQUEST
 from src.core.config import LLM_PROVIDER, load_settings, require_api_key
-from src.guardrails.facts import (FACT_KINDS, closing_summary, collapse_real_cases, effect_tails, expand_real_cases,
-                                  fact_issues, man_down_answer, perspective_issues, premise_issues, remove_sentences,
-                                  unmarked_unknown, writes_man_down)
+from src.guardrails.facts import (FACT_KINDS, collapse_real_cases, expand_real_cases, fact_issues, man_down_answer,
+                                  perspective_issues, premise_issues, remove_sentences, tidy, writes_man_down)
 from src.guardrails.grounding import trim_name_parts
 from src.guardrails.language import detect_language
 from src.guardrails.input_guard import check_question
@@ -177,18 +176,14 @@ class MatchAnalyst:
         if self.guardrails:
             with span("output_guard", "GUARDRAIL", answer) as guard:
                 answer = self._review(question, answer)
-                if tails := effect_tails(answer):   # what a fact "creates" or "shows", added by the writer (E20)
-                    self.last_guard["tails"] = tails
-                    for tail in tails:
-                        answer = answer.replace(tail, "", 1)
-                    log.info("output guard: %d effect tails removed", len(tails))
-                if closing := closing_summary(answer):   # a summary with no citation: no cited fact lost
-                    self.last_guard["closing"] = closing
-                    answer = remove_sentences(answer, [closing])
+                # what the writer added, taken out, and an unknown marked (src/guardrails/additions.py)
+                answer, done = tidy(answer, english)
+                self.last_guard.update(done)
+                if "tails" in done:
+                    log.info("output guard: %d effect tails removed", len(done["tails"]))
+                if "closing" in done:
                     log.info("output guard: closing summary without a citation removed")
-                if unknown := unmarked_unknown(answer):   # a detail the cards do not give, said without "Non lo so"
-                    self.last_guard["unknown"] = unknown
-                    answer = answer.replace(unknown, ("I don't know. " if english else "Non lo so. ") + unknown, 1)
+                if "unknown" in done:
                     log.info("output guard: a detail the cards do not give marked with \"Non lo so\"")
                 set_output(guard, json.dumps(self.last_guard, ensure_ascii=False))
         if answer != draft:

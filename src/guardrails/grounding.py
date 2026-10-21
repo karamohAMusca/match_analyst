@@ -25,9 +25,9 @@ Used by the output guardrail (output_guard.py) and by the answer evaluation.
 from __future__ import annotations
 
 import re
-import unicodedata
 
 from src.guardrails.language import detect_language
+from src.guardrails.text import normalize
 
 _CITATION_RE = re.compile(r"\[[^\[\]\n]*\]")
 _MARKDOWN_RE = re.compile(r"[*_#`>]+")
@@ -48,18 +48,13 @@ ENGLISH_EQUIVALENTS = {
 }
 
 
-def _normalize(text: str) -> str:
-    text = unicodedata.normalize("NFKD", text.replace("’", "'")).encode("ascii", "ignore").decode()
-    return re.sub(r"\s+", " ", text.lower())
-
-
 def _number(token: str) -> str:
     return token.replace(",", ".")
 
 
 def _known_name(token: str, known_text: str) -> bool:
     for part in filter(None, token.split("-")):
-        word = _normalize(part)
+        word = normalize(part)
         if word not in known_text and not any(t in known_text for t in ENGLISH_EQUIVALENTS.get(word, ())):
             return False
     return True
@@ -67,7 +62,7 @@ def _known_name(token: str, known_text: str) -> bool:
 
 def ungrounded_terms(answer: str, source_text: str, question: str = "") -> list[str]:
     """Proper nouns and numbers of `answer` that appear neither in `source_text` nor in `question`."""
-    known_text = _normalize(source_text + " " + question)
+    known_text = normalize(source_text + " " + question)
     known_numbers = {_number(n) for n in _NUMBER_RE.findall(source_text + " " + question)}
     missing: list[str] = []
     if detect_language(answer) == "en":   # English titles in Title Case: only their numbers are checked (E16)
@@ -122,7 +117,7 @@ def trim_name_parts(answer: str, source_text: str, question: str = "") -> tuple[
     missing = {t for t in ungrounded_terms(answer, source_text, question) if not t[0].isdigit()}
     if not missing:
         return answer, []
-    known_text = _normalize(source_text + " " + question)
+    known_text = normalize(source_text + " " + question)
     cut: list[str] = []
     lines = []
     for line in answer.splitlines():

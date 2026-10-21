@@ -28,7 +28,7 @@ match data), giving priority to recent (2022–2026) winning tactics. Questions 
 | `src/rag/` | Qdrant store, ingestion, hybrid retrieval (dense + BM25, a datapizza `DagPipeline`) |
 | `src/tools/` | the agent's tools: `search_cards`, `read_card` |
 | `src/agent/` | the datapizza-ai agent and its system prompt |
-| `src/guardrails/` | input guard (off-topic, injection) and output guard (language, grounding, citations) |
+| `src/guardrails/` | input guard (off-topic, injection), output guard (language, grounding, citations) and the facts written or checked by code: real case, coaches and teams, the side of a game situation, additions (`facts.py` and its modules) |
 | `src/observability/` | traces in Arize Phoenix (OpenTelemetry → OpenInference) |
 | `src/evaluation/` | measuring against the gold set: retrieval metrics, answer checks, LLM judge, gold run, cost |
 | `src/ui/` | logic of the Streamlit app: the conversation backend, the formatting, the saved chats |
@@ -196,7 +196,7 @@ guardrails did.
   not names, E16; their numbers are still checked), and it must cite `[card_id]`s it actually consulted. On a problem the
   model gets a precise note and rewrites the answer once; the rewrite is kept only if it is not
   worse, and what happened is always reported;
-- *real case* (`src/guardrails/facts.py`, no model call): the real match of an advice answer is where
+- *real case* (`src/guardrails/real_case.py` and the other modules of `facts.py`, no model call): the real match of an advice answer is where
   roles got swapped ("Inter defended a lead in the 2023 final", "Leverkusen's man-to-man press"),
   with every name in the cards. The model now writes only `Caso reale: [case_id]`, and the code writes
   the facts with the card's own sentence on that final (the line of a consulted game-situation card
