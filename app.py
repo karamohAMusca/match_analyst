@@ -21,7 +21,7 @@ import streamlit as st  # noqa: E402
 
 from src.core.config import PROJECT_ROOT, load_settings  # noqa: E402
 from src.observability.logs import setup_logging  # noqa: E402
-from src.ui import backend, view  # noqa: E402
+from src.ui import backend, graphics, view  # noqa: E402
 
 RUNS_DIR = PROJECT_ROOT / "eval" / "runs"
 logger = logging.getLogger("src.app")   # under "src": written to the project's log
@@ -143,12 +143,17 @@ with tab_chat:
             for col, (icon, title, text) in zip(st.columns(3), view.WELCOME):
                 col.markdown(view.feature_html(icon, title, text), unsafe_allow_html=True)
             st.caption("Scrivi in basso, oppure scegli un esempio nella barra a sinistra.")
-        for message in state.messages:
+        last_answer = max((i for i, m in enumerate(state.messages) if m["role"] == "assistant"), default=-1)
+        for index, message in enumerate(state.messages):
             with st.chat_message(message["role"], avatar="🧑‍🏫" if message["role"] == "user" else "⚽"):
                 if message["role"] == "user":
                     st.markdown(message["content"])
                     continue
                 st.markdown(view.answer_html(message["content"], cards), unsafe_allow_html=True)
+                # the formations the coach wrote, on a pitch (st.html would strip the <svg>); only the
+                # newest answer moves, the older ones are drawn still
+                if figure := graphics.answer_figure(state.messages, index, animate=index == last_answer):
+                    st.markdown(figure, unsafe_allow_html=True)
                 if message.get("guard_note"):
                     st.markdown(view.guard_html(message), unsafe_allow_html=True)
                 if message.get("meta"):

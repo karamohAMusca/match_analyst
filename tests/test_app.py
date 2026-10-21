@@ -57,3 +57,15 @@ def test_new_conversation_and_other_tabs(app):
     assert not app.chat_message                                                # cleared
     assert app.radio(key="browse_category").value == "match_case"             # cards tab ready
     assert any(m.label == "recall@5" for m in app.metric)                      # evaluation tab from saved runs
+
+
+def test_the_formations_of_the_question_are_drawn_under_the_answer(app):
+    app.chat_input[0].set_value("Domenica affrontiamo una squadra che si chiude in un 4-4-2 basso. "
+                                "Noi giochiamo 4-3-3. Come la prepariamo?").run()
+    assert not app.exception
+    figures = [m.value for m in app.chat_message[-1].markdown if 'class="ma-figure"' in m.value]
+    assert len(figures) == 1 and "VOI · 4-3-3" in figures[0] and "AVVERSARIO · 4-4-2" in figures[0]
+    app.chat_input[0].set_value(QUESTION).run()                                # no formation: no pitch
+    assert not any('class="ma-figure"' in m.value for m in app.chat_message[-1].markdown)
+    first = [m.value for m in app.chat_message[1].markdown if 'class="ma-figure"' in m.value][0]
+    assert "@keyframes" not in first                                           # the older one is drawn still

@@ -31,7 +31,7 @@ match data), giving priority to recent (2022–2026) winning tactics. Questions 
 | `src/guardrails/` | input guard (off-topic, injection), output guard (language, grounding, citations) and the facts written or checked by code: real case, coaches and teams, the side of a game situation, additions (`facts.py` and its modules) |
 | `src/observability/` | traces in Arize Phoenix (OpenTelemetry → OpenInference) |
 | `src/evaluation/` | measuring against the gold set: retrieval metrics, answer checks, LLM judge, gold run, cost |
-| `src/ui/` | logic of the Streamlit app: the conversation backend, the formatting, the saved chats |
+| `src/ui/` | logic of the Streamlit app: the conversation backend, the formatting, the graphics under an answer, the saved chats |
 | `src/mcp_server/` | the MCP server: the corpus as read-only tools, `card://` resources and a prompt |
 | `design-system/` | the app's tokens, components and answer states as HTML previews, for redesigning it with Claude Design ([`design-system/README.md`](design-system/README.md)) |
 | `corpus/` | the knowledge base (ingested): 31 short cards in Italian, in `match_cases/` (recent finals), `game_situations/` (in-game and preparation problems), `coach_profiles/`, `thesis_notes/`, `glossary/` (metrics and formations) |
@@ -117,7 +117,7 @@ python -m scripts.eval_retrieval
 
 Retrieval is hybrid: dense search (Qdrant) + BM25 keyword search, fused into one ranking, at most
 1 chunk per card. The script compares dense, BM25 and hybrid variants on recall@1, recall@5 and
-MRR@10 (course definitions), also by question type and language; each run is saved in `eval/runs/`.
+MRR@10 (the standard definitions), also by question type and language; each run is saved in `eval/runs/`.
 Question vectors are cached in `.cache/`: the first run embeds them in one call (well under
 $0.001), later runs are free, and `python -m scripts.eval_retrieval --offline` needs no API key.
 
@@ -134,7 +134,9 @@ The app opens at http://localhost:8501.
 
 Three tabs. **Chat**: the conversation with the assistant coach (follow-up questions work);
 citations appear as badges with the card title, the cards of the answer can be read in full next
-to it, and every answer shows what the guardrails did and, under "Dettagli", its time, tokens,
+to it; when the coach writes the formations ("noi giochiamo 4-3-3, loro un 4-4-2 basso"), the answer
+shows them on a pitch, drawn in the app's colours with the players running to their place (an
+indicative layout, read from the question, not a fact of the cards); and every answer shows what the guardrails did and, under "Dettagli", its time, tokens,
 cost and the searches the agent made. The sidebar starts a new conversation, switches model and
 guardrails (to show them at work) and has example questions, one in English and one off topic.
 **Schede**: the 31 cards by category. **Valutazione**: the measured results of the saved runs
