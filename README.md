@@ -406,10 +406,21 @@ OpenTelemetry spans with its own attribute names; `src/observability/tracing.py`
 to the OpenInference names Phoenix reads. If Phoenix is not running, tracing is switched off and
 the scripts say so; `eval_agent --no-trace` switches it off on purpose.
 
-### First end-to-end check from a clean install (2026-09-29)
+### Checks from a clean install
 
-The whole project, cloned into a new folder on Windows with a fresh Python 3.12 environment and
-following this README step by step: `pip install -r requirements.txt` without errors, 571 offline
+**Final version (2026-10-21).** The `develop` branch cloned into a new folder outside OneDrive, with a
+fresh Python 3.12 environment, a copy of `.env` and the Qdrant of the project already running (a
+second `docker compose` would clash with its containers): `pip install -r requirements.txt` without
+errors (including `mcp` 2.x and Streamlit), `ingest` found the 31 cards unchanged (0 chunks embedded,
+113 points in the collection), the CLI answered a preparation question with citations, the real case
+written from the card and the guardrail's note, with a trace in Phoenix, and the app answered a
+conversation of three questions: preparation, "and if we were down to 10?" (answered by code, no
+model call) and an off-topic one (stopped). The offline tests (720) passed on the same commit in the
+project's own environment; the retrieval numbers were not measured again in the clone. The
+check ended by deleting the clone, which held a copy of the key.
+
+**First check (2026-09-29).** The whole project, cloned into a new folder on Windows with a fresh
+Python 3.12 environment and following this README step by step: `pip install -r requirements.txt` without errors, 571 offline
 tests passed, `ingest --dry-run` 31 cards / 113 chunks, `ingest` found every card unchanged (0
 chunks embedded), `eval_retrieval` gave the same numbers from an empty cache (hybrid interleave:
 recall@1 0.75, recall@5 0.95, MRR 0.84), the CLI answered with citations and a trace in Phoenix,
@@ -417,8 +428,8 @@ and the app worked with a two-turn conversation (the first answer builds on "you
 The check had first found one problem, fixed before it: with Windows line endings in a clone every
 card looked changed, see [Maintaining the corpus](#maintaining-the-corpus).
 
-What the app's second turn showed, and the automatic checks do not see (the guardrails check
-names, numbers and citations, not who did what):
+What the app's second turn showed then, and the automatic checks did not see (the guardrails
+checked names, numbers and citations, not who did what; both errors are fixed since, E1 and E6):
 - **an invented premise**: to "and if we were down to 10 men at the 90th minute?" it answered
   "defend your lead", which the coach never said;
 - **a real case with the roles swapped**: "Inter defended a lead in the 2023 Champions League
