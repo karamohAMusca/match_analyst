@@ -142,8 +142,7 @@ with tab_chat:
     col_chat, col_cards = st.columns([3, 2], gap="large")
     with col_chat:
         if not state.messages:
-            for col, (icon, title, text) in zip(st.columns(3), view.WELCOME):
-                col.markdown(view.feature_html(icon, title, text), unsafe_allow_html=True)
+            st.markdown(view.welcome_html(), unsafe_allow_html=True)
             st.caption("Scrivi in basso, oppure scegli un esempio nella barra a sinistra.")
         last_answer = max((i for i, m in enumerate(state.messages) if m["role"] == "assistant"), default=-1)
         for index, message in enumerate(state.messages):

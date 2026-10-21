@@ -103,10 +103,14 @@ CSS = """
   font-size:24px; line-height:44px; text-align:center; }
 .ma-tag { display:inline-block; padding:1px 8px; background:var(--ma-red); color:var(--ma-on-red);
   font:700 12px var(--ma-label); letter-spacing:.1em; text-transform:uppercase; }
+.ma-welcome { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;
+  align-items:stretch; margin-bottom:0.5rem; }   /* one grid: the three tiles share their height */
+@media (max-width: 640px) { .ma-welcome { grid-template-columns:1fr; } }
 .ma-feature { background:var(--ma-card); border-top:6px solid var(--ma-ink);
-  border-bottom:1px solid var(--ma-ink); padding:14px 16px; min-height:150px; }
+  border-bottom:1px solid var(--ma-ink); padding:14px 16px; min-height:150px; height:100%; box-sizing:border-box; }
 .ma-feature .t { font-family:var(--ma-head); font-weight:var(--ma-head-weight);
-  text-transform:var(--ma-head-case); font-size:24px; line-height:1.05; }
+  text-transform:var(--ma-head-case); font-size:clamp(16px, 1.6vw, 24px); line-height:1.05;
+  overflow-wrap:normal; hyphens:manual; }   /* smaller in a narrow tile, never broken inside a word */
 .ma-feature .d { font-size:15px; color:var(--ma-muted); }
 
 /* "Non lo so": the part of an answer with no source */
@@ -205,6 +209,12 @@ def header_html(cards: dict[str, dict[str, Any]]) -> str:
             "<p>L'assistente allenatore che prepara la partita e le situazioni di gara "
             "citando le fonti: tesi di Coverciano e finali 2022–2026.</p>"
             f'<div class="ma-chips"><span class="label">Nell\'archivio</span>{chips}</div></header>')
+
+
+def welcome_html() -> str:
+    """The welcome tiles of the empty chat in one grid, so that they end at the same height (three
+    Streamlit columns grew each to its own text); on a narrow screen they wrap to new rows."""
+    return '<div class="ma-welcome">' + "".join(feature_html(*tile) for tile in WELCOME) + "</div>"
 
 
 def feature_html(icon: str, title: str, text: str) -> str:
