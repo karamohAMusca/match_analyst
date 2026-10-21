@@ -1,9 +1,12 @@
 # AGENTS.md — Project Instructions for Match Analyst AI
 
 Instructions for AI coding agents working on `match_analyst`: the project context, the rules to
-respect, the procedure to follow for every change, and the constraints. Two more instruction files
-work with this one: `.github/instructions/refactor.instructions.md` (rules applied to the Python
-files only) and `.github/prompts/refactor-by-criteria.prompt.md` (a reusable command for the chat).
+respect, the procedure to follow for every change, and the constraints. It is the one file for every
+coding assistant: Claude Code reads it through `CLAUDE.md` (which imports it), GitHub Copilot directly.
+Two more instruction files per assistant work with this one, with the same content: the rules applied
+to the Python files only (`.claude/rules/refactor.md`, `.github/instructions/refactor.instructions.md`)
+and a reusable command for the chat (`.claude/commands/refactor-by-criteria.md`,
+`.github/prompts/refactor-by-criteria.prompt.md`); `tests/test_agent_instructions.py` fails if they differ.
 
 ---
 

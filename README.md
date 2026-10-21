@@ -45,8 +45,9 @@ match data), giving priority to recent (2022–2026) winning tactics. Questions 
 | `docker-compose.yml` | Qdrant (vector store) and Phoenix (traces) |
 | `.env.example` | settings template: copy it to `.env` and add the key |
 | `requirements.txt` | Python packages |
-| `AGENTS.md` | instructions for AI coding agents: project context, rules, the procedure for every change, constraints |
-| `.github/` | more agent instructions: rules for the Python files only (`instructions/`) and a reusable chat command (`prompts/`) |
+| `AGENTS.md` | instructions for AI coding agents: project context, rules, the procedure for every change, constraints; one file for every assistant |
+| `CLAUDE.md`, `.claude/` | Claude Code: `CLAUDE.md` imports `AGENTS.md`; `rules/` holds the rules for the Python files only, `commands/` a reusable chat command (`/refactor-by-criteria`) |
+| `.github/` | the same two files in the GitHub Copilot format: rules for the Python files only (`instructions/`) and a reusable chat command (`prompts/`) |
 | `.streamlit/config.toml`, `pytest.ini`, `.gitattributes` | app theme; test settings; LF line endings on every checkout (the manifest hashes the cards' bytes) |
 
 Created locally and not versioned: `.env` (the key), `.cache/` (embeddings and judge verdicts

@@ -4,7 +4,7 @@ applyTo: "**/*.py"
 
 # Scoped instructions: refactoring by criteria
 
-These rules apply only to the Python files of the project (field `applyTo`); `AGENTS.md` applies
+These rules apply only to the Python files of the project (`**/*.py`); `AGENTS.md` applies
 to the whole project.
 
 When you change a Python file in this project:
