@@ -347,10 +347,13 @@ def goal_actions() -> dict[str, list[dict]]:
 
 
 def pick_goal(goals: list[dict], line: str) -> dict | None:
-    """The goal a real-case line speaks of: the one at a minute it writes ("al 47'"), else the action
-    with the most touches."""
+    """The goal a real-case line speaks of: the one at a minute it writes ("al 47'"), else the one whose
+    scorer it names ("Palmer pareggia"; the latest, if he scored twice), else the action with the most
+    touches."""
     written = set(_MINUTE_RE.findall(line))
-    return next((g for g in goals if g["minute"] in written), None) or max(goals, key=lambda g: len(g["steps"]), default=None)
+    named = [g for g in goals if re.search(rf"(?<!\w){re.escape(g['scorer'])}(?!\w)", line)]
+    return (next((g for g in goals if g["minute"] in written), None) or (named[-1] if named else None)
+            or max(goals, key=lambda g: len(g["steps"]), default=None))
 
 
 def goal_label(goal: dict, english: bool = False) -> str:

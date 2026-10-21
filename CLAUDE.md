@@ -5,11 +5,13 @@
 The project instructions are in `AGENTS.md`, imported above: one file for every coding assistant
 (Claude Code reads this one, GitHub Copilot reads `AGENTS.md` directly), so the rules never drift apart.
 
-For Claude Code, two more files in `.claude/` work with it:
+For Claude Code, three more files in `.claude/` work with it:
 - `.claude/rules/refactor.md`: rules applied to the Python files only (`paths: **/*.py`);
-- `.claude/commands/refactor-by-criteria.md`: the reusable command `/refactor-by-criteria`.
+- `.claude/commands/refactor-by-criteria.md`: the reusable command `/refactor-by-criteria`;
+- `.claude/skills/chat-graphic/SKILL.md`: how to add a graphic under a chat answer (where its data may come
+  from, how to draw, show and check it), Claude Code only.
 
-They say the same as the files in `.github/` (the Copilot flavour): `tests/test_agent_instructions.py`
+The first two say the same as the files in `.github/` (the Copilot flavour): `tests/test_agent_instructions.py`
 fails if the two copies differ.
 
 Working notes for Claude Code on this project:

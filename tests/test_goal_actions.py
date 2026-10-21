@@ -58,6 +58,8 @@ def test_the_goal_picked_for_a_real_case_line():
     assert goal_label(pick_goal(euro, "al 47' Carvajal serve Yamal con l'esterno")) == "47' 1-0 Williams"
     assert goal_label(pick_goal(euro, "all'86' Oyarzabal")) == "86' 2-1 Oyarzabal"
     assert goal_label(pick_goal(euro, "nessun minuto")) == "47' 1-0 Williams"            # the longest action
+    assert goal_label(pick_goal(euro, "Southgate inserisce Watkins e Palmer, e Palmer pareggia")) == "73' 1-1 Palmer"
+    assert goal_label(pick_goal(euro, "un uno-due Oyarzabal-Cucurella e un cross rasoterra")) == "86' 2-1 Oyarzabal"
     assert goal_label(pick_goal(goal_actions()[WC22], "")) == "2° supplementare 3-2 Messi"  # no minute in the card
     assert goal_label(goal_actions()[WC22][0]) == "23' 1-0 Messi (rig.)"
     assert pick_goal([], "") is None

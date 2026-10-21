@@ -88,3 +88,10 @@ def test_a_final_with_statsbomb_data_plays_a_goal_in_the_cards_tab(app):
     assert any("ma-goal" in m.value and "3-2 Messi" in m.value for m in app.markdown)
     pick.set_value(1).run()                                                    # another goal
     assert any("ma-goal" in m.value and "36' 2-0 Di María" in m.value for m in app.markdown)
+
+
+def test_the_graphics_preview_page_runs_without_the_model():
+    page = AppTest.from_file(str(PROJECT_ROOT / "scripts" / "preview_graphics.py"), default_timeout=60).run()
+    assert not page.exception
+    assert sum("ma-timeline" in m.value for m in page.markdown) >= 7               # every final's timeline
+    assert any('aria-label="Voi 4-3-3 · Avversario 4-4-2"' in m.value for m in page.markdown)

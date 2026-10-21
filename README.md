@@ -40,13 +40,13 @@ match data), giving priority to recent (2022–2026) winning tactics. Questions 
 | `eval/gold_set.json` | the evaluation yardstick: 45 questions, Italian with paired English ones (frozen) |
 | `eval/runs/` | every measured run, listed with its result in [`eval/runs/README.md`](eval/runs/README.md) |
 | `eval/error_log.md` | wrong answers found, with their cause and fix |
-| `scripts/` | commands run as `python -m scripts.<name>`: `start`, `ingest`, `eval_retrieval`, `eval_agent`, `gold_run`, `build_manifest`, `check_corpus`, `build_goal_actions`, `sb_match_report`, `verify` (the output of a command before and after a refactoring) |
+| `scripts/` | commands run as `python -m scripts.<name>`: `start`, `ingest`, `eval_retrieval`, `eval_agent`, `gold_run`, `build_manifest`, `check_corpus`, `build_goal_actions`, `preview_graphics` (run with `streamlit run`), `sb_match_report`, `verify` (the output of a command before and after a refactoring) |
 | `tests/` | offline tests, no API key and no network (`python -m pytest`) |
 | `docker-compose.yml` | Qdrant (vector store) and Phoenix (traces) |
 | `.env.example` | settings template: copy it to `.env` and add the key |
 | `requirements.txt` | Python packages |
 | `AGENTS.md` | instructions for AI coding agents: project context, rules, the procedure for every change, constraints; one file for every assistant |
-| `CLAUDE.md`, `.claude/` | Claude Code: `CLAUDE.md` imports `AGENTS.md`; `rules/` holds the rules for the Python files only, `commands/` a reusable chat command (`/refactor-by-criteria`) |
+| `CLAUDE.md`, `.claude/` | Claude Code: `CLAUDE.md` imports `AGENTS.md`; `rules/` holds the rules for the Python files only, `commands/` a reusable chat command (`/refactor-by-criteria`), `skills/chat-graphic/` the recipe for a graphic under an answer |
 | `.github/` | the same two files in the GitHub Copilot format: rules for the Python files only (`instructions/`) and a reusable chat command (`prompts/`) |
 | `.streamlit/config.toml`, `pytest.ini`, `.gitattributes` | app theme; test settings; LF line endings on every checkout (the manifest hashes the cards' bytes) |
 

@@ -10,7 +10,8 @@ answers in Newsreader, labels and badges in IBM Plex Sans Condensed. It was gene
 2026-10-01 from the app itself: part 1 of `components.css` is the CSS block of `src/ui/view.py`
 copied as it is, the HTML of the previews comes from the formatting functions of the same file
 (`header_html`, `answer_html`, `guard_html`, `card_header_html`, `feature_html`), and the answers
-are real ones, from run `eval/runs/agent_20260929-112013.json`.
+are real ones, from run `eval/runs/agent_20260929-112013.json`. Refreshed on 2026-10-21 for the graphics under an
+answer (`src/ui/graphics.py`: they use the same `--ma-*` variables) and the welcome tiles in one grid.
 
 ## Structure
 
@@ -18,13 +19,14 @@ are real ones, from run `eval/runs/agent_20260929-112013.json`.
 |---|---|
 | `tokens.css` | colours (light and dark theme, the values of `.streamlit/config.toml`), fonts, sizes, rules, spacing, as CSS variables |
 | `components.css` | part 1: the classes of the app (`.ma-hero`, `.ma-cite`, `.ma-card-head`, `.ma-tag`, `.ma-feature`, `.ma-chip`, `.ma-unknown`, `.ma-guard`), the CSS block of `src/ui/view.py`; part 2 (`.ds-*`): how the Streamlit components around them look, for the previews only |
-| `previews/` | one page per card, grouped by the `@dsCard` comment on its first line: Colors, Type, Components, Answer states, Screens |
+| `previews/` | one page per card, grouped by the `@dsCard` comment on its first line: Colors, Type, Components, Answer states, Graphics, Screens |
 
 | Group | Previews |
 |---|---|
 | Colors, Type | `colors.html`, `typography.html` |
 | Components | `hero.html` (masthead), `citation-badges.html` (numbered), `card-header.html` (with the number of its citations), `welcome-tiles.html`, `metrics.html`, `sidebar.html` |
 | Answer states | `answer-normal.html` (cited, with a real case), `answer-dont-know.html` (the "Senza fonte" box), `answer-blocked.html` (off topic, dark guardrail box), `answer-rewritten.html` (fixed by the guardrail), `answer-loading.html` |
+| Graphics | `graphics-pitch.html` (the formations the coach wrote, on a pitch, the players running to their place), `graphics-timeline.html` (the timeline of the real case, from the card); drawn by `src/ui/graphics.py`. The action of a goal is not previewed: it carries StatsBomb coordinates, which stay local (licence) |
 | Screens | `screen-chat.html`: sidebar, masthead, tabs, the chat and the cited card side by side |
 
 ## Working with Claude Design
