@@ -17,6 +17,7 @@ validator on the app's surfaces: red and ink stay apart for colour-blind readers
 from __future__ import annotations
 
 import hashlib
+import html
 import json
 import re
 from collections.abc import Iterable
@@ -28,14 +29,30 @@ from src.guardrails.real_case import CASE_LINE_RE, case_ids
 from src.guardrails.text import normalize
 
 W, H = 120, 80   # pitch units (StatsBomb's), the coach's team attacking left to right
+_TEXT = 'font-family="IBM Plex Sans Condensed, sans-serif"'
+
+
+def _esc(text: object) -> str:
+    """Text of a card or of the data for SVG text and double-quoted attributes: "&", "<", ">" and '"'
+    escaped; the apostrophe is safe in both and stays ("47' 1-0 Williams")."""
+    return html.escape(str(text), quote=False).replace('"', "&quot;")
+
+
+def _key(*parts: object) -> str:
+    """The prefix of a figure's class and keyframe names: unique per content and per animate, so that
+    a still figure never takes the animation of an animated one with the same content (the CSS of a
+    page is shared by every figure on it)."""
+    return hashlib.sha1("|".join(map(str, parts)).encode()).hexdigest()[:6]
 
 # A formation: 3 to 5 lines of outfield players, 1 to 5 each, adding up to 10; with dashes (any
 # typographic dash) or written as one number ("433", "4231"). Not a score ("1-0") nor a year.
-_FORMATION_RE = re.compile(r"(?<![\w-])([1-5](?:\s?[-‐-―−]\s?[1-5]){2,4}|[1-5]{3,5})(?![\w-])")
+_FORMATION_RE = re.compile(r"(?<![\w-])([1-5](?:\s?-\s?[1-5]){2,4}|[1-5]{3,5})(?![\w-])")
+_DASHES_RE = re.compile(r"[‐-―−]")   # typographic dashes, made plain before `normalize` drops them
 # Who plays it: the cue nearest before the formation, in the same sentence. "gioca" alone is
-# neither ("la mia squadra gioca 4-2-3-1": the cue is "mia squadra").
+# neither ("la mia squadra gioca 4-2-3-1": the cue is "mia squadra"), nor "gioco", which as a noun is
+# often the opponent's ("rispondo al gioco 4-4-2 dell'avversario").
 _OURS_RE = re.compile(
-    r"\b(?:noi|giochiamo|giocavamo|gioco|giocando|schieriamo|schieravamo|schiero|usiamo|utilizziamo|adottiamo|partiamo|"
+    r"\b(?:noi|giochiamo|giocavamo|giocando|schieriamo|schieravamo|schiero|usiamo|utilizziamo|adottiamo|partiamo|"
     r"(?:la\s+)?mia\s+squadra|nostr[oaie]|we|our|my\s+team|i\s+play)\b")
 _THEIRS_RE = re.compile(
     r"\b(?:affrontiamo|affronto|affrontare|affrontando|avversari[oae]?|loro|contro|giocano|schierano|"
@@ -54,7 +71,7 @@ def formations_in(text: str) -> dict[str, str]:
     """{"ours": ..., "theirs": ...} for the formations of `text` whose side a cue word gives; a
     formation with no cue before it in its sentence is left out (a wrong side is worse than none)."""
     found: dict[str, str] = {}
-    for sentence in _SENTENCE_RE.findall(normalize(text)):
+    for sentence in _SENTENCE_RE.findall(normalize(_DASHES_RE.sub("-", text))):
         start = 0
         for match in _FORMATION_RE.finditer(sentence):
             formation = _formation(match.group(1))
@@ -100,7 +117,7 @@ def pitch_svg() -> str:
             '<rect x="120" y="36" width="1.2" height="8" fill="var(--ma-ink,#111)"/>')
 
 
-_LABEL = 'font-family="IBM Plex Sans Condensed, sans-serif" font-size="5" font-weight="700" letter-spacing="0.3"'
+_LABEL = f'{_TEXT} font-size="5" font-weight="700" letter-spacing="0.3"'
 
 
 def formations_svg(formations: dict[str, str], english: bool = False, animate: bool = True) -> str:
@@ -110,7 +127,7 @@ def formations_svg(formations: dict[str, str], english: bool = False, animate: b
     if not formations:
         return ""
     ours, theirs = formations.get("ours"), formations.get("theirs")
-    key = hashlib.sha1(f"{ours}|{theirs}".encode()).hexdigest()[:6]   # keyframe names unique per figure
+    key = _key(ours, theirs, animate)
     team_names = ("You", "Opponent") if english else ("Voi", "Avversario")
     css, marks = [], []
     for side, formation, team in (("ours", ours, team_names[0]), ("theirs", theirs, team_names[1])):
@@ -174,25 +191,31 @@ _CLUBS = {   # initials, shield colour, initials colour
 _SHIELD = "M1 1 H19 V12 C19 18.5 10 23 10 23 C10 23 1 18.5 1 12 Z"
 
 
+def _badge_box(team: str, height: float) -> tuple[float, float, float]:
+    """(width, height, shift up) of a team's symbol drawn `height` tall: a flag is 3:2; a shield is
+    narrower, so it is drawn a little taller, centred on the same line."""
+    if team in _FLAGS:
+        return height * 1.5, height, 0.0
+    return height * 1.3 * 20 / 24, height * 1.3, height * 0.15
+
+
 def team_badge(team: str, x: float, y: float, height: float) -> str:
     """The team's symbol at (x, y), `height` tall: its flag for a national team, else a neutral shield
     with its initials (any club, the first three letters when it is not listed)."""
+    width, tall, up = _badge_box(team, height)
+    box = f'x="{x:.1f}" y="{y - up:.1f}" width="{width:.1f}" height="{tall:.1f}"'
     if team in _FLAGS:
-        width = height * 1.5
-        return (f'<svg x="{x:.1f}" y="{y:.1f}" width="{width:.1f}" height="{height:.1f}" viewBox="0 0 30 20">'
-                f'<title>{team}</title>{_FLAGS[team]}<rect width="30" height="20" fill="none" '
-                f'stroke="var(--ma-ink,#111)" stroke-width="0.8"/></svg>')
+        return (f'<svg {box} viewBox="0 0 30 20"><title>{_esc(team)}</title>{_FLAGS[team]}'
+                f'<rect width="30" height="20" fill="none" stroke="var(--ma-ink,#111)" stroke-width="0.8"/></svg>')
     initials, fill, ink = _CLUBS.get(team, (re.sub(r"[^A-Z]", "", team.upper())[:3], "#4A3A3C", "#FFFFFF"))
-    y, height = y - height * 0.15, height * 1.3   # a shield is narrower than a flag: a little taller
-    width = height * 20 / 24
-    return (f'<svg x="{x:.1f}" y="{y:.1f}" width="{width:.1f}" height="{height:.1f}" viewBox="0 0 20 24">'
-            f'<title>{team}</title><path d="{_SHIELD}" fill="{fill}" stroke="var(--ma-ink,#111)" stroke-width="0.9"/>'
+    return (f'<svg {box} viewBox="0 0 20 24"><title>{_esc(team)}</title>'
+            f'<path d="{_SHIELD}" fill="{fill}" stroke="var(--ma-ink,#111)" stroke-width="0.9"/>'
             f'<text x="10" y="13.6" {_TEXT} font-size="6.4" font-weight="700" text-anchor="middle" '
-            f'fill="{ink}">{initials}</text></svg>')
+            f'fill="{ink}">{_esc(initials)}</text></svg>')
 
 
 def badge_width(team: str, height: float) -> float:
-    return height * (1.5 if team in _FLAGS else 1.3 * 20 / 24)
+    return _badge_box(team, height)[0]
 
 
 
@@ -215,7 +238,6 @@ _LEGEND = {
     "en": "● goal · ○ save or post · ▽ change · ▮ sent off; dashed: the card gives no minute.",
 }
 _TITLE_TEAMS_RE = re.compile(r":\s*(?P<home>.+?)\s+\d+-\d+\s+(?P<away>[^(]+?)\s*(?:\(|$)")
-_TEXT = 'font-family="IBM Plex Sans Condensed, sans-serif"'
 _SIZE, _ROW_GAP, _AXIS_Y = 3.3, 4.4, 20.0
 
 
@@ -278,7 +300,7 @@ def timeline_svg(card: dict, english: bool = False, animate: bool = True) -> str
     def x_of(minute: float) -> float:
         return x0 + (x1 - x0) * minute / end
 
-    key = hashlib.sha1(str(card.get("id") or card.get("title")).encode()).hexdigest()[:6]
+    key = _key(card.get("id") or card.get("title"), english, animate)
     rows_right: dict[bool, list[float]] = {True: [], False: []}   # labels on rows: two never overlap
     marks, css = [], []
     for n, (event, minute) in enumerate(zip(timeline, minutes)):
@@ -307,12 +329,12 @@ def timeline_svg(card: dict, english: bool = False, animate: bool = True) -> str
         when = shown or (f"periodo {event['period']}" if lang == "it" else f"period {event['period']}")
         said = " ".join(filter(None, [event.get("score", ""), _KIND_WORDS[lang][kind], event.get("who", "")]))
         name = f"ma-{key}-t{n}"
-        marks.append(f'<g class="{name}"><title>{when} · {event["team"]} · {said} — «{event["quote"]}»</title>'
+        marks.append(f'<g class="{name}"><title>{_esc(when)} · {_esc(event["team"])} · {_esc(said)} — «{_esc(event["quote"])}»</title>'
                      f'<rect x="{label_x - width / 2:.1f}" y="{min(mark_y, label_y) - 3.5:.1f}" width="{width:.1f}" '
                      f'height="{abs(label_y - mark_y) + 5:.1f}" fill="transparent"/>'
                      f'{_mark(kind, x, mark_y, sign, colour, "minute" not in event)}{leader}'
                      f'<text x="{label_x:.1f}" y="{label_y:.1f}" {_TEXT} font-size="{_SIZE}"{weight} text-anchor="middle" '
-                     f'fill="var(--ma-ink,#111)">{label}</text></g>')
+                     f'fill="var(--ma-ink,#111)">{_esc(label)}</text></g>')
         if animate:   # the events appear in the order of the match, as the axis is drawn
             delay = 0.3 + 1.4 * (x - x0) / (x1 - x0)
             css.append(f"@keyframes {name} {{ from {{ opacity: 0; transform: translate(0, {sign * -2}px); }} "
@@ -334,11 +356,11 @@ def timeline_svg(card: dict, english: bool = False, animate: bool = True) -> str
     if shootout:
         winner = "var(--ma-red,#B3122B)" if shootout["team"] == home else "var(--ma-ink,#111)"
         word = "RIGORI" if lang == "it" else "PENALTIES"
-        box = (f'<g><title>{shootout["team"]} · {word.lower()} {shootout["score"]} — «{shootout["quote"]}»</title>'
+        box = (f'<g><title>{_esc(shootout["team"])} · {word.lower()} {_esc(shootout["score"])} — «{_esc(shootout["quote"])}»</title>'
                f'<rect x="87" y="{_AXIS_Y - 4.5}" width="11.5" height="9" fill="none" stroke="var(--ma-ink,#111)" '
                f'stroke-width="0.4"/><text x="92.75" y="{_AXIS_Y - 0.8}" {_TEXT} font-size="2.4" text-anchor="middle" '
                f'fill="var(--ma-muted,#4A3A3C)">{word}</text><text x="92.75" y="{_AXIS_Y + 3.2}" {_TEXT} '
-               f'font-size="3.3" font-weight="700" text-anchor="middle" fill="{winner}">{shootout["score"]}</text></g>')
+               f'font-size="3.3" font-weight="700" text-anchor="middle" fill="{winner}">{_esc(shootout["score"])}</text></g>')
     axis = (f'<line class="ma-{key}-axis" x1="{x0}" y1="{_AXIS_Y}" x2="{x1}" y2="{_AXIS_Y}" pathLength="100" '
             f'stroke="var(--ma-ink,#111)" stroke-width="0.5"/>')
     if animate:
@@ -351,21 +373,21 @@ def timeline_svg(card: dict, english: bool = False, animate: bool = True) -> str
     # the small line, the match on the big one, smaller if it is still too long for the width
     competition, _, match = card.get("title", "").rpartition(": ")
     kicker = ("REAL CASE" if english else "CASO REALE") + (f" · {competition.upper()}" if competition else "")
-    title_size = min(3.6, (100 - 2 * x0) / max(len(match) * 0.5, 1))
+    title_size = min(3.6, 96 / max(len(match) * 0.5, 1))   # the header starts at x=2
     badges = (team_badge(home, 2, _AXIS_Y - 5.6, 4.4) + team_badge(teams["away"], 2, _AXIS_Y + 1.2, 4.4))
     header = (f'<text x="2" y="{header_y - 4.6:.1f}" {_TEXT} font-size="2.6" font-weight="700" letter-spacing="0.4" '
-              f'fill="var(--ma-muted,#4A3A3C)">{kicker}</text>'
+              f'fill="var(--ma-muted,#4A3A3C)">{_esc(kicker)}</text>'
               f'<text x="2" y="{header_y:.1f}" {_TEXT} font-size="{title_size:.2f}" font-weight="700" '
-              f'fill="var(--ma-ink,#111)">{match}</text>')
-    caption = (f"{_LEGEND[lang]} From the card {card.get('id', '')}: minutes and names as the card writes them."
+              f'fill="var(--ma-ink,#111)">{_esc(match)}</text>')
+    caption = (f"{_LEGEND[lang]} From the card {_esc(card.get('id', ''))}: minutes and names as the card writes them."
                if english else
-               f"{_LEGEND[lang]} Dalla scheda {card.get('id', '')}: minuti e nomi come li scrive la scheda.")
+               f"{_LEGEND[lang]} Dalla scheda {_esc(card.get('id', ''))}: minuti e nomi come li scrive la scheda.")
     style = (f"<style>{' '.join(css)} @media (prefers-reduced-motion: reduce) {{ [class^=\"ma-{key}-\"] "
              f"{{ animation: none !important; }} }}</style>" if css else "")
     top_view = header_y - 8.5
     return (f'<figure class="ma-figure ma-timeline" style="margin:0.5rem 0 0">{style}'
             f'<svg viewBox="0 {top_view:.1f} 100 {bottom_y - top_view:.1f}" role="img" '
-            f'aria-label="{"Timeline" if english else "Linea del tempo"}: {card.get("title", "")}" '
+            f'aria-label="{"Timeline" if english else "Linea del tempo"}: {_esc(card.get("title", ""))}" '
             f'style="width:100%;height:auto;display:block">{header}{badges}{band}{axis}{ticks}{"".join(marks)}{box}</svg>'
             f'<figcaption style="font-family:\'IBM Plex Sans Condensed\',sans-serif;font-size:12px;'
             f'color:var(--ma-muted,#4A3A3C)">{caption}</figcaption></figure>')
@@ -423,7 +445,7 @@ def goal_svg(goal: dict, card: dict, english: bool = False, animate: bool = True
     length = steps[-1]["t1"]
     speed = max(length / _MAX_SECONDS, 1.0)
     total = length / speed + _HOLD_SECONDS
-    key = hashlib.sha1(f"{card.get('id')}|{goal_label(goal)}".encode()).hexdigest()[:6]
+    key = _key(card.get("id"), goal_label(goal), english, animate)
 
     def pct(t: float) -> float:
         return min(100 * (t / speed) / total, 99.9)
@@ -436,7 +458,7 @@ def goal_svg(goal: dict, card: dict, english: bool = False, animate: bool = True
         style = {"pass": 'stroke-width="0.45"', "carry": 'stroke-width="0.35" stroke-dasharray="1 0.8"',
                  "shot": 'stroke-width="0.9"'}[kind]
         line_class = f"ma-{key}-l{n}"
-        tip = f"{step['player']}: {_STEP_WORDS[lang][kind]} ({step['t0']:.1f} s)"
+        tip = _esc(f"{step['player']}: {_STEP_WORDS[lang][kind]} ({step['t0']:.1f} s)")
         # a carry keeps its dashes: it is drawn by fading in, a pass or a shot by growing along its line
         path_length = "" if kind == "carry" else ' pathLength="100"'
         lines.append(f'<line class="{line_class}" x1="{step["x"]}" y1="{step["y"]}" x2="{step["x2"]}" y2="{step["y2"]}" '
@@ -453,8 +475,9 @@ def goal_svg(goal: dict, card: dict, english: bool = False, animate: bool = True
             label = ""
             if step["player"] not in seen or kind == "shot":   # named once, and again where the goal is scored
                 weight = ' font-weight="700"' if step["player"] == goal["scorer"] else ""
-                label = (f'<text x="{step["x"]}" y="{step["y"] - 2.6:.1f}" {_TEXT} font-size="3"{weight} '
-                         f'text-anchor="middle" fill="var(--ma-ink,#111)">{step["player"]}</text>')
+                name_y = step["y"] - 2.6 if step["y"] > 5 else step["y"] + 4.4   # under the dot near the top line
+                label = (f'<text x="{step["x"]}" y="{name_y:.1f}" {_TEXT} font-size="3"{weight} '
+                         f'text-anchor="middle" fill="var(--ma-ink,#111)">{_esc(step["player"])}</text>')
                 seen.add(step["player"])
             dots.append(f'<g class="{dot_class}"><title>{tip}</title><circle cx="{step["x"]}" cy="{step["y"]}" r="1.5" '
                         f'fill="{colour}" stroke="var(--ma-card,#FBE9EA)" stroke-width="0.5"/>{label}</g>')
@@ -485,10 +508,10 @@ def goal_svg(goal: dict, card: dict, english: bool = False, animate: bool = True
     count = (f"{passes} passes, {length:.0f} seconds" if english else
              f"{passes} passaggi in {length:.0f} secondi") if passes else ""
     header = (f'<text x="0" y="-9" {_TEXT} font-size="2.8" font-weight="700" letter-spacing="0.4" '
-              f'fill="var(--ma-muted,#4A3A3C)">{kicker}</text>'
+              f'fill="var(--ma-muted,#4A3A3C)">{_esc(kicker)}</text>'
               f'{team_badge(goal["team"], 0, -7.4, 4.8)}'
               f'<text x="{badge_width(goal["team"], 4.8) + 1.4:.1f}" y="-3.5" {_TEXT} font-size="4.2" font-weight="700" '
-              f'fill="{colour}">{goal_label(goal, english)}'
+              f'fill="{colour}">{_esc(goal_label(goal, english))}'
               f'<tspan fill="var(--ma-muted,#4A3A3C)" font-weight="500" font-size="3.2">{"  ·  " + count if count else ""}</tspan>'
               f'</text>')
     faster = (f" Played {speed:.1f} times faster." if english else f" Accelerata {speed:.1f} volte.") if speed > 1 else ""
@@ -500,7 +523,7 @@ def goal_svg(goal: dict, card: dict, english: bool = False, animate: bool = True
              f"{{ animation: none !important; }} }}</style>" if css else "")
     return (f'<figure class="ma-figure ma-goal" style="margin:0.5rem 0 0">{style}'
             f'<svg viewBox="-2 -14 124 96" role="img" aria-label="{"The goal" if english else "L&#39;azione del gol"}: '
-            f'{goal_label(goal, english)}" style="width:100%;height:auto;display:block">'
+            f'{_esc(goal_label(goal, english))}" style="width:100%;height:auto;display:block">'
             f'{header}{pitch_svg()}{"".join(lines)}{"".join(dots)}{ball}</svg>'
             f'<figcaption style="font-family:\'IBM Plex Sans Condensed\',sans-serif;font-size:12px;'
             f'color:var(--ma-muted,#4A3A3C)">{caption}</figcaption></figure>')
@@ -521,10 +544,15 @@ def answer_figures(messages: list[dict], index: int, cards: dict[str, dict], ani
     of the opponent (the other side may come from an earlier question of the chat); the timeline of
     every final its real-case line cites and, for a final with StatsBomb data, the action of a goal
     (the one at a minute the line writes, else the longest)."""
+    def answered(i: int) -> bool:
+        return (i < len(messages) and messages[i].get("role") == "assistant"
+                and (messages[i].get("guard") or {}).get("input") in ANSWERED)
+
     message = messages[index]
-    if message.get("role") != "assistant" or (message.get("guard") or {}).get("input") not in ANSWERED:
+    if not answered(index):
         return []
-    questions = [m["content"] for m in messages[:index] if m.get("role") == "user"]
+    # the coach's questions the agent answered: one stopped by the input guard never gives a formation
+    questions = [m["content"] for i, m in enumerate(messages[:index]) if m.get("role") == "user" and answered(i + 1)]
     english = bool(questions) and detect_language(questions[-1]) == "en"
     figures = []
     if questions and formations_in(questions[-1]):
