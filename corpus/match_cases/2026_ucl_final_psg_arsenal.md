@@ -12,6 +12,11 @@ themes: [pressione_continua, rimonta, supplementari_e_rigori]
 sources:
   - "Wikipedia (en), 2026 UEFA Champions League final — section Summary (CC BY-SA 4.0). The Italian page has no match report."
 note: "The corpus does not name the PSG coach."
+timeline:
+  - {minute: 6, team: Arsenal, kind: goal, who: Havertz, score: "0-1", quote: "0-1 al 6'"}
+  - {minute: 61, team: Paris Saint-Germain, kind: penalty, who: Dembélé, score: "1-1", quote: "al 61' Mosquera commette fallo su Kvaratskhelia in area"}
+  - {minute: 77, team: Paris Saint-Germain, kind: post, who: Kvaratskhelia, quote: "Al 77' un tiro di Kvaratskhelia deviato da Lewis-Skelly colpisce il palo"}
+  - {kind: shootout, team: Paris Saint-Germain, score: "4-3", quote: "il PSG segna 4 volte"}
 ---
 
 # Finale Champions League 2026: Paris Saint-Germain 1-1 Arsenal (4-3 d.c.r.)

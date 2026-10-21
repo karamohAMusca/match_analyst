@@ -13,6 +13,15 @@ themes: [partenza_aggressiva, gestione_del_vantaggio, rimonta_subita, supplement
 sources:
   - "Wikipedia (it), Finale del campionato mondiale di calcio 2022 (CC BY-SA 4.0)"
   - "StatsBomb Open Data, match_id 3869685 — statistiche calcolate dal progetto. Data provided by StatsBomb."
+timeline:
+  - {minute: 23, team: Argentina, kind: penalty, who: Messi, score: "1-0", quote: "rigore di Messi al 23'"}
+  - {minute: 36, team: Argentina, kind: goal, who: Di María, score: "2-0", quote: "gol di Di María al 36'"}
+  - {period: 1, team: Francia, kind: sub, who: "Kolo Muani, Thuram", quote: "cambia due attaccanti prima dell'intervallo"}
+  - {minute: 80, team: Francia, kind: penalty, who: Mbappé, score: "2-1", quote: "all'80' Mbappé segna su rigore"}
+  - {minute: 81, team: Francia, kind: goal, who: Mbappé, score: "2-2", quote: "appena un minuto dopo pareggia al volo"}
+  - {period: 4, team: Argentina, kind: goal, who: Messi, score: "3-2", quote: "Nel secondo tempo supplementare Messi fa 3-2"}
+  - {minute: 117, team: Francia, kind: penalty, who: Mbappé, score: "3-3", quote: "a tre minuti dalla fine Mbappé pareggia su rigore"}
+  - {kind: shootout, team: Argentina, score: "4-2", quote: "4 su 4 per l'Argentina"}
 ---
 
 # Finale Mondiale 2022: Argentina 3-3 Francia (4-2 d.c.r.)

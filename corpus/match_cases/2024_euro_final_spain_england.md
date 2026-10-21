@@ -14,6 +14,12 @@ sources:
   - "Wikipedia (it), Finale del campionato europeo maschile di calcio 2024 (CC BY-SA 4.0)"
   - "Wikipedia (en), UEFA Euro 2024 final, rev. 1374029048 (CC BY-SA 4.0) — minuti dei gol e dei cambi"
   - "StatsBomb Open Data, match_id 3943043 — statistiche calcolate dal progetto. Data provided by StatsBomb."
+timeline:
+  - {minute: 45, shown: "int.", team: Spagna, kind: sub, who: Zubimendi, quote: "all'intervallo entra Zubimendi"}
+  - {minute: 47, team: Spagna, kind: goal, who: Williams, score: "1-0", quote: "al 47' Carvajal serve Yamal con l'esterno"}
+  - {minute: 68, team: Spagna, kind: sub, who: Oyarzabal, quote: "Oyarzabal, entrato al 68'"}
+  - {minute: 73, team: Inghilterra, kind: goal, who: Palmer, score: "1-1", quote: "dopo il gol di Palmer (73')"}
+  - {minute: 86, team: Spagna, kind: goal, who: Oyarzabal, score: "2-1", quote: "all'86' Oyarzabal, entrato al 68', chiude un uno-due con Cucurella"}
 ---
 
 # Finale Euro 2024: Spagna 2-1 Inghilterra

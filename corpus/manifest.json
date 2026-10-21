@@ -22,10 +22,10 @@
     "references/data/fifa/": "FIFA public match reports",
     "references/SOURCES.md": "provenance, licences and card-writing rules"
   },
-  "generated": "2026-09-29",
+  "generated": "2026-10-21",
   "stats": {
     "documents": 31,
-    "total_chars": 77498
+    "total_chars": 81469
   },
   "documents": [
     {
@@ -43,8 +43,8 @@
       "file_records": [
         {
           "path": "corpus/match_cases/2022_wc_final_argentina_france.md",
-          "sha256": "67a5d0f2f3a12f0d5218bae50463979b32c8a2c4f269f00cf76d525cf793b379",
-          "bytes": 2819
+          "sha256": "b155c72253f01a22e8f87f494541b5dd0b34aa38fe6d0afde9dcf6bab612c7a6",
+          "bytes": 3756
         }
       ],
       "themes": [
@@ -79,8 +79,8 @@
       "file_records": [
         {
           "path": "corpus/match_cases/2023_ucl_final_city_inter.md",
-          "sha256": "7459811fd7765943a9ed27fff548de3f4412ab03a469c4cf4282833cdc22e974",
-          "bytes": 2336
+          "sha256": "d4d00cdaf6a3f34a6e4da8ee153f4333f211ae53f56b7bb5b78bc3131efd6916",
+          "bytes": 2829
         }
       ],
       "themes": [
@@ -112,8 +112,8 @@
       "file_records": [
         {
           "path": "corpus/match_cases/2024_euro_final_spain_england.md",
-          "sha256": "cd2b348ef3aff1ab8cd916d72eab07870568340fb4699c4c0bb57f86ba998411",
-          "bytes": 2664
+          "sha256": "51113063df95199231c059b546a24b643d6b3c56a93f2fd4794ec5ced9e47402",
+          "bytes": 3269
         }
       ],
       "themes": [
@@ -148,8 +148,8 @@
       "file_records": [
         {
           "path": "corpus/match_cases/2024_uel_final_atalanta_leverkusen.md",
-          "sha256": "c357daada77b3c11fc45b6966cb1cc1d43a54f9a86044490bc2a6c6543cbc445",
-          "bytes": 2280
+          "sha256": "710b42179686ff7cca9119ca3b101b9c1211e5a0cb902b4de9d4867d9a201571",
+          "bytes": 2607
         }
       ],
       "themes": [
@@ -178,8 +178,8 @@
       "file_records": [
         {
           "path": "corpus/match_cases/2025_ucl_final_psg_inter.md",
-          "sha256": "7eee0fc4bff918bbb7e24f33ee3f1e711ea3b8520c3d27f8c63e3223f8f02d07",
-          "bytes": 2188
+          "sha256": "41cdf5449692211ee1c32cda0260ba4efcf4c279b45ccda832eec695308dc2ee",
+          "bytes": 2830
         }
       ],
       "themes": [
@@ -209,8 +209,8 @@
       "file_records": [
         {
           "path": "corpus/match_cases/2026_ucl_final_psg_arsenal.md",
-          "sha256": "b31e23d87320845be9abb8d0679d1a71c76303a8c24a98583a320f6f22081de5",
-          "bytes": 1967
+          "sha256": "75bfcb9e5b36e36f7df52c0ad421b02cd1109a15c28aa0b6daafe5415889b90d",
+          "bytes": 2475
         }
       ],
       "themes": [
@@ -242,8 +242,8 @@
       "file_records": [
         {
           "path": "corpus/match_cases/2026_wc_final_spain_argentina.md",
-          "sha256": "00309f9bacdcc8fd381c5befb677b7c7ab86f7d5c47245c0598a29a8ba24a1ba",
-          "bytes": 2869
+          "sha256": "08b475b4797aab12a05ad4fe0e504a0fa54164b6ea8d0d419c4a3cd81467cd39",
+          "bytes": 3342
         }
       ],
       "themes": [

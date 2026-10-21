@@ -7,7 +7,9 @@ import re
 
 import pytest
 
-from src.ui.graphics import answer_figure, coach_formations, formation_places, formations_in, formations_svg
+from src.ui.graphics import (answer_figures, coach_formations, event_minutes, formation_places, formations_in,
+                             formations_svg, real_cases, timeline_svg)
+from src.ui.view import load_card_index
 
 DEMO = "Domenica affrontiamo una squadra che si chiude in un 4-4-2 basso. Noi giochiamo 4-3-3. Come la prepariamo?"
 
@@ -73,10 +75,63 @@ def _chat(*turns: tuple[str, str]) -> list[dict]:
 def test_the_answer_the_pitch_is_drawn_under():
     chat = _chat((DEMO, "football"), ("E se restassimo in 10 al 90'?", "follow_up"),
                  ("E se loro passano al 3-5-2?", "follow_up"), ("Chi ha vinto Sanremo? 4-3-3 noi", "off_topic"))
-    assert "VOI · 4-3-3" in answer_figure(chat, 1) and "AVVERSARIO · 4-4-2" in answer_figure(chat, 1)
-    assert answer_figure(chat, 3) == ""                           # its question names no formation
-    third = answer_figure(chat, 5)
+    first = "".join(answer_figures(chat, 1, CARDS))
+    assert "VOI · 4-3-3" in first and "AVVERSARIO · 4-4-2" in first
+    assert answer_figures(chat, 3, CARDS) == []                   # its question names no formation
+    third = "".join(answer_figures(chat, 5, CARDS))
     assert "VOI · 4-3-3" in third and "AVVERSARIO · 3-5-2" in third   # our side from the first question
-    assert answer_figure(chat, 7) == ""                           # stopped by the input guard
-    assert answer_figure(chat, 0) == ""                           # a question, not an answer
-    assert "@keyframes" not in answer_figure(chat, 1, animate=False)
+    assert answer_figures(chat, 7, CARDS) == []                   # stopped by the input guard
+    assert answer_figures(chat, 0, CARDS) == []                   # a question, not an answer
+    assert "@keyframes" not in "".join(answer_figures(chat, 1, CARDS, animate=False))
+
+
+# ---------------------------------------------------------------- the timeline of a real case
+CARDS = load_card_index()
+FINALS = sorted(i for i in CARDS if i.startswith("case_"))
+WC26 = "case_2026_wc_final_spain_argentina"
+REAL_CASE = ("Abbassate il blocco [situation_difendere_un_vantaggio].\n\nCaso reale: Mondiale 2026: la Spagna batte "
+             "il 4-4-2 basso argentino [case_2026_wc_final_spain_argentina].")
+
+
+def test_events_with_only_their_period_are_spaced_between_the_others():
+    psg_inter = CARDS["case_2025_ucl_final_psg_inter"]["timeline"]
+    assert event_minutes(psg_inter) == [15, 30, 63, 72, 81]       # 1-0 and 2-0 in the first half, 5-0 after the 72'
+    arg_fra = CARDS["case_2022_wc_final_argentina_france"]["timeline"]
+    assert event_minutes(arg_fra)[2] == pytest.approx(40.5) and event_minutes(arg_fra)[5] == pytest.approx(111)
+    assert event_minutes(arg_fra)[-1] is None                    # the shoot-out is not on the axis
+
+
+@pytest.mark.parametrize("case_id", FINALS)
+def test_every_final_has_its_timeline(case_id):
+    card = CARDS[case_id]
+    svg = timeline_svg(card)
+    events = [e for e in card["timeline"] if e["kind"] != "shootout"]
+    assert svg.count("<title>") == len(card["timeline"])          # a tooltip per event, the shoot-out too
+    assert all(f"«{e['quote']}»" in svg for e in card["timeline"])   # with the card's own words
+    assert ("RIGORI" in svg) == any(e["kind"] == "shootout" for e in card["timeline"])
+    extra = "d.t.s." in card["title"] or "d.c.r." in card["title"]
+    assert (">105'<" in svg) == extra                              # extra time only when it was played
+    assert sum(e["kind"] in ("goal", "penalty") for e in events) == svg.count('font-weight="700" text-anchor="middle"') - ("RIGORI" in svg)
+    assert f"Dalla scheda {case_id}" in svg and "<script" not in svg
+
+
+def test_the_timeline_of_the_2026_world_cup_final():
+    svg = timeline_svg(CARDS[WC26])
+    assert ">CASO REALE · FINALE MONDIALE 2026</text>" in svg and ">Spagna 1-0 Argentina (d.t.s.)</text>" in svg
+    assert ">106' 1-0 Ferran Torres<" in svg and ">90'+3' Enzo Fernández<" in svg and ">62' Pedri, Ferran Torres<" in svg
+    assert "90'+3' · Argentina · espulso Enzo Fernández — «Argentina in dieci dal 90'+3'»" in svg   # the tooltip
+    assert "▽ cambio" in svg                                      # the legend of the shapes
+    assert "@keyframes" in svg and "@keyframes" not in timeline_svg(CARDS[WC26], animate=False)
+    assert "REAL CASE" in timeline_svg(CARDS[WC26], english=True)
+    assert timeline_svg({"title": "x", "timeline": []}) == ""
+
+
+def test_the_timeline_goes_under_the_answer_that_cites_the_final():
+    assert real_cases(REAL_CASE) == [WC26]
+    chat = [{"role": "user", "content": DEMO},
+            {"role": "assistant", "content": REAL_CASE, "guard": {"input": "football"}}]
+    figures = answer_figures(chat, 1, CARDS)
+    assert len(figures) == 2 and "VOI · 4-3-3" in figures[0] and "ma-timeline" in figures[1]
+    chat[0]["content"] = "Come si difende un vantaggio?"           # no formation: the timeline only
+    assert len(answer_figures(chat, 1, CARDS)) == 1
+    assert real_cases("Caso reale dalla parte di chi era in 10: ... [coach_scaloni].") == []   # not a final

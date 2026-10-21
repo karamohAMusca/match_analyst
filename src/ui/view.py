@@ -151,6 +151,7 @@ def load_card_index() -> dict[str, dict[str, Any]]:
             "id": md["document_id"], "title": md.get("title", md["document_id"]), "category": md.get("category", ""),
             "body": card.body, "sources": md.get("sources") or [], "date": str(md.get("date") or ""),
             "coaches": md.get("coaches") or {}, "formations": md.get("formations") or {}, "winner": md.get("winner"),
+            "timeline": md.get("timeline") or [],
         }
     return index
 

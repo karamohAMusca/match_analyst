@@ -12,6 +12,11 @@ themes: [gioco_di_posizione, falso_centrale, difesa_organizzata, finale_equilibr
 sources:
   - "Wikipedia (it), Finale della UEFA Champions League 2022-2023 (CC BY-SA 4.0)"
   - "Contran, tesi UEFA Pro 2023/24, pp. 90-91 (Manchester City di Guardiola 2022/23)"
+timeline:
+  - {minute: 57, team: Inter, kind: save, who: Lautaro Martínez, quote: "un'occasione dell'Inter al 57'"}
+  - {minute: 67, team: Manchester City, kind: goal, who: Rodri, score: "1-0", quote: "dieci minuti dopo Akanji serve l'incursione centrale di Silva"}
+  - {minute: 88, team: Inter, kind: save, who: Lukaku, quote: "colpo di testa ravvicinato di Lukaku (88')"}
+  - {minute: 90, shown: "90'+", team: Inter, kind: save, who: Gosens, quote: "Gosens nell'ultimo minuto di recupero"}
 ---
 
 # Finale Champions League 2023: Manchester City 1-0 Inter

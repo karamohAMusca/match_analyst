@@ -12,6 +12,10 @@ themes: [marcatura_a_uomo, pressing_alto, transizione_positiva, duelli]
 sources:
   - "Wikipedia (it), Finale della UEFA Europa League 2023-2024 (CC BY-SA 4.0)"
   - "Spalla, tesi UEFA Pro 2023/24, pp. 28-34 (L'Atalanta di Gasperini)"
+timeline:
+  - {minute: 12, team: Atalanta, kind: goal, who: Lookman, score: "1-0", quote: "1-0 al 12'"}
+  - {minute: 26, team: Atalanta, kind: goal, who: Lookman, score: "2-0", quote: "2-0 al 26' da palla recuperata"}
+  - {minute: 75, team: Atalanta, kind: goal, who: Lookman, score: "3-0", quote: "3-0 al 75' in contropiede"}
 ---
 
 # Finale Europa League 2024: Atalanta 3-0 Bayer Leverkusen

@@ -54,6 +54,8 @@ def get_cards() -> dict:
 
 def show_card(card: dict, height: int, number: int | None = None) -> None:
     st.markdown(view.card_header_html(card, number), unsafe_allow_html=True)
+    if timeline := graphics.timeline_svg(card, animate=False):   # a final: its timeline, from the card
+        st.markdown(timeline, unsafe_allow_html=True)
     with st.container(height=height):
         st.markdown(view.card_body(card))
     with st.expander(f"📚 Fonti della scheda ({len(card['sources'])})"):
@@ -150,9 +152,9 @@ with tab_chat:
                     st.markdown(message["content"])
                     continue
                 st.markdown(view.answer_html(message["content"], cards), unsafe_allow_html=True)
-                # the formations the coach wrote, on a pitch (st.html would strip the <svg>); only the
-                # newest answer moves, the older ones are drawn still
-                if figure := graphics.answer_figure(state.messages, index, animate=index == last_answer):
+                # the formations the coach wrote, on a pitch, and the timeline of the real case (st.html
+                # would strip the <svg>); only the newest answer moves, the older ones are drawn still
+                for figure in graphics.answer_figures(state.messages, index, cards, animate=index == last_answer):
                     st.markdown(figure, unsafe_allow_html=True)
                 if message.get("guard_note"):
                     st.markdown(view.guard_html(message), unsafe_allow_html=True)

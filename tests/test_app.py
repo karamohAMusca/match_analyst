@@ -69,3 +69,9 @@ def test_the_formations_of_the_question_are_drawn_under_the_answer(app):
     assert not any('class="ma-figure"' in m.value for m in app.chat_message[-1].markdown)
     first = [m.value for m in app.chat_message[1].markdown if 'class="ma-figure"' in m.value][0]
     assert "@keyframes" not in first                                           # the older one is drawn still
+
+
+def test_a_final_in_the_cards_tab_shows_its_timeline(app):
+    assert app.radio(key="browse_category").value == "match_case"             # a final is shown first
+    timelines = [m.value for m in app.markdown if "ma-timeline" in m.value]
+    assert timelines and "@keyframes" not in timelines[0]                      # drawn still, from the card

@@ -136,7 +136,9 @@ Three tabs. **Chat**: the conversation with the assistant coach (follow-up quest
 citations appear as badges with the card title, the cards of the answer can be read in full next
 to it; when the coach writes the formations ("noi giochiamo 4-3-3, loro un 4-4-2 basso"), the answer
 shows them on a pitch, drawn in the app's colours with the players running to their place (an
-indicative layout, read from the question, not a fact of the cards); and every answer shows what the guardrails did and, under "Dettagli", its time, tokens,
+indicative layout, read from the question, not a fact of the cards); when the answer cites a final
+as its real case, its timeline follows (goals and score, saves, red cards, changes, extra time and
+penalties, each from the card's own words); and every answer shows what the guardrails did and, under "Dettagli", its time, tokens,
 cost and the searches the agent made. The sidebar starts a new conversation, switches model and
 guardrails (to show them at work) and has example questions, one in English and one off topic.
 **Schede**: the 31 cards by category. **Valutazione**: the measured results of the saved runs

@@ -24,7 +24,11 @@ Gasperini, Guardiola, Inzaghi, Italiano, Klopp, Pioli, Scaloni.
 
 Front matter fields: `document_id`, `title`, `category`, `origin_type: derived`, `modality: text`,
 `reliability: project_synthesis_cited`, `sources`, and optionally `themes`, `coach`, `formations`,
-`winner`, `date`, `note`.
+`winner`, `date`, `note`. A match case also has a `timeline:` (drawn by the app under an answer that
+cites the final): one line per goal, penalty, save, post, red card, change or shoot-out, written only
+from the card's own text, each with its `quote` (the card's exact words), the `minute` (or the `period`
+when the card gives none) and, for a goal, the score after it. `tests/test_corpus.py` checks that every
+quote, name and minute is in the card and that the goals add up to the title.
 
 ---
 

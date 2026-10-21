@@ -89,3 +89,41 @@ def test_psg_coach_is_never_named():
     # No source used by the corpus names the PSG coach: gold question Q21 tests the abstention.
     for card in CARDS:
         assert "luis enrique" not in card.body.lower(), card.document_id
+
+
+# ---------------------------------------------------------------- the timeline of a final (front matter)
+TITLE_RE = re.compile(r"^Finale [^:]+: (?P<home>.+?) (?P<h>\d+)-(?P<a>\d+) (?P<away>[^(]+?)"
+                      r"(?: \((?:(?P<sh>\d+)-(?P<sa>\d+) d\.c\.r\.|d\.t\.s\.)\))?$")
+KINDS = {"goal", "penalty", "save", "post", "red", "sub", "shootout"}
+
+
+@pytest.mark.parametrize("card", [c for c in load_cards() if c.metadata["category"] == "match_case"],
+                         ids=lambda c: c.document_id)
+def test_the_timeline_is_in_the_card_s_own_words(card):
+    """Every event of a final's timeline (drawn under an answer that cites the final) comes from the
+    card: its quote is in the text, its names too, its minute is written there (or reached from a
+    minute written there: "un minuto dopo", "a tre minuti dalla fine"); the goals add up to the title."""
+    timeline = card.metadata.get("timeline")
+    assert timeline, "a match card needs its timeline"
+    body = re.sub(r"\s+", " ", card.body.replace("**", ""))
+    title = TITLE_RE.match(card.metadata["title"])
+    assert title, card.metadata["title"]
+    home, away = title["home"], title["away"]
+    score = [0, 0]
+    for event in timeline:
+        assert event["kind"] in KINDS and event["team"] in (home, away), event
+        assert event["quote"] in body, f"quote not in the card: {event['quote']}"
+        for name in filter(None, str(event.get("who", "")).split(", ")):
+            assert name in body, f"name not in the card: {name}"
+        if event["kind"] == "shootout":
+            assert event["score"] == f"{title['sh']}-{title['sa']}", event
+            continue
+        assert ("minute" in event) != ("period" in event), event   # a minute, or the period when there is none
+        if "minute" in event:
+            written = re.findall(r"\d+'(?:\+\d+')?", event["quote"])
+            shown = event.get("shown", f"{event['minute']}'")
+            assert shown in written or not written and re.search(r"dopo|dalla fine|recupero|intervallo", event["quote"]), event
+        if event["kind"] in ("goal", "penalty"):
+            score[0 if event["team"] == home else 1] += 1
+            assert event["score"] == f"{score[0]}-{score[1]}", event        # the score after each goal
+    assert score == [int(title["h"]), int(title["a"])], "the goals do not add up to the title"

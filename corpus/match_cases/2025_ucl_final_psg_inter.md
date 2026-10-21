@@ -12,6 +12,12 @@ themes: [pressing_alto, contropiede, attacco_della_profondita, trappola_del_fuor
 sources:
   - "Wikipedia (it), Finale della UEFA Champions League 2024-2025 (CC BY-SA 4.0)"
 note: "The corpus does not name the PSG coach."
+timeline:
+  - {period: 1, team: Paris Saint-Germain, kind: goal, who: Hakimi, score: "1-0", quote: "l'Inter si fa sorprendere alla prima occasione"}
+  - {period: 1, team: Paris Saint-Germain, kind: goal, who: Doué, score: "2-0", quote: "2-0 otto minuti dopo"}
+  - {minute: 63, team: Paris Saint-Germain, kind: goal, who: Doué, score: "3-0", quote: "3-0 al 63' su lancio di Vitinha per Doué"}
+  - {minute: 72, team: Paris Saint-Germain, kind: goal, who: Kvaratskhelia, score: "4-0", quote: "4-0 al 72' con Kvaratskhelia"}
+  - {period: 2, team: Paris Saint-Germain, kind: goal, who: Mayulu, score: "5-0", quote: "5-0 del subentrato Mayulu"}
 ---
 
 # Finale Champions League 2025: Paris Saint-Germain 5-0 Inter

@@ -15,6 +15,11 @@ sources:
   - "FIFA Tactical Line-up, Final Spain v Argentina — https://fdp.fifa.org/assetspublic/ce281/r12552/pdf/TacticalLineup-English.pdf"
   - "Wikipedia (it), Finale del campionato mondiale di calcio 2026, rev. 152244405 (CC BY-SA 4.0)"
   - "Wikipedia (en), 2026 FIFA World Cup final, rev. 1376535351 (CC BY-SA 4.0)"
+timeline:
+  - {minute: 62, team: Spagna, kind: sub, who: "Pedri, Ferran Torres", quote: "Pedri e Ferran Torres al 62'"}
+  - {minute: 75, team: Spagna, kind: sub, who: "Nico Williams, Merino", quote: "Nico Williams e Merino al 75'"}
+  - {minute: 90, shown: "90'+3'", team: Argentina, kind: red, who: Enzo Fernández, quote: "Argentina in dieci dal 90'+3'"}
+  - {minute: 106, team: Spagna, kind: goal, who: Ferran Torres, score: "1-0", quote: "Gol al 106' di Ferran Torres"}
 ---
 
 # Finale Mondiale 2026: Spagna 1-0 Argentina (d.t.s.)
