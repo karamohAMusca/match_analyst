@@ -5,8 +5,11 @@ description: Add or change a graphic drawn under a chat answer of the Match Anal
 
 # A graphic under a chat answer
 
-The graphics of the app are SVG strings written by pure functions in `src/ui/graphics.py`, rendered
-by `app.py` under the answer. Follow these steps, in this order.
+The graphics of the app are SVG strings written by pure functions in the package `src/ui/graphics/`,
+rendered by `app.py` under the answer. One module per graphic (`formations.py`, `timeline.py`,
+`goal.py`): a new graphic gets a module of its own. What every graphic shares is in `svg.py` and
+`badges.py`, `answer.py` chooses the graphics under an answer, and `__init__.py` exports the names the
+app, the scripts and the tests import. Follow these steps, in this order.
 
 ## 1. Where the data comes from (decide first, write it in the docstring)
 
@@ -23,10 +26,12 @@ A graphic never draws what the model wrote. Its data comes from one of these, an
 
 ## 2. Draw it
 
-- One pure function `<thing>_svg(..., english=False, animate=True) -> str`, empty string when there is
-  nothing to draw. Colours only through the design system's CSS variables with a fallback:
-  `var(--ma-red,#B3122B)`, `var(--ma-ink,#111)`, `var(--ma-card,#FBE9EA)`, `var(--ma-muted,#4A3A3C)`
-  (light and dark come for free). Text in `IBM Plex Sans Condensed`.
+- One pure function `<thing>_svg(..., english=False, animate=True) -> str` in the graphic's module,
+  empty string when there is nothing to draw. Reuse `svg.py`: the colours `RED`, `INK`, `CARD`,
+  `MUTED` (the design system's CSS variables with a fallback: light and dark come for free), `TEXT`
+  (the font, `IBM Plex Sans Condensed`), `esc` for every text of a card or of the data, `pitch_svg`
+  on the pitch units `W`, `H` (and `formation_places` from `formations.py` for where a formation puts
+  its players), `figcaption` for the caption.
 - Teams through `team_badge` only: a national team's flag, a club's neutral shield with its initials.
   Never a real club crest or a competition logo (trademarks, protected artwork), never an image
   downloaded from the web: everything is drawn by code.
@@ -34,15 +39,17 @@ A graphic never draws what the model wrote. Its data comes from one of these, an
   direct labels; a `<title>` tooltip on every mark (with the card's own words when there are some);
   a caption that says where the data comes from and what it is not.
 - Motion: CSS `@keyframes` only (no JavaScript), class and keyframe names unique per figure
-  (`ma-<hash>-...`), a `@media (prefers-reduced-motion: reduce)` rule that stops it, and the still
-  state complete (with `animate=False` the whole graphic is visible).
+  (`ma-<key>-...`, with `key = figure_key(<the content>, english, animate)`), written with
+  `motion_style(css, key)`, which adds the `@media (prefers-reduced-motion: reduce)` rule that stops
+  them; the still state complete (with `animate=False` the whole graphic is visible).
 - Labels: kept inside the figure, never overlapping (rows), at least ~10 px on a phone.
 
 ## 3. Show it
 
 - In `app.py`: `st.markdown(svg, unsafe_allow_html=True)`. Not `st.html`: its sanitizer removes `<svg>`.
-- Under an answer through `answer_figures` (only for questions the agent answered; only the newest
-  answer animated); in the cards tab through `show_card`.
+- Under an answer through `answer_figures` in `answer.py` (only for questions the agent answered;
+  only the newest answer animated); in the cards tab through `show_card`. Export the new names from
+  `__init__.py`.
 
 ## 4. Check it
 
@@ -53,5 +60,5 @@ A graphic never draws what the model wrote. Its data comes from one of these, an
   conversation, every timeline, every goal action), light and dark, wide and narrow window; restart it
   after changing `src/` (Streamlit does not reload modules outside the script's folder).
 - Run the palette check of the dataviz skill when a colour is added.
-- Docs: the row of `ui/graphics.py` in `src/README.md` (and `src/LEGGIMI.md`), the app paragraph of
+- Docs: the row of `ui/graphics/` in `src/README.md` (and `src/LEGGIMI.md`), the app paragraph of
   `README.md`, a preview in `design-system/previews/` (group "Graphics") when the graphic is new.

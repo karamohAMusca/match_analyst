@@ -11,7 +11,7 @@ answers in Newsreader, labels and badges in IBM Plex Sans Condensed. It was gene
 copied as it is, the HTML of the previews comes from the formatting functions of the same file
 (`header_html`, `answer_html`, `guard_html`, `card_header_html`, `feature_html`), and the answers
 are real ones, from run `eval/runs/agent_20260929-112013.json`. Refreshed on 2026-10-21 for the graphics under an
-answer (`src/ui/graphics.py`: they use the same `--ma-*` variables) and the welcome tiles in one grid.
+answer (`src/ui/graphics/`: they use the same `--ma-*` variables) and the welcome tiles in one grid.
 
 ## Structure
 
@@ -26,7 +26,7 @@ answer (`src/ui/graphics.py`: they use the same `--ma-*` variables) and the welc
 | Colors, Type | `colors.html`, `typography.html` |
 | Components | `hero.html` (masthead), `citation-badges.html` (numbered), `card-header.html` (with the number of its citations), `welcome-tiles.html`, `metrics.html`, `sidebar.html` |
 | Answer states | `answer-normal.html` (cited, with a real case), `answer-dont-know.html` (the "Senza fonte" box), `answer-blocked.html` (off topic, dark guardrail box), `answer-rewritten.html` (fixed by the guardrail), `answer-loading.html` |
-| Graphics | `graphics-pitch.html` (the formations the coach wrote, on a pitch, the players running to their place), `graphics-timeline.html` (the timeline of the real case, from the card); drawn by `src/ui/graphics.py`. The action of a goal is not previewed: it carries StatsBomb coordinates, which stay local (licence) |
+| Graphics | `graphics-pitch.html` (the formations the coach wrote, on a pitch, the players running to their place), `graphics-timeline.html` (the timeline of the real case, from the card); drawn by `src/ui/graphics/`. The action of a goal is not previewed: it carries StatsBomb coordinates, which stay local (licence) |
 | Screens | `screen-chat.html`: sidebar, masthead, tabs, the chat and the cited card side by side |
 
 ## Working with Claude Design

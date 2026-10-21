@@ -1,5 +1,5 @@
 """A page to look at the graphics under a chat answer without the model or the API key: the real
-functions of src/ui/graphics.py with the app's CSS, on a written conversation, every final's
+functions of src/ui/graphics/ with the app's CSS, on a written conversation, every final's
 timeline and, when the derived StatsBomb file is on this computer, the action of every goal.
 
     streamlit run scripts/preview_graphics.py

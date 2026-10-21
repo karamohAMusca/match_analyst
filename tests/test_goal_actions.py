@@ -1,5 +1,5 @@
 """The actions of the goals derived from StatsBomb (references/derived/statsbomb_goal_actions.json) and
-their animation (src/ui/graphics.py), offline: the derived file agrees with the cards, the script
+their animation (src/ui/graphics/goal.py), offline: the derived file agrees with the cards, the script
 rebuilds it as committed (when the raw events are on this computer), the SVG plays the action."""
 
 from __future__ import annotations

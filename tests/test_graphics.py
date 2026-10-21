@@ -1,4 +1,4 @@
-"""Graphics under a chat answer (src/ui/graphics.py), offline: the formations read from the coach's
+"""Graphics under a chat answer (src/ui/graphics/), offline: the formations read from the coach's
 questions, the places of the players, the SVG and the answer it is drawn under."""
 
 from __future__ import annotations
@@ -158,7 +158,7 @@ def test_a_club_not_listed_gets_a_neutral_shield_and_the_timeline_shows_both_tea
     assert "<title>Paris Saint-Germain</title>" in svg and "<title>Inter</title>" in svg
 
 
-# ---------------------------------------------------------------- code review of graphics.py (2026-10-21)
+# ---------------------------------------------------------------- code review of the graphics (2026-10-21)
 def _classes(svg: str) -> set[str]:
     return set(re.findall(r'class="(ma-[0-9a-f]{6}-[\w-]+)"', svg))   # the animated parts, not ma-figure
 
