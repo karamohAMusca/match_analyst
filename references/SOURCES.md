@@ -75,6 +75,12 @@ Events (`events/`) and match metadata (`matches/43/106.json`, `matches/55/282.js
 (pass share, field tilt, PPDA, pressures, xG) are **computed by the project** from these events; the
 definitions are in `glossary_metriche`.
 
+`python -m scripts.build_goal_actions` derives from the same events the touches before each goal of play
+(ball positions and real tempo, the players by their common name) into `references/derived/
+statsbomb_goal_actions.json`, which the app animates under an answer that cites the final. They are
+coordinates of the raw events, so the file stays out of version control too and is rebuilt locally;
+the minute and the score come from the card's timeline, not from StatsBomb (rule 6 below).
+
 ### 2.4 FIFA match reports — `references/data/fifa/2026_wc_final/`
 
 Post Match Summary Report and Tactical Line-up of the 2026 World Cup final (public PDFs linked from the

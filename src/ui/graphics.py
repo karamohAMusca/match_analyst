@@ -17,9 +17,12 @@ validator on the app's surfaces: red and ink stay apart for colour-blind readers
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from collections.abc import Iterable
+from functools import lru_cache
 
+from src.core.config import PROJECT_ROOT
 from src.guardrails.language import detect_language
 from src.guardrails.real_case import CASE_LINE_RE, case_ids
 from src.guardrails.text import normalize
@@ -321,6 +324,136 @@ def timeline_svg(card: dict, english: bool = False, animate: bool = True) -> str
             f'color:var(--ma-muted,#4A3A3C)">{caption}</figcaption></figure>')
 
 
+# ---------------------------------------------------------------- the action of a goal (StatsBomb)
+# The touches before a goal of the finals with StatsBomb event data (scripts/build_goal_actions.py):
+# where the ball went and when, at the real tempo of the match. The scoring team attacks left to right.
+GOAL_ACTIONS = PROJECT_ROOT / "references" / "derived" / "statsbomb_goal_actions.json"
+_STEP_WORDS = {"it": {"pass": "passaggio", "carry": "conduzione", "shot": "tiro"},
+               "en": {"pass": "pass", "carry": "carry", "shot": "shot"}}
+_MAX_SECONDS = 14.0   # a longer action is played faster, and the caption says so
+_HOLD_SECONDS = 1.8   # the ball rests in the net before the action starts again
+_MINUTE_RE = re.compile(r"\b(\d{1,3}')")
+_PERIOD_NAMES = {"it": {1: "1° tempo", 2: "2° tempo", 3: "1° supplementare", 4: "2° supplementare"},
+                 "en": {1: "1st half", 2: "2nd half", 3: "1st extra half", 4: "2nd extra half"}}
+
+
+@lru_cache(maxsize=1)
+def goal_actions() -> dict[str, list[dict]]:
+    """{match card id: its goals of play with their actions}; empty if the derived file is missing."""
+    if not GOAL_ACTIONS.exists():
+        return {}
+    data = json.loads(GOAL_ACTIONS.read_text(encoding="utf-8"))
+    return {card_id: match["goals"] for card_id, match in data["matches"].items()}
+
+
+def pick_goal(goals: list[dict], line: str) -> dict | None:
+    """The goal a real-case line speaks of: the one at a minute it writes ("al 47'"), else the action
+    with the most touches."""
+    written = set(_MINUTE_RE.findall(line))
+    return next((g for g in goals if g["minute"] in written), None) or max(goals, key=lambda g: len(g["steps"]), default=None)
+
+
+def goal_label(goal: dict, english: bool = False) -> str:
+    """'36' 2-0 Di María', with '(rig.)' for a penalty; the period when the card gives no minute."""
+    when = goal["minute"] or _PERIOD_NAMES["en" if english else "it"].get(goal.get("period"), "")
+    penalty = (" (rig.)" if not english else " (pen.)") if goal.get("penalty") else ""
+    return f"{when} {goal['score']} {goal['scorer']}{penalty}"
+
+
+def goal_svg(goal: dict, card: dict, english: bool = False, animate: bool = True) -> str:
+    """The action of a goal on the pitch: the passes (solid), the carries (dashed) and the shot (thick)
+    drawn as the ball travels, at the real tempo; every player who touches the ball appears when he
+    does, named; the ball rests in the net, then the action plays again. Still: the whole action."""
+    steps = goal.get("steps") or []
+    teams = _TITLE_TEAMS_RE.search(card.get("title", ""))
+    if not steps or not teams:
+        return ""
+    lang = "en" if english else "it"
+    colour = "var(--ma-red,#B3122B)" if goal["team"] == teams["home"] else "var(--ma-ink,#111)"
+    length = steps[-1]["t1"]
+    speed = max(length / _MAX_SECONDS, 1.0)
+    total = length / speed + _HOLD_SECONDS
+    key = hashlib.sha1(f"{card.get('id')}|{goal_label(goal)}".encode()).hexdigest()[:6]
+
+    def pct(t: float) -> float:
+        return min(100 * (t / speed) / total, 99.9)
+
+    css, lines, dots = [], [], []
+    seen: set[str] = set()
+    previous = None
+    for n, step in enumerate(steps):
+        kind, p0, p1 = step["kind"], pct(step["t0"]), max(pct(step["t1"]), pct(step["t0"]) + 0.1)
+        style = {"pass": 'stroke-width="0.45"', "carry": 'stroke-width="0.35" stroke-dasharray="1 0.8"',
+                 "shot": 'stroke-width="0.9"'}[kind]
+        line_class = f"ma-{key}-l{n}"
+        tip = f"{step['player']}: {_STEP_WORDS[lang][kind]} ({step['t0']:.1f} s)"
+        # a carry keeps its dashes: it is drawn by fading in, a pass or a shot by growing along its line
+        path_length = "" if kind == "carry" else ' pathLength="100"'
+        lines.append(f'<line class="{line_class}" x1="{step["x"]}" y1="{step["y"]}" x2="{step["x2"]}" y2="{step["y2"]}" '
+                     f'stroke="{colour}" {style} stroke-linecap="round"{path_length}><title>{tip}</title></line>')
+        if animate:
+            if kind == "carry":
+                css.append(f"@keyframes {line_class} {{ 0%, {p0:.2f}% {{ opacity: 0; }} {p1:.2f}%, 100% {{ opacity: 1; }} }}")
+            else:
+                css.append(f"@keyframes {line_class} {{ 0%, {p0:.2f}% {{ stroke-dashoffset: 100; }} "
+                           f"{p1:.2f}%, 100% {{ stroke-dashoffset: 0; }} }} .{line_class} {{ stroke-dasharray: 100; }}")
+            css.append(f".{line_class} {{ animation: {line_class} {total:.2f}s linear infinite; }}")
+        if step["player"] != previous or kind == "shot":   # a new touch: the player, where he got the ball
+            dot_class = f"ma-{key}-d{n}"
+            label = ""
+            if step["player"] not in seen or kind == "shot":   # named once, and again where the goal is scored
+                weight = ' font-weight="700"' if step["player"] == goal["scorer"] else ""
+                label = (f'<text x="{step["x"]}" y="{step["y"] - 2.6:.1f}" {_TEXT} font-size="3"{weight} '
+                         f'text-anchor="middle" fill="var(--ma-ink,#111)">{step["player"]}</text>')
+                seen.add(step["player"])
+            dots.append(f'<g class="{dot_class}"><title>{tip}</title><circle cx="{step["x"]}" cy="{step["y"]}" r="1.5" '
+                        f'fill="{colour}" stroke="var(--ma-card,#FBE9EA)" stroke-width="0.5"/>{label}</g>')
+            if animate:
+                css.append(f"@keyframes {dot_class} {{ 0%, {p0:.2f}% {{ opacity: 0; }} {min(p0 + 1.5, 99.95):.2f}%, 100% "
+                           f"{{ opacity: 1; }} }} .{dot_class} {{ animation: {dot_class} {total:.2f}s linear infinite; }}")
+        previous = step["player"]
+
+    end_x, end_y = steps[-1]["x2"], steps[-1]["y2"]
+    if animate:   # the ball: at the start and at the end of every touch, at its real second
+        frames = []
+        for step in steps:
+            frames += [(pct(step["t0"]), step["x"], step["y"]), (pct(step["t1"]), step["x2"], step["y2"])]
+        frames.append((100.0, end_x, end_y))
+        keyframes, last = [], -1.0
+        for p, x, y in frames:
+            p = max(p, last + 0.01)
+            keyframes.append(f"{p:.2f}% {{ transform: translate({x}px, {y}px); }}")
+            last = p
+        css.append(f"@keyframes ma-{key}-ball {{ {' '.join(keyframes)} }} "
+                   f".ma-{key}-ball {{ animation: ma-{key}-ball {total:.2f}s linear infinite; }}")
+    ball = (f'<g class="ma-{key}-ball" style="transform: translate({end_x}px, {end_y}px)"><circle cx="0" cy="0" r="1.1" '
+            f'fill="var(--ma-card,#FBE9EA)" stroke="var(--ma-ink,#111)" stroke-width="0.45"/></g>')
+
+    competition = card.get("title", "").rpartition(": ")[0]
+    kicker = ("THE GOAL" if english else "L'AZIONE DEL GOL") + (f" · {competition.upper()}" if competition else "")
+    passes = sum(s["kind"] == "pass" for s in steps)
+    count = (f"{passes} passes, {length:.0f} seconds" if english else
+             f"{passes} passaggi in {length:.0f} secondi") if passes else ""
+    header = (f'<text x="0" y="-9" {_TEXT} font-size="2.8" font-weight="700" letter-spacing="0.4" '
+              f'fill="var(--ma-muted,#4A3A3C)">{kicker}</text>'
+              f'<text x="0" y="-3.5" {_TEXT} font-size="4.2" font-weight="700" fill="{colour}">{goal_label(goal, english)}'
+              f'<tspan fill="var(--ma-muted,#4A3A3C)" font-weight="500" font-size="3.2">{"  ·  " + count if count else ""}</tspan>'
+              f'</text>')
+    faster = (f" Played {speed:.1f} times faster." if english else f" Accelerata {speed:.1f} volte.") if speed > 1 else ""
+    caption = ((f"Real positions and tempo of the ball: StatsBomb Open Data.{faster} Solid: pass · dashed: carry · "
+                "thick: shot.") if english else
+               (f"Posizioni e tempi reali del pallone: StatsBomb Open Data.{faster} Linea piena: passaggio · "
+                "tratteggio: conduzione · spessa: tiro."))
+    style = (f"<style>{' '.join(css)} @media (prefers-reduced-motion: reduce) {{ [class^=\"ma-{key}-\"] "
+             f"{{ animation: none !important; }} }}</style>" if css else "")
+    return (f'<figure class="ma-figure ma-goal" style="margin:0.5rem 0 0">{style}'
+            f'<svg viewBox="-2 -14 124 96" role="img" aria-label="{"The goal" if english else "L&#39;azione del gol"}: '
+            f'{goal_label(goal, english)}" style="width:100%;height:auto;display:block">'
+            f'{header}{pitch_svg()}{"".join(lines)}{"".join(dots)}{ball}</svg>'
+            f'<figcaption style="font-family:\'IBM Plex Sans Condensed\',sans-serif;font-size:12px;'
+            f'color:var(--ma-muted,#4A3A3C)">{caption}</figcaption></figure>')
+
+
 # ---------------------------------------------------------------- under which answer
 ANSWERED = ("football", "follow_up")   # the input guard's verdicts of a question the agent answered
 
@@ -334,7 +467,8 @@ def answer_figures(messages: list[dict], index: int, cards: dict[str, dict], ani
     """The graphics under the answer `messages[index]`, for a question the agent answered (not one
     stopped by the input guard): the pitch, when its own question names a formation of the coach or
     of the opponent (the other side may come from an earlier question of the chat); the timeline of
-    every final its real-case line cites."""
+    every final its real-case line cites and, for a final with StatsBomb data, the action of a goal
+    (the one at a minute the line writes, else the longest)."""
     message = messages[index]
     if message.get("role") != "assistant" or (message.get("guard") or {}).get("input") not in ANSWERED:
         return []
@@ -343,7 +477,11 @@ def answer_figures(messages: list[dict], index: int, cards: dict[str, dict], ani
     figures = []
     if questions and formations_in(questions[-1]):
         figures.append(formations_svg(coach_formations(questions), english=english, animate=animate))
-    for case_id in real_cases(message.get("content", "")):
+    content = message.get("content", "")
+    for case_id in real_cases(content):
         if case_id in cards:
             figures.append(timeline_svg(cards[case_id], english=english, animate=animate))
+            line = next((m.group(0) for m in CASE_LINE_RE.finditer(content) if case_id in m.group(0)), "")
+            if goal := pick_goal(goal_actions().get(case_id, []), line):
+                figures.append(goal_svg(goal, cards[case_id], english=english, animate=animate))
     return [f for f in figures if f]

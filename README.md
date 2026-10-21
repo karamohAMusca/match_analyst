@@ -40,7 +40,7 @@ match data), giving priority to recent (2022–2026) winning tactics. Questions 
 | `eval/gold_set.json` | the evaluation yardstick: 45 questions, Italian with paired English ones (frozen) |
 | `eval/runs/` | every measured run, listed with its result in [`eval/runs/README.md`](eval/runs/README.md) |
 | `eval/error_log.md` | wrong answers found, with their cause and fix |
-| `scripts/` | commands run as `python -m scripts.<name>`: `start`, `ingest`, `eval_retrieval`, `eval_agent`, `gold_run`, `build_manifest`, `check_corpus`, `sb_match_report`, `verify` (the output of a command before and after a refactoring) |
+| `scripts/` | commands run as `python -m scripts.<name>`: `start`, `ingest`, `eval_retrieval`, `eval_agent`, `gold_run`, `build_manifest`, `check_corpus`, `build_goal_actions`, `sb_match_report`, `verify` (the output of a command before and after a refactoring) |
 | `tests/` | offline tests, no API key and no network (`python -m pytest`) |
 | `docker-compose.yml` | Qdrant (vector store) and Phoenix (traces) |
 | `.env.example` | settings template: copy it to `.env` and add the key |
@@ -138,7 +138,9 @@ to it; when the coach writes the formations ("noi giochiamo 4-3-3, loro un 4-4-2
 shows them on a pitch, drawn in the app's colours with the players running to their place (an
 indicative layout, read from the question, not a fact of the cards); when the answer cites a final
 as its real case, its timeline follows (goals and score, saves, red cards, changes, extra time and
-penalties, each from the card's own words); and every answer shows what the guardrails did and, under "Dettagli", its time, tokens,
+penalties, each from the card's own words) and, for the two finals with StatsBomb event data (2022
+World Cup, Euro 2024), the action of a goal: the ball travelling through the passes at the real tempo,
+every player named when he touches it; and every answer shows what the guardrails did and, under "Dettagli", its time, tokens,
 cost and the searches the agent made. The sidebar starts a new conversation, switches model and
 guardrails (to show them at work) and has example questions, one in English and one off topic.
 **Schede**: the 31 cards by category. **Valutazione**: the measured results of the saved runs
@@ -450,4 +452,7 @@ error found is collected, with its source and the candidate fixes, in
 
 Theses are public FIGC documents (not redistributed: download them from the URLs in `SOURCES.md`).
 Wikipedia extracts are CC BY-SA 4.0. Match statistics computed from **StatsBomb Open Data**
-(data provided by StatsBomb; raw data not redistributed). FIFA match reports are public documents.
+(data provided by StatsBomb; raw data not redistributed). The goal actions the app animates are derived
+from the same events by `python -m scripts.build_goal_actions` and stay local as well
+(`references/derived/`, git-ignored): without them the app shows no goal action, everything else works.
+FIFA match reports are public documents.

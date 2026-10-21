@@ -56,6 +56,12 @@ def show_card(card: dict, height: int, number: int | None = None) -> None:
     st.markdown(view.card_header_html(card, number), unsafe_allow_html=True)
     if timeline := graphics.timeline_svg(card, animate=False):   # a final: its timeline, from the card
         st.markdown(timeline, unsafe_allow_html=True)
+    if goals := graphics.goal_actions().get(card["id"]):   # a final with StatsBomb data: the action of a goal
+        longest = goals.index(graphics.pick_goal(goals, ""))
+        pick = st.segmented_control("L'azione di un gol (StatsBomb)", list(range(len(goals))), default=longest,
+                                    format_func=lambda i: graphics.goal_label(goals[i]), key=f"goal_{card['id']}_{height}")
+        if pick is not None:
+            st.markdown(graphics.goal_svg(goals[pick], card), unsafe_allow_html=True)
     with st.container(height=height):
         st.markdown(view.card_body(card))
     with st.expander(f"📚 Fonti della scheda ({len(card['sources'])})"):

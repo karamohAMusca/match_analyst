@@ -8,6 +8,9 @@ __pycache__/
 
 # Third-party data: StatsBomb license forbids redistribution of the raw data
 references/data/statsbomb/
+# ...and the touches before each goal derived from it (coordinates and tempo of the raw events):
+# rebuilt locally with python -m scripts.build_goal_actions
+references/derived/
 
 # Third-party PDFs (FIGC theses): download them from the URLs listed in references/SOURCES.md (not indexed)
 references/theses/*.pdf

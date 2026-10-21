@@ -37,6 +37,7 @@ Useful commands (from the project root, virtual environment active):
 | `python -m scripts.ingest --dry-run` | chunks of the corpus and cost estimate | no |
 | `python -m scripts.review_chats [--all \| <file>]` | automatic checks on the chats saved by the app (`chats/`) | no |
 | `python -m scripts.eval_retrieval --offline --no-save` | retrieval results of every configuration, from the cached question vectors | no (Qdrant running) |
+| `python -m scripts.build_goal_actions` | the touches before each goal of the finals with StatsBomb data, for the app's animation (`references/derived/`, git-ignored: StatsBomb's licence) | no (needs the raw StatsBomb events) |
 | `python -m scripts.verify --save / --check --cmd "<command>" --baseline <file>` | saves the output of a command, then checks that it did not change | no |
 | `python mcp_server.py` | the knowledge base as an MCP server for Claude Desktop and other hosts (stdio; `MCP_HTTP=1` for Streamable HTTP) | only `search_cards` (and Qdrant) |
 | `python -m scripts.start` | Qdrant + Phoenix + the app; the log live in the terminal, the review of the session's chats on Ctrl+C | yes |

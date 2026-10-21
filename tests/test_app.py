@@ -75,3 +75,16 @@ def test_a_final_in_the_cards_tab_shows_its_timeline(app):
     assert app.radio(key="browse_category").value == "match_case"             # a final is shown first
     timelines = [m.value for m in app.markdown if "ma-timeline" in m.value]
     assert timelines and "@keyframes" not in timelines[0]                      # drawn still, from the card
+
+
+def test_a_final_with_statsbomb_data_plays_a_goal_in_the_cards_tab(app):
+    from src.ui.graphics import goal_actions
+    if not goal_actions():
+        pytest.skip("the derived StatsBomb goal actions are not on this computer")
+    app.radio(key="browse_card_match_case").set_value("case_2022_wc_final_argentina_france").run()
+    assert not app.exception
+    pick = app.segmented_control[0]
+    assert pick.key == "goal_case_2022_wc_final_argentina_france_560" and pick.value == 4   # the longest action
+    assert any("ma-goal" in m.value and "3-2 Messi" in m.value for m in app.markdown)
+    pick.set_value(1).run()                                                    # another goal
+    assert any("ma-goal" in m.value and "36' 2-0 Di María" in m.value for m in app.markdown)
