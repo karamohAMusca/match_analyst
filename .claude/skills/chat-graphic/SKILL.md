@@ -27,6 +27,9 @@ A graphic never draws what the model wrote. Its data comes from one of these, an
   nothing to draw. Colours only through the design system's CSS variables with a fallback:
   `var(--ma-red,#B3122B)`, `var(--ma-ink,#111)`, `var(--ma-card,#FBE9EA)`, `var(--ma-muted,#4A3A3C)`
   (light and dark come for free). Text in `IBM Plex Sans Condensed`.
+- Teams through `team_badge` only: a national team's flag, a club's neutral shield with its initials.
+  Never a real club crest or a competition logo (trademarks, protected artwork), never an image
+  downloaded from the web: everything is drawn by code.
 - Identity never by colour alone: the coach's team red and filled, the other ink and hollow, plus
   direct labels; a `<title>` tooltip on every mark (with the card's own words when there are some);
   a caption that says where the data comes from and what it is not.

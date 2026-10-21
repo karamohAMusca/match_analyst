@@ -8,7 +8,7 @@ import re
 import pytest
 
 from src.ui.graphics import (answer_figures, coach_formations, event_minutes, formation_places, formations_in,
-                             formations_svg, real_cases, timeline_svg)
+                             formations_svg, real_cases, team_badge, timeline_svg)
 from src.ui.view import load_card_index
 
 DEMO = "Domenica affrontiamo una squadra che si chiude in un 4-4-2 basso. Noi giochiamo 4-3-3. Come la prepariamo?"
@@ -106,12 +106,12 @@ def test_every_final_has_its_timeline(case_id):
     card = CARDS[case_id]
     svg = timeline_svg(card)
     events = [e for e in card["timeline"] if e["kind"] != "shootout"]
-    assert svg.count("<title>") == len(card["timeline"])          # a tooltip per event, the shoot-out too
+    assert svg.count("<title>") == len(card["timeline"]) + 2      # a tooltip per event, the shoot-out too, and the two teams
     assert all(f"«{e['quote']}»" in svg for e in card["timeline"])   # with the card's own words
     assert ("RIGORI" in svg) == any(e["kind"] == "shootout" for e in card["timeline"])
     extra = "d.t.s." in card["title"] or "d.c.r." in card["title"]
     assert (">105'<" in svg) == extra                              # extra time only when it was played
-    assert sum(e["kind"] in ("goal", "penalty") for e in events) == svg.count('font-weight="700" text-anchor="middle"') - ("RIGORI" in svg)
+    assert sum(e["kind"] in ("goal", "penalty") for e in events) == svg.count('font-size="3.3" font-weight="700" text-anchor="middle"') - ("RIGORI" in svg)
     assert f"Dalla scheda {case_id}" in svg and "<script" not in svg
 
 
@@ -135,3 +135,24 @@ def test_the_timeline_goes_under_the_answer_that_cites_the_final():
     chat[0]["content"] = "Come si difende un vantaggio?"           # no formation: the timeline only
     assert len(answer_figures(chat, 1, CARDS)) == 1
     assert real_cases("Caso reale dalla parte di chi era in 10: ... [coach_scaloni].") == []   # not a final
+
+
+# ---------------------------------------------------------------- the teams' symbols
+TEAMS_OF_THE_FINALS = sorted({t.strip() for c in CARDS.values() if c["category"] == "match_case"
+                              for t in re.split(r"\s+\d+-\d+\s+", c["title"].split(": ", 1)[1].split(" (")[0])})
+
+
+@pytest.mark.parametrize("team", TEAMS_OF_THE_FINALS)
+def test_every_team_of_the_finals_has_its_symbol(team):
+    badge = team_badge(team, 0, 0, 5)
+    assert f"<title>{team}</title>" in badge
+    assert "<image" not in badge and "href" not in badge and "http" not in badge   # drawn, never downloaded
+    national = team in ("Argentina", "Francia", "Spagna", "Inghilterra")
+    assert ('viewBox="0 0 30 20"' in badge) == national                          # a flag, or a shield
+    assert national or re.search(r">[A-Z0-9]{3}</text>", badge)                  # with the club's initials
+
+
+def test_a_club_not_listed_gets_a_neutral_shield_and_the_timeline_shows_both_teams():
+    assert ">JUV</text>" in team_badge("Juventus", 0, 0, 5)
+    svg = timeline_svg(CARDS["case_2025_ucl_final_psg_inter"])
+    assert "<title>Paris Saint-Germain</title>" in svg and "<title>Inter</title>" in svg

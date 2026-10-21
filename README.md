@@ -138,7 +138,8 @@ to it; when the coach writes the formations ("noi giochiamo 4-3-3, loro un 4-4-2
 shows them on a pitch, drawn in the app's colours with the players running to their place (an
 indicative layout, read from the question, not a fact of the cards); when the answer cites a final
 as its real case, its timeline follows (goals and score, saves, red cards, changes, extra time and
-penalties, each from the card's own words) and, for the two finals with StatsBomb event data (2022
+penalties, each from the card's own words, with the teams' symbols: the flag of a national team, a neutral
+shield with the initials for a club, as club crests and competition logos are trademarks) and, for the two finals with StatsBomb event data (2022
 World Cup, Euro 2024), the action of a goal: the ball travelling through the passes at the real tempo,
 every player named when he touches it; and every answer shows what the guardrails did and, under "Dettagli", its time, tokens,
 cost and the searches the agent made. The sidebar starts a new conversation, switches model and

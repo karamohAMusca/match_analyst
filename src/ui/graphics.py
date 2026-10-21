@@ -150,6 +150,52 @@ def formations_svg(formations: dict[str, str], english: bool = False, animate: b
             f'color:var(--ma-muted,#4A3A3C)">{caption}</figcaption></figure>')
 
 
+# ---------------------------------------------------------------- the teams' symbols
+# No club crest and no competition logo: they are registered trademarks and protected artwork. The
+# national teams get their country's flag (a public symbol of the State, drawn here, simplified: no
+# coat of arms), the clubs a neutral shield with their initials in the club's colours (colours alone are
+# not a logo). Everything is drawn by code: nothing is downloaded.
+_FLAGS = {   # viewBox 0 0 30 20
+    "Argentina": '<rect width="30" height="20" fill="#74ACDF"/><rect y="6.67" width="30" height="6.67" fill="#FFFFFF"/>'
+                 '<circle cx="15" cy="10" r="2.2" fill="#F6B40E"/>',
+    "Francia": '<rect width="10" height="20" fill="#0055A4"/><rect x="10" width="10" height="20" fill="#FFFFFF"/>'
+               '<rect x="20" width="10" height="20" fill="#EF4135"/>',
+    "Spagna": '<rect width="30" height="20" fill="#AA151B"/><rect y="5" width="30" height="10" fill="#F1BF00"/>',
+    "Inghilterra": '<rect width="30" height="20" fill="#FFFFFF"/><rect x="12.5" width="5" height="20" fill="#CE1124"/>'
+                   '<rect y="7.5" width="30" height="5" fill="#CE1124"/>',
+    "Italia": '<rect width="10" height="20" fill="#009246"/><rect x="10" width="10" height="20" fill="#FFFFFF"/>'
+              '<rect x="20" width="10" height="20" fill="#CE2B37"/>',
+}
+_CLUBS = {   # initials, shield colour, initials colour
+    "Manchester City": ("MCI", "#6CABDD", "#1C2C5B"), "Inter": ("INT", "#0068A8", "#FFFFFF"),
+    "Atalanta": ("ATA", "#1E71B8", "#111111"), "Bayer Leverkusen": ("B04", "#E32221", "#111111"),
+    "Paris Saint-Germain": ("PSG", "#004170", "#FFFFFF"), "Arsenal": ("ARS", "#EF0107", "#FFFFFF"),
+}
+_SHIELD = "M1 1 H19 V12 C19 18.5 10 23 10 23 C10 23 1 18.5 1 12 Z"
+
+
+def team_badge(team: str, x: float, y: float, height: float) -> str:
+    """The team's symbol at (x, y), `height` tall: its flag for a national team, else a neutral shield
+    with its initials (any club, the first three letters when it is not listed)."""
+    if team in _FLAGS:
+        width = height * 1.5
+        return (f'<svg x="{x:.1f}" y="{y:.1f}" width="{width:.1f}" height="{height:.1f}" viewBox="0 0 30 20">'
+                f'<title>{team}</title>{_FLAGS[team]}<rect width="30" height="20" fill="none" '
+                f'stroke="var(--ma-ink,#111)" stroke-width="0.8"/></svg>')
+    initials, fill, ink = _CLUBS.get(team, (re.sub(r"[^A-Z]", "", team.upper())[:3], "#4A3A3C", "#FFFFFF"))
+    y, height = y - height * 0.15, height * 1.3   # a shield is narrower than a flag: a little taller
+    width = height * 20 / 24
+    return (f'<svg x="{x:.1f}" y="{y:.1f}" width="{width:.1f}" height="{height:.1f}" viewBox="0 0 20 24">'
+            f'<title>{team}</title><path d="{_SHIELD}" fill="{fill}" stroke="var(--ma-ink,#111)" stroke-width="0.9"/>'
+            f'<text x="10" y="13.6" {_TEXT} font-size="6.4" font-weight="700" text-anchor="middle" '
+            f'fill="{ink}">{initials}</text></svg>')
+
+
+def badge_width(team: str, height: float) -> float:
+    return height * (1.5 if team in _FLAGS else 1.3 * 20 / 24)
+
+
+
 # ---------------------------------------------------------------- the timeline of a real case
 # The events of a final come from the `timeline:` of its card's front matter, each with the card's own
 # words (`quote`): a test checks that the quote, the names and the minutes are in the card's text and
@@ -227,7 +273,7 @@ def timeline_svg(card: dict, english: bool = False, animate: bool = True) -> str
     shootout = next((e for e in timeline if e.get("kind") == "shootout"), None)
     extra = shootout is not None or any(m and m > 90 for m in minutes)
     end = 120 if extra else 90
-    x0, x1 = 4.0, (84.0 if shootout else 96.0)
+    x0, x1 = 11.0, (84.0 if shootout else 96.0)   # the teams' symbols before the axis
 
     def x_of(minute: float) -> float:
         return x0 + (x1 - x0) * minute / end
@@ -306,9 +352,10 @@ def timeline_svg(card: dict, english: bool = False, animate: bool = True) -> str
     competition, _, match = card.get("title", "").rpartition(": ")
     kicker = ("REAL CASE" if english else "CASO REALE") + (f" · {competition.upper()}" if competition else "")
     title_size = min(3.6, (100 - 2 * x0) / max(len(match) * 0.5, 1))
-    header = (f'<text x="{x0}" y="{header_y - 4.6:.1f}" {_TEXT} font-size="2.6" font-weight="700" letter-spacing="0.4" '
+    badges = (team_badge(home, 2, _AXIS_Y - 5.6, 4.4) + team_badge(teams["away"], 2, _AXIS_Y + 1.2, 4.4))
+    header = (f'<text x="2" y="{header_y - 4.6:.1f}" {_TEXT} font-size="2.6" font-weight="700" letter-spacing="0.4" '
               f'fill="var(--ma-muted,#4A3A3C)">{kicker}</text>'
-              f'<text x="{x0}" y="{header_y:.1f}" {_TEXT} font-size="{title_size:.2f}" font-weight="700" '
+              f'<text x="2" y="{header_y:.1f}" {_TEXT} font-size="{title_size:.2f}" font-weight="700" '
               f'fill="var(--ma-ink,#111)">{match}</text>')
     caption = (f"{_LEGEND[lang]} From the card {card.get('id', '')}: minutes and names as the card writes them."
                if english else
@@ -319,7 +366,7 @@ def timeline_svg(card: dict, english: bool = False, animate: bool = True) -> str
     return (f'<figure class="ma-figure ma-timeline" style="margin:0.5rem 0 0">{style}'
             f'<svg viewBox="0 {top_view:.1f} 100 {bottom_y - top_view:.1f}" role="img" '
             f'aria-label="{"Timeline" if english else "Linea del tempo"}: {card.get("title", "")}" '
-            f'style="width:100%;height:auto;display:block">{header}{band}{axis}{ticks}{"".join(marks)}{box}</svg>'
+            f'style="width:100%;height:auto;display:block">{header}{badges}{band}{axis}{ticks}{"".join(marks)}{box}</svg>'
             f'<figcaption style="font-family:\'IBM Plex Sans Condensed\',sans-serif;font-size:12px;'
             f'color:var(--ma-muted,#4A3A3C)">{caption}</figcaption></figure>')
 
@@ -439,7 +486,9 @@ def goal_svg(goal: dict, card: dict, english: bool = False, animate: bool = True
              f"{passes} passaggi in {length:.0f} secondi") if passes else ""
     header = (f'<text x="0" y="-9" {_TEXT} font-size="2.8" font-weight="700" letter-spacing="0.4" '
               f'fill="var(--ma-muted,#4A3A3C)">{kicker}</text>'
-              f'<text x="0" y="-3.5" {_TEXT} font-size="4.2" font-weight="700" fill="{colour}">{goal_label(goal, english)}'
+              f'{team_badge(goal["team"], 0, -7.4, 4.8)}'
+              f'<text x="{badge_width(goal["team"], 4.8) + 1.4:.1f}" y="-3.5" {_TEXT} font-size="4.2" font-weight="700" '
+              f'fill="{colour}">{goal_label(goal, english)}'
               f'<tspan fill="var(--ma-muted,#4A3A3C)" font-weight="500" font-size="3.2">{"  ·  " + count if count else ""}</tspan>'
               f'</text>')
     faster = (f" Played {speed:.1f} times faster." if english else f" Accelerata {speed:.1f} volte.") if speed > 1 else ""
