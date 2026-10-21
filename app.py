@@ -56,6 +56,10 @@ def show_card(card: dict, height: int, number: int | None = None) -> None:
     st.markdown(view.card_header_html(card, number), unsafe_allow_html=True)
     if timeline := graphics.timeline_svg(card, animate=False):   # a final: its timeline, from the card
         st.markdown(timeline, unsafe_allow_html=True)
+    if numbers := graphics.numbers_svg(card, animate=False):   # a final with a "Numeri" table: its numbers
+        st.markdown(numbers, unsafe_allow_html=True)
+    for change in card.get("shape_changes") or []:   # a coach's changes of shape, from the card
+        st.markdown(graphics.shape_svg(card, change, animate=False), unsafe_allow_html=True)
     if goals := graphics.goal_actions().get(card["id"]):   # a final with StatsBomb data: the action of a goal
         longest = goals.index(graphics.pick_goal(goals, ""))
         pick = st.segmented_control("L'azione di un gol (StatsBomb)", list(range(len(goals))), default=longest,
@@ -157,7 +161,8 @@ with tab_chat:
                     st.markdown(message["content"])
                     continue
                 st.markdown(view.answer_html(message["content"], cards), unsafe_allow_html=True)
-                # the formations the coach wrote, on a pitch, and the timeline of the real case (st.html
+                # the graphics of the answer (src/ui/graphics/answer.py: the formations the coach wrote, a
+                # coach's change of shape, the timeline, the numbers and a goal of the real case; st.html
                 # would strip the <svg>); only the newest answer moves, the older ones are drawn still
                 for figure in graphics.answer_figures(state.messages, index, cards, animate=index == last_answer):
                     st.markdown(figure, unsafe_allow_html=True)

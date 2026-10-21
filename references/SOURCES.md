@@ -28,7 +28,14 @@ Front matter fields: `document_id`, `title`, `category`, `origin_type: derived`,
 cites the final): one line per goal, penalty, save, post, red card, change or shoot-out, written only
 from the card's own text, each with its `quote` (the card's exact words), the `minute` (or the `period`
 when the card gives none) and, for a goal, the score after it. `tests/test_corpus.py` checks that every
-quote, name and minute is in the card and that the goals add up to the title.
+quote, name and minute is in the card and that the goals add up to the title. A coach profile may have
+`shape_changes:` (drawn under an answer whose line citing the card writes the formation it becomes): a
+change of formation the card writes with both formations, each with its `quote` (the card's exact
+words) and, when the card gives them, the moment (`when`), the means (`how`), the `team` and the
+card's own warning (`note`); the same test file checks them and that only the cards writing both
+formations have one. The `## Numeri` table of a match case is drawn as bars: write each value as a
+number (decimal point or comma, `%` when it is a share), with a part in brackets only for a part of it
+("20 (10)": shots, on target) or for a share of neither team ("32,5% (7,4% contesa)").
 
 ---
 

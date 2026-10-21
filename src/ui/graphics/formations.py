@@ -35,10 +35,16 @@ _THEIRS_RE = re.compile(
 _SENTENCE_RE = re.compile(r"[^.!?;\n]+")
 
 
-def _formation(written: str) -> str | None:
+def as_formation(written: str) -> str | None:
     """'4–3–3', '433', '4 - 2 - 3 - 1' as '4-3-3'; None if it is not a formation of 10 players."""
     digits = [int(d) for d in re.findall(r"[1-5]", written)]
     return "-".join(map(str, digits)) if 3 <= len(digits) <= 5 and sum(digits) == 10 else None
+
+
+def written_formations(text: str) -> set[str]:
+    """Every formation `text` writes, in any notation ("5-3-2", "5–3–2", "5 - 3 - 2", "532"), whoever
+    plays it."""
+    return {f for m in _FORMATION_RE.finditer(normalize(_DASHES_RE.sub("-", text))) if (f := as_formation(m.group(1)))}
 
 
 def formations_in(text: str) -> dict[str, str]:
@@ -48,7 +54,7 @@ def formations_in(text: str) -> dict[str, str]:
     for sentence in _SENTENCE_RE.findall(normalize(_DASHES_RE.sub("-", text))):
         start = 0
         for match in _FORMATION_RE.finditer(sentence):
-            formation = _formation(match.group(1))
+            formation = as_formation(match.group(1))
             before, start = sentence[start:match.start()], match.end()
             if not formation:
                 continue

@@ -90,8 +90,21 @@ def test_a_final_with_statsbomb_data_plays_a_goal_in_the_cards_tab(app):
     assert any("ma-goal" in m.value and "36' 2-0 Di María" in m.value for m in app.markdown)
 
 
+def test_the_cards_tab_shows_a_final_s_numbers_and_a_coach_s_change_of_shape(app):
+    app.radio(key="browse_card_match_case").set_value("case_2024_euro_final_spain_england").run()
+    numbers = [m.value for m in app.markdown if "ma-numbers" in m.value]
+    assert numbers and "@keyframes" not in numbers[0] and "PPDA" in numbers[0]   # drawn still, from the card's table
+    app.radio(key="browse_category").set_value("coach_profile").run()
+    app.radio(key="browse_card_coach_profile").set_value("coach_inzaghi").run()
+    assert not app.exception
+    shapes = [m.value for m in app.markdown if "ma-shape" in m.value]
+    assert len(shapes) == 1 and "3-5-2 → 5-3-2" in shapes[0] and "@keyframes" not in shapes[0]
+
+
 def test_the_graphics_preview_page_runs_without_the_model():
     page = AppTest.from_file(str(PROJECT_ROOT / "scripts" / "preview_graphics.py"), default_timeout=60).run()
     assert not page.exception
     assert sum("ma-timeline" in m.value for m in page.markdown) >= 7               # every final's timeline
+    assert sum("ma-numbers" in m.value for m in page.markdown) >= 3                # the finals with a numbers table
+    assert sum("ma-shape" in m.value for m in page.markdown) >= 4                  # under an answer, and every change
     assert any('aria-label="Voi 4-3-3 · Avversario 4-4-2"' in m.value for m in page.markdown)

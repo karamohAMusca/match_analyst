@@ -127,3 +127,39 @@ def test_the_timeline_is_in_the_card_s_own_words(card):
             score[0 if event["team"] == home else 1] += 1
             assert event["score"] == f"{score[0]}-{score[1]}", event        # the score after each goal
     assert score == [int(title["h"]), int(title["a"])], "the goals do not add up to the title"
+
+
+# ---------------------------------------------------------------- how a coach's team changes shape (front matter)
+SHAPE_CARDS = {"coach_guardiola", "coach_inzaghi", "coach_pioli"}
+SHAPE_FIELDS = {"from", "to", "when", "how", "team", "note", "quote"}
+
+
+def _written(formation: str, text: str) -> bool:
+    """The formation is written in the text as a whole ("3-4-3", not the end of "4-3-4-3")."""
+    return re.search(rf"(?<![\d-]){re.escape(formation)}(?![\d-])", text) is not None
+
+
+@pytest.mark.parametrize("card", [c for c in CARDS if c.metadata.get("shape_changes")], ids=lambda c: c.document_id)
+def test_the_shape_changes_are_in_the_card_s_own_words(card):
+    """Every change of shape of a coach's card (drawn under an answer that cites the card and writes one
+    of the two formations) comes from the card: its quote is in the text, the formation it becomes is
+    written in the quote, the one it comes from in the quote or in the card, both of 10 outfield
+    players; the moment, the means, the team and the warning, when there are some, are the card's words."""
+    body = re.sub(r"\s+", " ", card.body.replace("**", ""))
+    for change in card.metadata["shape_changes"]:
+        assert {"from", "to", "quote"} <= set(change) <= SHAPE_FIELDS, change
+        assert change["quote"] in body, f"quote not in the card: {change['quote']}"
+        assert _written(change["to"], change["quote"]), change
+        assert _written(change["from"], change["quote"]) or _written(change["from"], body), change
+        assert change["from"] != change["to"], change
+        for formation in (change["from"], change["to"]):
+            assert re.fullmatch(r"[1-5](?:-[1-5]){2,4}", formation), formation
+            assert sum(map(int, formation.split("-"))) == 10, formation
+        for key in ("when", "how", "team", "note"):
+            if key in change:
+                assert change[key] in change["quote"] or change[key] in body, f"{key} not in the card: {change[key]}"
+
+
+def test_only_the_cards_that_write_both_formations_have_shape_changes():
+    # Not Conte's "linea a cinque", for one: the card never writes the formation it becomes.
+    assert {c.document_id for c in CARDS if c.metadata.get("shape_changes")} == SHAPE_CARDS

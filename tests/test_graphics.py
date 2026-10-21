@@ -137,6 +137,20 @@ def test_the_timeline_goes_under_the_answer_that_cites_the_final():
     assert real_cases("Caso reale dalla parte di chi era in 10: ... [coach_scaloni].") == []   # not a final
 
 
+def test_under_an_answer_a_change_of_shape_and_the_numbers_of_the_final():
+    # in order: the pitch of the question, the change of shape the answer writes, the final's timeline and,
+    # as the question names one of them, its numbers
+    answer = "Senza palla il 3-5-2 diventa 5-3-2 [coach_inzaghi].\n\n" + REAL_CASE
+    chat = [{"role": "user", "content": DEMO + " Quanto possesso ci serve?"},
+            {"role": "assistant", "content": answer, "guard": {"input": "football"}}]
+    kinds = [re.search(r'<figure class="ma-figure ?([\w-]*)"', f)[1] for f in answer_figures(chat, 1, CARDS)]
+    assert kinds == ["", "ma-shape", "ma-timeline", "ma-numbers"]
+    chat[0]["content"] = DEMO                                       # no number named: no numbers
+    assert "ma-numbers" not in "".join(answer_figures(chat, 1, CARDS))
+    chat[1]["content"] = REAL_CASE                                  # no coach's change written: no shape
+    assert "ma-shape" not in "".join(answer_figures(chat, 1, CARDS))
+
+
 # ---------------------------------------------------------------- the teams' symbols
 TEAMS_OF_THE_FINALS = sorted({t.strip() for c in CARDS.values() if c["category"] == "match_case"
                               for t in re.split(r"\s+\d+-\d+\s+", c["title"].split(": ", 1)[1].split(" (")[0])})

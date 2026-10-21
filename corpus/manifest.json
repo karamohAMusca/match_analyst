@@ -25,7 +25,7 @@
   "generated": "2026-10-21",
   "stats": {
     "documents": 31,
-    "total_chars": 81469
+    "total_chars": 82125
   },
   "documents": [
     {
@@ -573,8 +573,8 @@
       "file_records": [
         {
           "path": "corpus/coach_profiles/guardiola.md",
-          "sha256": "bf92c0764688f5ac3afdd581c88e1af163c1df7303427a5cebbd9a80615449ed",
-          "bytes": 2360
+          "sha256": "7b7c205f5de6f874bee748c9b0e449b47b89291caddf42c54e021a51687ca519",
+          "bytes": 2521
         }
       ],
       "themes": [
@@ -603,8 +603,8 @@
       "file_records": [
         {
           "path": "corpus/coach_profiles/inzaghi.md",
-          "sha256": "85eeddd5b3ce2692274d79302f2bd1c9182a289bcb56626b47953d25f40f1a51",
-          "bytes": 2069
+          "sha256": "ce300566ee5aa1cb8e57ed6389f7d2335c80c47d60b7f6198f4b24746c1fe8b2",
+          "bytes": 2192
         }
       ],
       "themes": [
@@ -687,8 +687,8 @@
       "file_records": [
         {
           "path": "corpus/coach_profiles/pioli.md",
-          "sha256": "12de4a4863c9502904d18a6add9b726ca456dce732623fdaf58fd58a0cc2b7fc",
-          "bytes": 1993
+          "sha256": "3114b422f56e16afee17416643af31e571e15c8c9c763d7951e23b352c098a05",
+          "bytes": 2365
         }
       ],
       "themes": [

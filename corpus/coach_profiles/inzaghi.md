@@ -11,6 +11,8 @@ sources:
   - "Wikipedia (it), Simone Inzaghi — Caratteristiche tecniche (CC BY-SA 4.0)"
   - "Polenghi, Le intermittenze del desiderio (UEFA Pro 2021/22), cap. 1, p. 19"
   - "case_2023_ucl_final_city_inter, case_2025_ucl_final_psg_inter"
+shape_changes:
+  - {from: "3-5-2", to: "5-3-2", when: "senza palla", quote: "3-5-2 fluido, che diventa 5-3-2 senza palla"}
 ---
 
 # Profilo allenatore: Simone Inzaghi

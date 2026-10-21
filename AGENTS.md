@@ -74,7 +74,7 @@ Useful commands (from the project root, virtual environment active):
 - **No hallucinations**: every claim in an answer must be supported by a retrieved card and cite its `document_id`; the only other allowed source is what the coach wrote about their own team and the opponent.
 
 ### Corpus
-- Cards follow the writing rules in `references/SOURCES.md` (facts only from cited sources, verbatim quotes, labelled interpretation). A match card's `timeline:` (drawn under an answer that cites the final) is written only from the card's own text, each event with its `quote`: `tests/test_corpus.py` checks it.
+- Cards follow the writing rules in `references/SOURCES.md` (facts only from cited sources, verbatim quotes, labelled interpretation). A match card's `timeline:` (drawn under an answer that cites the final) and a coach card's `shape_changes:` (drawn under an answer whose line citing the card writes the formation it becomes) are written only from the card's own text, each entry with its `quote`: `tests/test_corpus.py` checks them. The `## Numeri` table of a match card is drawn as bars: each value a number as the card writes it (`src/ui/graphics/match_numbers.py` leaves out a row it cannot read).
 - After editing a card: `python -m scripts.build_manifest`, then `python -m pytest` and `python -m scripts.check_corpus`, then re-sync the index with `python -m scripts.ingest` (only changed cards are embedded).
 - Save cards with LF line endings (`.gitattributes` enforces it on checkout): the manifest hashes their bytes.
 

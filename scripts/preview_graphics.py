@@ -1,6 +1,7 @@
 """A page to look at the graphics under a chat answer without the model or the API key: the real
-functions of src/ui/graphics/ with the app's CSS, on a written conversation, every final's
-timeline and, when the derived StatsBomb file is on this computer, the action of every goal.
+functions of src/ui/graphics/ with the app's CSS, on a written conversation, every coach's change of
+shape, every final's timeline and numbers and, when the derived StatsBomb file is on this computer,
+the action of every goal.
 
     streamlit run scripts/preview_graphics.py
 
@@ -24,7 +25,10 @@ answer = ("Contro un 4-4-2 basso col tuo 4-3-3 attacca le zone intermedie [situa
           "Caso reale: Mondiale 2026: la Spagna batte il 4-4-2 basso argentino con possesso che avanza "
           "[case_2026_wc_final_spain_argentina].")
 chat = [{"role": "user", "content": "Domenica affrontiamo una squadra che si chiude in un 4-4-2 basso. Noi giochiamo 4-3-3."},
-        {"role": "assistant", "content": answer, "guard": {"input": "football"}}]
+        {"role": "assistant", "content": answer, "guard": {"input": "football"}},
+        {"role": "user", "content": "Come difende l'Inter di Inzaghi senza palla?"},
+        {"role": "assistant", "content": "Il 3-5-2 fluido diventa un 5-3-2 senza palla, con i terzini che tornano in "
+                                         "difesa [coach_inzaghi].", "guard": {"input": "football"}}]
 
 st.markdown("### Sotto una risposta")
 for i, message in enumerate(chat):
@@ -36,9 +40,16 @@ for i, message in enumerate(chat):
         for figure in graphics.answer_figures(chat, i, cards):
             st.markdown(figure, unsafe_allow_html=True)
 
-st.markdown("### Le linee del tempo delle finali")
+st.markdown("### I cambi di modulo delle schede")
+for card in (c for c in cards.values() if c["shape_changes"]):
+    for change in card["shape_changes"]:
+        st.markdown(graphics.shape_svg(card, change), unsafe_allow_html=True)
+
+st.markdown("### Le linee del tempo e i numeri delle finali")
 for case_id in sorted(i for i in cards if i.startswith("case_")):
     st.markdown(graphics.timeline_svg(cards[case_id], animate=False), unsafe_allow_html=True)
+    if numbers := graphics.numbers_svg(cards[case_id], animate=False):
+        st.markdown(numbers, unsafe_allow_html=True)
 
 st.markdown("### Le azioni dei gol (StatsBomb)")
 actions = graphics.goal_actions()

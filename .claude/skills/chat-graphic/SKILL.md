@@ -6,8 +6,8 @@ description: Add or change a graphic drawn under a chat answer of the Match Anal
 # A graphic under a chat answer
 
 The graphics of the app are SVG strings written by pure functions in the package `src/ui/graphics/`,
-rendered by `app.py` under the answer. One module per graphic (`formations.py`, `timeline.py`,
-`goal.py`): a new graphic gets a module of its own. What every graphic shares is in `svg.py` and
+rendered by `app.py` under the answer. One module per graphic (`formations.py`, `shape.py`,
+`timeline.py`, `match_numbers.py`, `goal.py`): a new graphic gets a module of its own. What every graphic shares is in `svg.py` and
 `badges.py`, `answer.py` chooses the graphics under an answer, and `__init__.py` exports the names the
 app, the scripts and the tests import. Follow these steps, in this order.
 
@@ -17,9 +17,12 @@ A graphic never draws what the model wrote. Its data comes from one of these, an
 - **the coach's own questions** (`formations_in`: "noi giochiamo 4-3-3"); when a fact cannot be
   read for sure (whose formation is it?), draw nothing: a wrong graphic is worse than none;
 - **a card's front matter**, written only from that card's text with the exact words in a `quote`
-  (`timeline:` of the match cards), and a test in `tests/test_corpus.py` that every quote, name and
-  number is in the card (after editing a card: `python -m scripts.build_manifest`, the tests,
-  `python -m scripts.check_corpus`, then the user runs `python -m scripts.ingest`);
+  (`timeline:` of the match cards, `shape_changes:` of the coach cards), and a test in
+  `tests/test_corpus.py` that every quote, name and number is in the card (after editing a card:
+  `python -m scripts.build_manifest`, the tests, `python -m scripts.check_corpus`, then the user runs
+  `python -m scripts.ingest`);
+- **a card's own text, read by a parser** (`final_numbers`: the `## Numeri` table of a match card,
+  each value as written); a value it cannot read for sure leaves its row out;
 - **third-party data derived by a script** (`scripts/build_goal_actions.py`), with its licence
   respected: StatsBomb's raw data is not redistributed, so the derived file stays git-ignored and
   the graphic is simply absent where the file is missing (tests skip).

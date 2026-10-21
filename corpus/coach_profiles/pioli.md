@@ -10,6 +10,10 @@ themes: [difesa_a_quattro, catene_laterali, terzini_offensivi, pressing_sulle_fa
 sources:
   - "Pioli, Le catene di gioco laterali in un 4-4-2 (tesi Master 2002/03), pp. 4-25"
   - "Wikipedia (it), Stefano Pioli — Caratteristiche tecniche (CC BY-SA 4.0)"
+shape_changes:
+  - {from: "4-4-2", to: "3-4-3", when: "Pressing sulle fasce", team: "Primavera del Chievo",
+     note: "Attenzione: la tesi descrive il 4-4-2 a zona usato con la Primavera del Chievo, non le sue squadre successive",
+     quote: "l'esterno parte in pressione durante il passaggio, terzino e mediano scalano in avanti; la squadra diventa di fatto un 3-4-3"}
 ---
 
 # Profilo allenatore: Stefano Pioli

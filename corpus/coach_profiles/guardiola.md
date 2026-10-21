@@ -11,6 +11,8 @@ sources:
   - "Contran, Occupazione degli spazi e fluidità posizionale (UEFA Pro 2023/24), pp. 72-77, 90-91, 183"
   - "Wikipedia (it), Pep Guardiola — Caratteristiche tecniche (CC BY-SA 4.0)"
   - "case_2023_ucl_final_city_inter"
+shape_changes:
+  - {from: "3-2-5", to: "2-3-5", how: "Falso terzino", team: "City", quote: "al City con Walker, Cancelo e Zinchenko, passando da 3-2-5 a 2-3-5"}
 ---
 
 # Profilo allenatore: Pep Guardiola
