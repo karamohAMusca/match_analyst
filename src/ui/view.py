@@ -117,6 +117,18 @@ CSS = """
   overflow-wrap:normal; hyphens:manual; }   /* smaller in a narrow tile, never broken inside a word */
 .ma-feature .d { font-size:15px; color:var(--ma-muted); }
 
+/* Graphics under an answer: a pitch is 4:3, so on a wide column it grew taller than the screen */
+.ma-figure { max-width:680px; }
+.ma-figure.ma-numbers { max-width:560px; }
+.ma-figure:not(.ma-timeline):not(.ma-numbers) { max-width:460px; }
+/* The cards panel next to the chat stays in view while the chat scrolls, and says which answer it is of */
+@media (min-width: 900px) {
+  [data-testid="stColumn"]:has(.ma-panel) { position:sticky; top:4rem; align-self:flex-start;
+    max-height:calc(100vh - 5rem); overflow-y:auto; }
+}
+.ma-panel-note { font-size:14px; color:var(--ma-muted); border-left:3px solid var(--ma-red);
+  padding-left:8px; margin:-0.25rem 0 0.75rem; }
+
 /* "Non lo so": the part of an answer with no source */
 .ma-unknown { display:grid; grid-template-columns:auto 1fr; gap:10px;
   align-items:baseline; padding:8px 0;
@@ -284,6 +296,15 @@ def guard_html(message: dict[str, Any]) -> str:
     stopped = (message.get("guard") or {}).get("input") in GUARD_STOPPED
     return (f'<div class="ma-guard{" blocked" if stopped else ""}"><span class="k">Guardrail</span>'
             f"{html.escape(text)}</div>")
+
+
+def panel_note_html(question: str, limit: int = 70) -> str:
+    """The line under the title of the cards panel: the question whose answer the cards belong to, cut
+    between words, so that with many answers in the chat it is clear which one the panel is of."""
+    text = " ".join(question.split())
+    if len(text) > limit:
+        text = text[: limit - 1].rsplit(" ", 1)[0] + "…"
+    return f'<div class="ma-panel-note">alla domanda «{html.escape(text)}»</div>'
 
 
 def ordered_cards(message: dict[str, Any], cards: dict[str, dict[str, Any]]) -> list[str]:

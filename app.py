@@ -109,6 +109,12 @@ def show_figures(index: int, animate: bool) -> None:
 def new_conversation() -> None:
     state.messages = []
     state.conversation = None
+    state.pop("panel_answer", None)
+
+
+def show_in_panel(index: int) -> None:
+    """The cards panel next to the chat shows the cards of this answer (by default, the newest)."""
+    state.panel_answer = index
 
 
 # ----------------------------------------------------------------- state and backend
@@ -185,6 +191,9 @@ if not ready:
 tab_chat, tab_cards, tab_eval = st.tabs(["💬 Chat", "📚 Schede", "📈 Valutazione"])
 
 with tab_chat:
+    # the answers with cards, and the one whose cards the panel shows: the one the coach picked, else the newest
+    with_cards = [i for i, m in enumerate(state.messages) if m["role"] == "assistant" and view.ordered_cards(m, cards)]
+    shown = state.get("panel_answer") if state.get("panel_answer") in with_cards else (with_cards[-1] if with_cards else None)
     if cards_panel:
         col_chat, col_cards = st.columns([5, 3], gap="large")
     else:   # the chat takes the whole width, the graphics are larger
@@ -201,6 +210,9 @@ with tab_chat:
                     continue
                 st.markdown(view.answer_html(message["content"], cards), unsafe_allow_html=True)
                 show_figures(index, animate=index == last_answer)   # only the newest answer moves
+                if cards_panel and index in with_cards:   # which answer the cards on the right are of
+                    st.button("📄 Schede a destra" if index == shown else "📄 Mostra le schede a destra",
+                              key=f"panel_{index}", disabled=index == shown, on_click=show_in_panel, args=(index,))
                 if message.get("guard_note"):
                     st.markdown(view.guard_html(message), unsafe_allow_html=True)
                 if message.get("meta"):
@@ -212,14 +224,17 @@ with tab_chat:
 
     if col_cards is not None:
         with col_cards:
+            st.markdown('<div class="ma-panel"></div>', unsafe_allow_html=True)   # marks the column: it stays in view
             st.markdown("#### 📄 Schede della risposta")
-            last = next((m for m in reversed(state.messages) if m["role"] == "assistant"), None)
+            last = state.messages[shown] if shown is not None else None
             ids = view.ordered_cards(last, cards) if last else []
             numbers = view.citation_numbers(last["content"], cards) if last else {}   # as on the badges
             if not ids:
                 st.info("Qui compaiono le schede che l'assistente ha consultato e citato, da leggere per intero.")
             else:
-                pick = st.selectbox("Scheda", ids, key=f"answer_card_{len(state.messages)}",
+                if shown > 0 and state.messages[shown - 1]["role"] == "user":
+                    st.markdown(view.panel_note_html(state.messages[shown - 1]["content"]), unsafe_allow_html=True)
+                pick = st.selectbox("Scheda", ids, key=f"answer_card_{shown}_{len(state.messages)}",
                                     label_visibility="collapsed",
                                     format_func=lambda i: (f"{numbers[i]} · " if i in numbers else "")
                                     + view.card_label(cards[i]))
@@ -282,6 +297,7 @@ question = st.chat_input("Descrivi la tua squadra, l'avversario o la situazione 
 question = question or state.pop("pending", None)
 if question and ready:
     state.messages.append({"role": "user", "content": question})
+    state.pop("panel_answer", None)   # the cards of the new answer
     with st.spinner("Sto studiando le schede…"):
         try:
             state.messages.append(conversation.ask(question))

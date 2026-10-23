@@ -157,3 +157,12 @@ def test_every_example_question_goes_through_the_guards_but_the_guardrail_one():
     for label, question in view.EXAMPLES:
         verdict = check_question(question)
         assert (verdict.reason == "off_topic") == ("Fuori tema" in label), label
+
+
+def test_the_panel_note_names_the_question_and_cuts_it_between_words():
+    assert view.panel_note_html("Come difende l'Inter?") == (
+        '<div class="ma-panel-note">alla domanda «Come difende l&#x27;Inter?»</div>')
+    long = view.panel_note_html("parola " * 30)
+    assert long.endswith("…»</div>") and len(long) < 140 and "parol…" not in long
+    assert "&lt;b&gt;" in view.panel_note_html("<b>grassetto</b>") and "<b>" not in view.panel_note_html("<b>")
+    assert "max-width:460px" in view.CSS and "position:sticky" in view.CSS and ".ma-panel-note" in view.CSS

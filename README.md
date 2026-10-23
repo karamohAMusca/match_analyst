@@ -151,7 +151,9 @@ large as its xG, the goals labelled) when the question or the answer speaks of t
 cost and the searches the agent made. Several graphics under one answer go in tabs (the pitch, the change of shape, the timeline, the numbers, the
 shots, the action of a goal), one is drawn as it is. The sidebar starts a new conversation, switches model and
 guardrails (to show them at work), can hide the cards panel next to the chat (the chat then takes the whole
-width and the graphics are larger) and has example questions: one for each graphic (the formations, a coach's
+width). The panel says which question its cards answer, stays in view while the chat scrolls, and a button under
+each answer chooses the answer it shows; the graphics are not wider than 460 to 680 px, so that a pitch fits
+beside the answer on a laptop screen. The sidebar has example questions: one for each graphic (the formations, a coach's
 change of shape, the numbers and shots of a final), one in English and one off topic.
 **Schede**: the 31 cards by category; a final with its timeline, its numbers and the goals to play, a
 coach with the change of shape his card writes. **Valutazione**: the measured results of the saved runs

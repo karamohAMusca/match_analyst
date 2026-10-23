@@ -37,7 +37,7 @@ def test_question_gets_an_answer_with_badges_and_cards(app):
     assert not app.exception
     assert [m.name for m in app.chat_message] == ["user", "assistant"]
     assert any('class="ma-cite"' in m.value for m in app.markdown)            # citations as badges
-    assert app.selectbox(key="answer_card_2").value == "coach_pioli"           # the cards of the answer
+    assert app.selectbox(key="answer_card_1_2").value == "coach_pioli"         # the cards of the answer
     assert [e.label for e in app.expander][:2] == ["📊 Dettagli della risposta", "🔎 Cosa ha cercato l'assistente"]
 
 
@@ -73,7 +73,7 @@ def test_the_formations_of_the_question_are_drawn_under_the_answer(app):
 
 def test_a_final_in_the_cards_tab_shows_its_timeline(app):
     assert app.radio(key="browse_category").value == "match_case"             # a final is shown first
-    timelines = [m.value for m in app.markdown if "ma-timeline" in m.value]
+    timelines = [m.value for m in app.markdown if 'class="ma-figure ma-timeline"' in m.value]
     assert timelines and "@keyframes" not in timelines[0]                      # drawn still, from the card
 
 
@@ -85,19 +85,19 @@ def test_a_final_with_statsbomb_data_plays_a_goal_in_the_cards_tab(app):
     assert not app.exception
     pick = app.segmented_control[0]
     assert pick.key == "goal_case_2022_wc_final_argentina_france_560" and pick.value == 4   # the longest action
-    assert any("ma-goal" in m.value and "3-2 Messi" in m.value for m in app.markdown)
+    assert any('class="ma-figure ma-goal"' in m.value and "3-2 Messi" in m.value for m in app.markdown)
     pick.set_value(1).run()                                                    # another goal
-    assert any("ma-goal" in m.value and "36' 2-0 Di María" in m.value for m in app.markdown)
+    assert any('class="ma-figure ma-goal"' in m.value and "36' 2-0 Di María" in m.value for m in app.markdown)
 
 
 def test_the_cards_tab_shows_a_final_s_numbers_and_a_coach_s_change_of_shape(app):
     app.radio(key="browse_card_match_case").set_value("case_2024_euro_final_spain_england").run()
-    numbers = [m.value for m in app.markdown if "ma-numbers" in m.value]
+    numbers = [m.value for m in app.markdown if 'class="ma-figure ma-numbers"' in m.value]
     assert numbers and "@keyframes" not in numbers[0] and "PPDA" in numbers[0]   # drawn still, from the card's table
     app.radio(key="browse_category").set_value("coach_profile").run()
     app.radio(key="browse_card_coach_profile").set_value("coach_inzaghi").run()
     assert not app.exception
-    shapes = [m.value for m in app.markdown if "ma-shape" in m.value]
+    shapes = [m.value for m in app.markdown if 'class="ma-figure ma-shape"' in m.value]
     assert len(shapes) == 1 and "3-5-2 → 5-3-2" in shapes[0] and "@keyframes" not in shapes[0]
 
 
@@ -107,18 +107,18 @@ def test_a_final_with_statsbomb_data_shows_its_shots_in_the_cards_tab(app):
         pytest.skip("the derived StatsBomb shots are not on this computer")
     app.radio(key="browse_card_match_case").set_value("case_2024_euro_final_spain_england").run()
     assert not app.exception
-    shots = [m.value for m in app.markdown if "ma-shots" in m.value]
+    shots = [m.value for m in app.markdown if 'class="ma-figure ma-shots"' in m.value]
     assert len(shots) == 1 and "16 tiri (6 in porta) · xG 1.79" in shots[0] and "@keyframes" not in shots[0]
     app.radio(key="browse_card_match_case").set_value("case_2026_wc_final_spain_argentina").run()
-    assert not any("ma-shots" in m.value for m in app.markdown)                # no StatsBomb data for this final
+    assert not any('class="ma-figure ma-shots"' in m.value for m in app.markdown)                # no StatsBomb data for this final
 
 
 def test_the_graphics_preview_page_runs_without_the_model():
     page = AppTest.from_file(str(PROJECT_ROOT / "scripts" / "preview_graphics.py"), default_timeout=60).run()
     assert not page.exception
-    assert sum("ma-timeline" in m.value for m in page.markdown) >= 7               # every final's timeline
-    assert sum("ma-numbers" in m.value for m in page.markdown) >= 3                # the finals with a numbers table
-    assert sum("ma-shape" in m.value for m in page.markdown) >= 4                  # under an answer, and every change
+    assert sum('class="ma-figure ma-timeline"' in m.value for m in page.markdown) >= 7               # every final's timeline
+    assert sum('class="ma-figure ma-numbers"' in m.value for m in page.markdown) >= 3                # the finals with a numbers table
+    assert sum('class="ma-figure ma-shape"' in m.value for m in page.markdown) >= 4                  # under an answer, and every change
     assert any('aria-label="Voi 4-3-3 · Avversario 4-4-2"' in m.value for m in page.markdown)
 
 
@@ -135,10 +135,10 @@ def test_the_coach_can_pick_the_goal_to_play_under_an_answer(app):
     assert not app.exception
     pick = app.segmented_control(key="goal_chat_1_case_2024_euro_final_spain_england")
     assert pick.value == 1                                                    # Palmer: the goal the line points to
-    goals = [m.value for m in app.chat_message[-1].markdown if "ma-goal" in m.value]
+    goals = [m.value for m in app.chat_message[-1].markdown if 'class="ma-figure ma-goal"' in m.value]
     assert len(goals) == 1 and "73' 1-1 Palmer" in goals[0] and "@keyframes" in goals[0]   # the newest answer moves
     pick.set_value(2).run()                                                   # another goal, from the chat
-    goals = [m.value for m in app.chat_message[-1].markdown if "ma-goal" in m.value]
+    goals = [m.value for m in app.chat_message[-1].markdown if 'class="ma-figure ma-goal"' in m.value]
     assert len(goals) == 1 and "86' 2-1 Oyarzabal" in goals[0]
 
 
@@ -168,3 +168,24 @@ def test_the_cards_panel_next_to_the_chat_can_be_turned_off(app):
     assert not any("Schede della risposta" in m.value for m in app.markdown)   # the chat takes the whole width
     app.toggle(key="cards_panel").set_value(True).run()
     assert any("Schede della risposta" in m.value for m in app.markdown)
+
+
+def test_the_cards_panel_says_which_answer_it_is_of_and_follows_the_coach_s_pick(app):
+    answer = lambda card: {"role": "assistant", "content": f"Risposta [{card}].", "guard": {"input": "football"},
+                           "consulted": [card]}
+    app.session_state["messages"] = [
+        {"role": "user", "content": "Come difende l'Inter di Inzaghi senza palla?"}, answer("coach_inzaghi"),
+        {"role": "user", "content": "E il Pioli della tesi come pressa sulle fasce, in una domanda lunga abbastanza da essere tagliata?"},
+        answer("coach_pioli")]
+    app.run()
+    assert not app.exception
+    notes = [m.value for m in app.markdown if '<div class="ma-panel-note">' in m.value]
+    assert len(notes) == 1 and "E il Pioli della tesi come pressa sulle fasce" in notes[0] and "…" in notes[0]   # the newest
+    assert app.button(key="panel_3").disabled and not app.button(key="panel_1").disabled   # the shown one is marked
+    assert app.button(key="panel_3").label == "📄 Schede a destra"
+    app.button(key="panel_1").click().run()                                      # the coach picks the first answer
+    notes = [m.value for m in app.markdown if '<div class="ma-panel-note">' in m.value]
+    assert len(notes) == 1 and "Come difende l&#x27;Inter di Inzaghi senza palla?" in notes[0]
+    assert app.selectbox(key="answer_card_1_4").value == "coach_inzaghi"
+    app.toggle(key="cards_panel").set_value(False).run()                          # no panel: no buttons either
+    assert not any(b.key and b.key.startswith("panel_") for b in app.button)
