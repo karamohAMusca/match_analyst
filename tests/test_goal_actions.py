@@ -92,3 +92,21 @@ def test_the_goal_goes_under_the_answer_that_cites_a_final_with_data():
     assert re.search(r"47' 1-0 Williams", figures[1])
     chat[1]["content"] = "Caso reale: [case_2026_wc_final_spain_argentina]."   # no StatsBomb data: no action
     assert ["ma-goal" in f for f in answer_figures(chat, 1, CARDS)] == [False]
+
+
+def test_the_goals_of_a_real_case_for_the_picker_under_an_answer():
+    from src.ui.graphics import answer_goals
+    line = "Caso reale: Southgate inserisce Watkins e Palmer, e Palmer pareggia [case_2024_euro_final_spain_england]."
+    chat = [{"role": "user", "content": "Come rimontiamo?"},
+            {"role": "assistant", "content": "Cambiate presto [situation_rimontare_uno_svantaggio].\n\n" + line,
+             "guard": {"input": "football"}}]
+    [(case_id, goals, default, english)] = answer_goals(chat, 1, CARDS)
+    assert case_id == EURO and [g["scorer"] for g in goals] == ["Williams", "Palmer", "Oyarzabal"]
+    assert default == 1 and not english                                       # the goal its line points to
+    assert "ma-goal" not in "".join(answer_figures(chat, 1, CARDS, goals=False))   # the app draws it under a picker
+    assert "ma-goal" in "".join(answer_figures(chat, 1, CARDS))                    # drawn by default otherwise
+    chat[1]["guard"] = {"input": "off_topic"}                                  # a question the guard stopped
+    assert answer_goals(chat, 1, CARDS) == []
+    chat[1]["guard"] = {"input": "football"}
+    chat[1]["content"] = "Caso reale: la finale [case_2026_wc_final_spain_argentina]."   # no StatsBomb data
+    assert answer_goals(chat, 1, CARDS) == []

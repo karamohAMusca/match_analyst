@@ -166,8 +166,18 @@ with tab_chat:
                 # the graphics of the answer (src/ui/graphics/answer.py: the formations the coach wrote, a
                 # coach's change of shape, the timeline, the numbers and a goal of the real case; st.html
                 # would strip the <svg>); only the newest answer moves, the older ones are drawn still
-                for figure in graphics.answer_figures(state.messages, index, cards, animate=index == last_answer):
+                for figure in graphics.answer_figures(state.messages, index, cards, animate=index == last_answer,
+                                                      goals=False):
                     st.markdown(figure, unsafe_allow_html=True)
+                # the action of a goal of the real case, as in the cards tab: the goal its line points to is
+                # picked, the coach can pick another
+                for case_id, goals, default, english in graphics.answer_goals(state.messages, index, cards):
+                    pick = st.segmented_control("L'azione di un gol (StatsBomb)", list(range(len(goals))),
+                                                default=default, key=f"goal_chat_{index}_{case_id}",
+                                                format_func=lambda i, goals=goals: graphics.goal_label(goals[i], english))
+                    if pick is not None:
+                        st.markdown(graphics.goal_svg(goals[pick], cards[case_id], english=english,
+                                                      animate=index == last_answer), unsafe_allow_html=True)
                 if message.get("guard_note"):
                     st.markdown(view.guard_html(message), unsafe_allow_html=True)
                 if message.get("meta"):

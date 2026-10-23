@@ -28,7 +28,11 @@ chat = [{"role": "user", "content": "Domenica affrontiamo una squadra che si chi
         {"role": "assistant", "content": answer, "guard": {"input": "football"}},
         {"role": "user", "content": "Come difende l'Inter di Inzaghi senza palla?"},
         {"role": "assistant", "content": "Il 3-5-2 fluido diventa un 5-3-2 senza palla, con i terzini che tornano in "
-                                         "difesa [coach_inzaghi].", "guard": {"input": "football"}}]
+                                         "difesa [coach_inzaghi].", "guard": {"input": "football"}},
+        {"role": "user", "content": "Siamo sotto 1-0 e vogliamo rimontare: come ci muoviamo?"},
+        {"role": "assistant", "content": "Cambiate presto, se la partita non gira [situation_rimontare_uno_svantaggio].\n\n"
+                                         "Caso reale: Southgate inserisce Watkins e Palmer, e Palmer pareggia "
+                                         "[case_2024_euro_final_spain_england].", "guard": {"input": "football"}}]
 
 st.markdown("### Sotto una risposta")
 for i, message in enumerate(chat):
@@ -37,8 +41,14 @@ for i, message in enumerate(chat):
             st.markdown(message["content"])
             continue
         st.markdown(view.answer_html(message["content"], cards), unsafe_allow_html=True)
-        for figure in graphics.answer_figures(chat, i, cards):
+        for figure in graphics.answer_figures(chat, i, cards, goals=False):
             st.markdown(figure, unsafe_allow_html=True)
+        for case_id, goals, default, english in graphics.answer_goals(chat, i, cards):   # as in app.py
+            pick = st.segmented_control("L'azione di un gol (StatsBomb)", list(range(len(goals))), default=default,
+                                        key=f"goal_chat_{i}_{case_id}",
+                                        format_func=lambda n, goals=goals: graphics.goal_label(goals[n], english))
+            if pick is not None:
+                st.markdown(graphics.goal_svg(goals[pick], cards[case_id], english=english), unsafe_allow_html=True)
 
 st.markdown("### I cambi di modulo delle schede")
 for card in (c for c in cards.values() if c["shape_changes"]):

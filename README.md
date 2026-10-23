@@ -145,7 +145,8 @@ shield with the initials for a club, as club crests and competition logos are tr
 when the question or the answer names one of them (a bar per metric of the card's "Numeri" table, split between the two teams) and,
 for the two finals with StatsBomb event data (2022
 World Cup, Euro 2024), the action of a goal: the ball travelling through the passes at the real tempo,
-every player named when he touches it, and the map of the final's shots (each where it was taken, as
+every player named when he touches it (the goal its real-case line points to is shown, and a picker under
+the answer lets the coach play any other goal of the final), and the map of the final's shots (each where it was taken, as
 large as its xG, the goals labelled) when the question or the answer speaks of the shots; and every answer shows what the guardrails did and, under "Dettagli", its time, tokens,
 cost and the searches the agent made. The sidebar starts a new conversation, switches model and
 guardrails (to show them at work) and has example questions: one for each graphic (the formations, a coach's

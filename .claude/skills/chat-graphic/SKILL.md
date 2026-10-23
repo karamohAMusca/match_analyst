@@ -52,7 +52,9 @@ A graphic never draws what the model wrote. Its data comes from one of these, an
 
 - In `app.py`: `st.markdown(svg, unsafe_allow_html=True)`. Not `st.html`: its sanitizer removes `<svg>`.
 - Under an answer through `answer_figures` in `answer.py` (only for questions the agent answered;
-  only the newest answer animated); in the cards tab through `show_card`. Export the new names from
+  only the newest answer animated; a graphic with a choice, as the goal to play, is drawn by `app.py` under a
+  picker fed by an `answer_*` function, the default being what the data points to); in the cards tab through
+  `show_card`. Export the new names from
   `__init__.py`.
 
 ## 4. Check it

@@ -120,3 +120,23 @@ def test_the_graphics_preview_page_runs_without_the_model():
     assert sum("ma-numbers" in m.value for m in page.markdown) >= 3                # the finals with a numbers table
     assert sum("ma-shape" in m.value for m in page.markdown) >= 4                  # under an answer, and every change
     assert any('aria-label="Voi 4-3-3 · Avversario 4-4-2"' in m.value for m in page.markdown)
+
+
+def test_the_coach_can_pick_the_goal_to_play_under_an_answer(app):
+    from src.ui.graphics import goal_actions
+    if not goal_actions():
+        pytest.skip("the derived StatsBomb goal actions are not on this computer")
+    line = "Caso reale: Southgate inserisce Watkins e Palmer, e Palmer pareggia [case_2024_euro_final_spain_england]."
+    app.session_state["messages"] = [
+        {"role": "user", "content": "Come rimontiamo?"},
+        {"role": "assistant", "content": "Cambiate presto [situation_rimontare_uno_svantaggio].\n\n" + line,
+         "guard": {"input": "football"}}]
+    app.run()
+    assert not app.exception
+    pick = app.segmented_control(key="goal_chat_1_case_2024_euro_final_spain_england")
+    assert pick.value == 1                                                    # Palmer: the goal the line points to
+    goals = [m.value for m in app.chat_message[-1].markdown if "ma-goal" in m.value]
+    assert len(goals) == 1 and "73' 1-1 Palmer" in goals[0] and "@keyframes" in goals[0]   # the newest answer moves
+    pick.set_value(2).run()                                                   # another goal, from the chat
+    goals = [m.value for m in app.chat_message[-1].markdown if "ma-goal" in m.value]
+    assert len(goals) == 1 and "86' 2-1 Oyarzabal" in goals[0]
