@@ -42,7 +42,11 @@ SITUATION_RE = re.compile(
     r"|\b(?:primo|secondo)\s+tempo\b|\b(?:first|second)\s+half\b|\bhalf[\s-]?time\b"
     r"|\b(?:extra|injury|stoppage)\s+time\b"
     r"|\brimast\w*\s+in\s+(?:dieci|nove|10|9)\b|\buom[oi]\s+in\s+(?:meno|piu|più)\b"   # a man down or up
-    r"|\b(?:superiorit|inferiorit)\w*\s+numeric|\bdown\s+to\s+(?:ten|nine|10|9)\b|\bman\s+(?:down|up)\b",
+    r"|\b(?:siamo|restiamo|rimaniamo|eravamo|saremmo|restassimo|rimanessimo|fossimo)\s+in\s+(?:dieci|nove|otto|10|9|8)\b"
+    r"(?!\s+(?:a\s|persone|ospiti|amici|invitati))"                                    # "siamo in 10, come ci difendiamo?"
+    r"|\b(?:superiorit|inferiorit)\w*\s+numeric|\bdown\s+to\s+(?:ten|nine|10|9)\b|\bman\s+(?:down|up)\b"
+    # a final or a European Championship with its year: the corpus has some of them ("la finale del 2022")
+    r"|\b(?:finale|finali|europeo|europei)\b(?:\s+\w+){0,2}\s+(?:19|20)\d\d\b",
     re.IGNORECASE,
 )
 FOOTBALL_STEMS = (

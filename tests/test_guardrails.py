@@ -104,6 +104,18 @@ def test_game_situations_are_football_even_without_football_words():
         assert check_question(off_topic).reason == "off_topic", off_topic
 
 
+def test_a_man_down_and_the_finals_of_the_corpus_are_football():
+    # Found in the saved chats (2026-10-23): these were stopped as off-topic, and the cards answer them.
+    for text in ("siamo in 10, come ci difendiamo?", "Siamo in nove, che faccio?", "Se restassimo in dieci?",
+                 "chi ha vinto la finale del 2022?", "come ha vinto la Spagna l'Europeo 2024?",
+                 "Raccontami le finali 2026", "Cosa ha deciso la finale del Mondiale 2026?"):
+        assert check_question(text).reason == "football", text
+    for off_topic in ("Siamo in 10 a cena, che ricetta consigli?", "Siamo in dieci amici, dove mangiamo?",
+                      "Chi ha vinto le elezioni nel 2022?", "Com'è finito il film nel 2022?",
+                      "Qual è la capitale della Francia?"):
+        assert check_question(off_topic).reason == "off_topic", off_topic
+
+
 def test_off_topic_reply_in_the_language_of_the_question():
     assert check_question("Can you write me a pasta recipe?").reply.startswith("I can only help")
     assert check_question("Chi vincerà le elezioni?").reply.startswith("Posso aiutarti solo")
