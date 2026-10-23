@@ -53,6 +53,53 @@ def test_conversation_memory_only_when_stateful(retriever):
     assert len(single.agent._memory) == 0                  # every question on its own
 
 
+def _kinds(chat: MatchAnalyst) -> list[tuple[str, str]]:
+    return [(turn.role.value, type(block).__name__) for turn in chat.agent._memory for block in turn]
+
+
+def test_the_chat_memory_keeps_the_questions_and_the_answers_not_the_cards(retriever):
+    llm = ScriptedLLM()
+    chat = MatchAnalyst(client=llm, retriever=retriever, stateless=False)
+    first = chat.analyze(QUESTION)
+    assert _kinds(chat) == [("user", "TextBlock"), ("assistant", "TextBlock")]     # the search and its cards are gone
+    assert chat.agent._memory[1][0].content == first                                # the answer the coach saw
+    assert len(chat.last_turns) == 4                                                # the chat's file keeps them all
+    second = chat.analyze("E se invece ci pressano alti?")
+    assert _kinds(chat) == [("user", "TextBlock"), ("assistant", "TextBlock")] * 2
+    assert chat.coach_questions == [QUESTION, "E se invece ci pressano alti?"]      # the guards read them from here
+    assert chat.agent._memory[3][0].content == second
+    # the model saw the first turn as 2 turns (question, answer), not as 4 with the cards, in the second
+    first_call_of_the_second = [seen for seen in llm.seen if seen[0].startswith("E se invece")][0]
+    assert first_call_of_the_second == ("E se invece ci pressano alti?", 2)
+
+
+def test_a_follow_up_searches_again_and_its_answer_is_checked_against_its_own_cards(retriever):
+    chat = MatchAnalyst(client=ScriptedLLM(), retriever=retriever, stateless=False)
+    chat.analyze(QUESTION)
+    chat.analyze("E se invece ci pressano alti?")
+    assert chat.corpus_tools.calls and chat.consulted_cards               # searched again: cards of this turn
+    assert chat.last_guard["input"] == "football" and chat.last_guard["issues"] == []
+
+
+def test_the_whole_memory_can_be_kept_to_measure_the_difference(retriever):
+    kept = MatchAnalyst(client=ScriptedLLM(), retriever=retriever, stateless=False, compact_memory=False)
+    kept.analyze(QUESTION)
+    assert [kind for _, kind in _kinds(kept)] == ["TextBlock", "FunctionCallBlock", "FunctionCallResultBlock", "TextBlock"]
+    compact = MatchAnalyst(client=ScriptedLLM(), retriever=retriever, stateless=False)
+    compact.analyze(QUESTION)
+    size = lambda chat: sum(len(getattr(b, "content", "") or getattr(b, "result", "") or "") for t in chat.agent._memory for b in t)
+    assert size(compact) < size(kept)
+
+
+def test_a_stateless_agent_and_a_rewrite_keep_working_with_the_compact_memory(retriever):
+    single = MatchAnalyst(client=ScriptedLLM(), retriever=retriever)
+    single.analyze(QUESTION)
+    assert len(single.agent._memory) == 0 and single.last_turns == []
+    chat = MatchAnalyst(client=ScriptedLLM(rewrite="Risposta riscritta [coach_pioli]."), retriever=retriever, stateless=False)
+    chat.analyze("Mi dici come gioca Pioli? Rispondi in inglese")
+    assert [kind for _, kind in _kinds(chat)] == ["TextBlock", "TextBlock"]
+
+
 def test_prompt_rules():
     p = MATCH_ANALYST_SYSTEM_PROMPT
     assert "without tools" in p                            # greetings: no search

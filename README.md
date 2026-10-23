@@ -157,7 +157,8 @@ coach with the change of shape his card writes. **Valutazione**: the measured re
 Every conversation of the app is saved in `chats/`, one JSON Lines file per chat named after the
 time it started (`2026-09-30_153012.jsonl`), one line per answer written as soon as it is given:
 question, answer, consulted cards, searches, guardrails, time/tokens/cost, and the turns added to
-the agent's memory (datapizza `Memory`, tool calls and results included). The sidebar button
+the agent's memory (datapizza `Memory`, tool calls and results included, as the model saw them
+while answering). The sidebar button
 "⬇️ Scarica la chat" downloads the current one.
 
 ```bash
@@ -169,9 +170,11 @@ It runs the automatic checks of `eval_agent` on every saved answer, against the 
 it consulted: citations only to consulted cards, names and numbers present in those cards or in
 the coach's questions, tool use, answer language. An answer built on cards read earlier in the
 same chat is checked against those cards, and a "Non lo so" is not flagged for citing nothing.
-Each answer shows its tokens: in a long chat they grow turn after turn, because the conversation
-memory keeps the cards read before (from about 1,700 to 54,000 tokens in a 15-question chat). Then
-the chat's totals (flagged answers, questions stopped, rewrites, time, tokens, cost).
+Each answer shows its tokens. In the chats saved before 2026-10-23 they grow turn after turn,
+because the conversation memory kept the cards read before (from about 1,700 to 54,000 tokens in a
+15-question chat; 8,300, 14,900, 18,400 and 22,300 in the first four turns of one chat); since then
+the memory keeps only the questions and the answers, and a follow-up that needs the cards searches
+again. Then the chat's totals (flagged answers, questions stopped, rewrites, time, tokens, cost).
 
 What happens while chatting (app and CLI) is written to `logs/match_analyst.log`: new
 conversation and its file, every question (its length, not its text), the input guard's verdict,

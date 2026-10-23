@@ -22,7 +22,7 @@ from typing import Any
 from datapizza.agents import Agent
 from datapizza.clients import ClientFactory
 from datapizza.core.clients.client import Client
-from datapizza.type import ROLE, TextBlock
+from datapizza.type import ROLE, FunctionCallBlock, FunctionCallResultBlock, TextBlock
 
 from src.agent.prompts import ENGLISH_REMINDER, MATCH_ANALYST_SYSTEM_PROMPT, REWRITE_REQUEST
 from src.core.config import LLM_PROVIDER, load_settings, require_api_key
@@ -82,6 +82,7 @@ class MatchAnalyst:
         guardrails: bool = True,
         verifier: Client | None = None,
         verify: bool | None = None,
+        compact_memory: bool = True,
     ) -> None:
         """Create the agent.
 
@@ -101,6 +102,11 @@ class MatchAnalyst:
             verify: True adds the verifier (off by default: in gold runs 114805 vs 112356 it gave
                 +0.025 faithfulness for 5x the cost and 4x the latency, under the acceptance gate);
                 None = on only when a `verifier` client is given; False = off.
+            compact_memory: in a chat, True keeps in the memory only the coach's questions and the
+                answers the coach saw: the searches and the cards the tools returned are dropped when
+                a turn is closed (they were most of every later prompt: 8k tokens at the first turn,
+                22k at the fourth), and a follow-up that needs the cards searches again; False
+                keeps everything (to measure the difference).
 
         Raises:
             ValueError: if the OpenAI client is needed and OPENAI_API_KEY is not configured.
@@ -121,6 +127,8 @@ class MatchAnalyst:
         self.verifier = verifier if verify else None
         self.guardrails = guardrails
         self.stateless = stateless
+        self.compact_memory = compact_memory
+        self.last_turns: list[dict[str, Any]] = []   # what the last question added to the memory, before compacting
         self.last_guard: dict[str, Any] = {}
         self.session_id = uuid.uuid4().hex   # one per conversation: Phoenix groups its traces
         self.corpus_tools = CorpusTools(retriever or build_retriever(), k=k)
@@ -141,7 +149,11 @@ class MatchAnalyst:
         guardrails, the agent's steps, the searches and the model calls inside it.
         """
         with span("match_analyst", "CHAIN", question, **{"session.id": self.session_id}) as root:
+            first_new = len(self.agent._memory.memory)
             answer = self._answer(question)
+            # all the turns this question added, for the chat's file (the agent may swap its memory object)
+            self.last_turns = [turn.to_dict() for turn in self.agent._memory.memory[first_new:]]
+            self._compact()
             set_output(root, answer)
             root.set_attribute("metadata", json.dumps(
                 {"model": self.model, "verifier": self.verifier_model, "consulted_cards": self.consulted_cards,
@@ -189,6 +201,22 @@ class MatchAnalyst:
         if answer != draft:
             self._remember(answer)
         return answer
+
+    def _compact(self) -> None:
+        """A turn is closed: in a chat, drop from the memory the searches and the cards the tools
+        returned, and keep the questions and the answers. The cards were most of the memory (a
+        search result is about 6000 characters, an answer 1000) and every later question paid for
+        them again; the next question that needs them searches again, which also means its answer is
+        checked against cards it consulted itself, never against ones read two turns before."""
+        if self.stateless or not self.compact_memory:
+            return
+        memory = self.agent._memory.memory
+        kept = [turn for turn in memory
+                if not (len(turn) and all(isinstance(block, (FunctionCallBlock, FunctionCallResultBlock))
+                                          for block in turn))]
+        if len(kept) < len(memory):
+            log.debug("chat memory: %d turns of searches dropped, %d kept", len(memory) - len(kept), len(kept))
+            memory[:] = kept
 
     def _answer_man_down(self, question: str) -> str | None:
         """A man down has no card of its own: the answer is written by code from the cards

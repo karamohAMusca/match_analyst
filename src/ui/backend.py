@@ -96,7 +96,7 @@ class Conversation:
                     latency, prompt, completion, message["meta"]["cost_usd"], len(message["calls"]),
                     message["consulted"])
         try:
-            self.log.append(question, message, self.analyst.agent._memory)
+            self.log.append(question, message, self.analyst.last_turns)
         except (OSError, TypeError, ValueError) as e:   # the answer is shown anyway, with the reason
             message["log_error"] = str(e)
             logger.warning("chat not saved to %s: %s", self.log.path.name, e)

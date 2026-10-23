@@ -37,11 +37,13 @@ def test_the_memory_of_the_chat_is_rebuilt_with_tool_calls(conversation):
     conversation.ask("E perché?")
     answers = load_chat(conversation.log.path)
     live = conversation.analyst.agent._memory
-    assert [t for a in answers for t in a["memory"]] == live.to_dict()     # nothing lost, nothing twice
+    assert [t.role for t in live] == [ROLE.USER, ROLE.ASSISTANT] * 2         # live: questions and answers only
     memory = load_memory(answers)
-    assert [t.role for t in memory] == [t.role for t in live] and memory[0].role == ROLE.USER
+    assert len(memory) == 8 and memory[0].role == ROLE.USER                    # saved: every turn, twice 4
     call = memory[1].blocks[0]                                                # the search, with its arguments
     assert call.name == "search_cards" and call.arguments == {"query": QUESTION}
+    assert [t.to_dict() for t in memory if t.role in (ROLE.USER, ROLE.ASSISTANT) and len(t) == 1
+            and t.blocks[0].__class__.__name__ == "TextBlock"] == live.to_dict()   # the same questions and answers
 
 
 def test_a_new_conversation_gets_its_own_file(chats_dir):

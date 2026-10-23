@@ -4,8 +4,9 @@ keeps its turns).
 
 Each line holds what the app showed (question, answer, consulted cards, searches, guardrails, meta)
 and the turns this answer added to the agent's memory, serialized with datapizza's `Memory`: tool
-calls and their results included. `load_chat()` reads a file back, `load_memory()` rebuilds the
-whole datapizza `Memory` of the chat.
+calls and their results included, as the model saw them while answering (the agent's live memory
+keeps only the questions and the answers once a turn is closed). `load_chat()` reads a file back,
+`load_memory()` rebuilds the whole datapizza `Memory` of the chat, searches included.
 """
 
 from __future__ import annotations
@@ -32,18 +33,15 @@ class ChatLog:
         n = 2
         while self.path.exists():   # two chats started in the same second
             self.path, n = folder / f"{stem}-{n}.jsonl", n + 1
-        self._saved_turns = 0       # memory turns already written
 
-    def append(self, question: str, message: dict[str, Any], memory: Memory) -> None:
-        """Write one answer: the app message for `question` and the memory turns it added."""
-        turns = memory.to_dict()
+    def append(self, question: str, message: dict[str, Any], turns: list[dict[str, Any]]) -> None:
+        """Write one answer: the app message for `question` and the memory turns it added
+        (`Turn.to_dict()` each)."""
         line = {"time": datetime.now().isoformat(timespec="seconds"), "question": question,
-                **{k: v for k, v in message.items() if k != "role"},
-                "memory": turns[self._saved_turns:]}
+                **{k: v for k, v in message.items() if k != "role"}, "memory": turns}
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(line, ensure_ascii=False) + "\n")
-        self._saved_turns = len(turns)
 
 
 def load_chat(path: Path) -> list[dict[str, Any]]:
