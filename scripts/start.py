@@ -21,10 +21,38 @@ import urllib.request
 from collections.abc import Callable
 from pathlib import Path
 
-import src.core.config as config
-from scripts.review_chats import review_files
-from src.core.config import PROJECT_ROOT
-from src.observability.logs import LOG_FILE
+
+def use_project_venv() -> None:
+    """Started with a Python that lacks the project's packages (the system one, the virtual environment
+    not activated): start again with the project's own (`.venv` in the project folder or in the one
+    above it), or say what to do. Before the project's imports, which are the ones that would fail."""
+    try:
+        import rank_bm25  # noqa: F401
+        return
+    except ModuleNotFoundError:
+        pass
+    root = Path(__file__).resolve().parents[1]
+    for folder in (root, root.parent):
+        python = folder / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+        if python.exists():
+            print(f"[start] Python senza i pacchetti del progetto: riparto con {python}")
+            child = subprocess.Popen([str(python), "-m", "scripts.start", *sys.argv[1:]], cwd=root)
+            while True:   # Ctrl+C reaches the child too: it stops the app and prints the review
+                try:
+                    raise SystemExit(child.wait())
+                except KeyboardInterrupt:
+                    continue
+    raise SystemExit("Mancano i pacchetti del progetto: attiva il virtual environment oppure "
+                     "`pip install -r requirements.txt`, poi riprova.")
+
+
+if __name__ == "__main__":
+    use_project_venv()
+
+import src.core.config as config  # noqa: E402
+from scripts.review_chats import review_files  # noqa: E402
+from src.core.config import PROJECT_ROOT  # noqa: E402
+from src.observability.logs import LOG_FILE  # noqa: E402
 
 SERVICES = {"Qdrant": "http://localhost:6337/healthz", "Phoenix": "http://localhost:6006"}
 APP_URL = "http://localhost:8501"
