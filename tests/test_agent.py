@@ -281,3 +281,20 @@ def test_guardrails_can_be_switched_off_to_measure_them(retriever):
     analyst = MatchAnalyst(client=ScriptedLLM(), retriever=retriever, guardrails=False)
     assert analyst.analyze("Mi scrivi la ricetta della carbonara?").startswith("Dalle schede:")
     assert analyst.guard_note is None
+
+
+def test_the_compaction_leaves_no_tool_call_without_its_result(retriever):
+    from datapizza.type import FunctionCallBlock, FunctionCallResultBlock
+    chat = MatchAnalyst(client=ScriptedLLM(), retriever=retriever, stateless=False)
+    tool = chat.corpus_tools.tools()[0]
+    memory = chat.agent._memory
+    memory.add_turn([TextBlock(content="Domanda")], ROLE.USER)
+    # the model said a sentence and called the search in one turn: the sentence stays, the call goes with its result
+    memory.add_turn([TextBlock(content="Cerco nelle schede."),
+                     FunctionCallBlock(id="1", arguments={"query": "x"}, name=tool.name, tool=tool)], ROLE.ASSISTANT)
+    memory.add_turn([FunctionCallResultBlock(id="1", tool=tool, result="schede")], ROLE.TOOL)
+    memory.add_turn([TextBlock(content="Risposta")], ROLE.ASSISTANT)
+    chat._compact()
+    assert [(t.role, [type(b).__name__ for b in t]) for t in memory] == [
+        (ROLE.USER, ["TextBlock"]), (ROLE.ASSISTANT, ["TextBlock"]), (ROLE.ASSISTANT, ["TextBlock"])]
+    assert memory[1][0].content == "Cerco nelle schede."

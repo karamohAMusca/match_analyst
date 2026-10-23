@@ -211,9 +211,9 @@ class MatchAnalyst:
         if self.stateless or not self.compact_memory:
             return
         memory = self.agent._memory.memory
-        kept = [turn for turn in memory
-                if not (len(turn) and all(isinstance(block, (FunctionCallBlock, FunctionCallResultBlock))
-                                          for block in turn))]
+        for turn in memory:   # also a turn that holds a sentence and a search together: no call without its result
+            turn.blocks[:] = [b for b in turn if not isinstance(b, (FunctionCallBlock, FunctionCallResultBlock))]
+        kept = [turn for turn in memory if len(turn)]
         if len(kept) < len(memory):
             log.debug("chat memory: %d turns of searches dropped, %d kept", len(memory) - len(kept), len(kept))
             memory[:] = kept

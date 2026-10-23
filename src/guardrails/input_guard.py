@@ -45,8 +45,9 @@ SITUATION_RE = re.compile(
     r"|\b(?:siamo|restiamo|rimaniamo|eravamo|saremmo|restassimo|rimanessimo|fossimo)\s+in\s+(?:dieci|nove|otto|10|9|8)\b"
     r"(?!\s+(?:a\s|persone|ospiti|amici|invitati))"                                    # "siamo in 10, come ci difendiamo?"
     r"|\b(?:superiorit|inferiorit)\w*\s+numeric|\bdown\s+to\s+(?:ten|nine|10|9)\b|\bman\s+(?:down|up)\b"
-    # a final or a European Championship with its year: the corpus has some of them ("la finale del 2022")
-    r"|\b(?:finale|finali|europeo|europei)\b(?:\s+\w+){0,2}\s+(?:19|20)\d\d\b",
+    # a final or a European Championship with its year right after ("la finale del 2022", "l'Europeo 2024"): the
+    # corpus has some of them; with other words between ("la finale di Sanremo 2022") it is not a football rule
+    r"|\b(?:finale|finali)\s+(?:(?:del|dei|nel)\s+)?(?:19|20)\d\d\b|\b(?:europeo|europei)\s+(?:del\s+)?(?:19|20)\d\d\b",
     re.IGNORECASE,
 )
 FOOTBALL_STEMS = (

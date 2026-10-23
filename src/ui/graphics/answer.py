@@ -76,8 +76,9 @@ def answer_figures(messages: list[dict], index: int, cards: dict[str, dict], ani
     of shape, when a line citing the coach's card writes the shape it becomes; the timeline of every
     final its real-case line cites and the action of a goal, for a final with StatsBomb data (the one
     at a minute the line writes, else the longest); the numbers of every final the answer cites, when
-    the question or the answer names one of them, and, for a final with StatsBomb data, its shots when
-    they speak of the shots (a question on the shots of a final has no real-case line). With
+    the question names one of them (the advice may say "tiri da fuori" or "possesso" about anything),
+    and, for a final with StatsBomb data, its shots when the question speaks of the shots (a question
+    on the shots of a final has no real-case line). With
     `goals=False` the action of a goal is left out: the app draws it itself, under a picker
     (`answer_goals`)."""
     questions = _questions(messages, index)
@@ -91,16 +92,16 @@ def answer_figures(messages: list[dict], index: int, cards: dict[str, dict], ani
     if changes := cited_shape_changes(content, cards):   # the first change of shape the answer speaks of
         card_id, change = changes[0]
         figures.append(shape_svg(cards[card_id], change, english=english, animate=animate))
-    texts = (questions[-1] if questions else "", content)
+    asked = questions[-1] if questions else ""   # the figures follow what the coach asked, not the advice's words
     real = real_cases(content)
     for case_id in dict.fromkeys(real + [i for i in cited_ids(content) if i.startswith("case_")]):
         if case_id not in cards:
             continue
         if case_id in real:
             figures.append(timeline_svg(cards[case_id], english=english, animate=animate))
-        if any(names_a_number(text, cards[case_id]) for text in texts):
+        if names_a_number(asked, cards[case_id]):
             figures.append(numbers_svg(cards[case_id], english=english, animate=animate))
-        if (shots := match_shots().get(case_id)) and any(names_a_shot(text) for text in texts):
+        if (shots := match_shots().get(case_id)) and names_a_shot(asked):
             figures.append(shots_svg(shots, cards[case_id], english=english, animate=animate))
         if goals and case_id in real and (goal := pick_goal(goal_actions().get(case_id, []), _case_line(content, case_id))):
             figures.append(goal_svg(goal, cards[case_id], english=english, animate=animate))

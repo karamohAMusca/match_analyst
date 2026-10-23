@@ -142,12 +142,12 @@ one formation to the other (the change in the card's words, who goes where indic
 answer cites a final as its real case, its timeline follows (goals and score, saves, red cards, changes, extra time and
 penalties, each from the card's own words, with the teams' symbols: the flag of a national team, a neutral
 shield with the initials for a club, as club crests and competition logos are trademarks); the numbers of a final the answer cites,
-when the question or the answer names one of them (a bar per metric of the card's "Numeri" table, split between the two teams) and,
+when the question names one of them (a bar per metric of the card's "Numeri" table, split between the two teams) and,
 for the two finals with StatsBomb event data (2022
 World Cup, Euro 2024), the action of a goal: the ball travelling through the passes at the real tempo,
 every player named when he touches it (the goal its real-case line points to is shown, and a picker under
 the answer lets the coach play any other goal of the final), and the map of the final's shots (each where it was taken, as
-large as its xG, the goals labelled) when the question or the answer speaks of the shots; and every answer shows what the guardrails did and, under "Dettagli", its time, tokens,
+large as its xG, the goals labelled) when the question speaks of the shots; and every answer shows what the guardrails did and, under "Dettagli", its time, tokens,
 cost and the searches the agent made. Several graphics under one answer go in tabs (the pitch, the change of shape, the timeline, the numbers, the
 shots, the action of a goal), one is drawn as it is. The sidebar starts a new conversation, switches model and
 guardrails (to show them at work), can hide the cards panel next to the chat (the chat then takes the whole

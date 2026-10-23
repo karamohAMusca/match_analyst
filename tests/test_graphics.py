@@ -254,3 +254,16 @@ def test_the_tabs_of_the_figures_under_an_answer():
     assert figure_tabs([timeline_svg(CARDS[WC26]), timeline_svg(CARDS["case_2022_wc_final_argentina_france"])], 2) == [
         "Linea del tempo 1", "Linea del tempo 2", "Azione del gol 1", "Azione del gol 2"]   # a name used twice is numbered
     assert figure_tabs([]) == [] and figure_tabs([], 0) == []
+
+
+def test_the_words_of_the_advice_do_not_bring_the_numbers_of_the_final():
+    # "tiri da fuori" and "possesso che avanza" are advice about any match: the figures follow the question
+    answer = ("Cerca tiri da fuori e mantieni il possesso [situation_attaccare_un_blocco_basso].\n\n"
+              "Caso reale: la Spagna batte il 4-4-2 con possesso che avanza [case_2026_wc_final_spain_argentina].")
+    chat = [{"role": "user", "content": "Come attacchiamo un blocco basso?"},
+            {"role": "assistant", "content": answer, "guard": {"input": "football"}}]
+    kinds = [re.search(r'<figure class="ma-figure ?([\w-]*)"', f)[1] for f in answer_figures(chat, 1, CARDS)]
+    assert kinds == ["ma-timeline"]
+    chat[0]["content"] = "Come attacchiamo un blocco basso? Quanto possesso serve?"
+    kinds = [re.search(r'<figure class="ma-figure ?([\w-]*)"', f)[1] for f in answer_figures(chat, 1, CARDS)]
+    assert kinds == ["ma-timeline", "ma-numbers"]

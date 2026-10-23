@@ -190,3 +190,12 @@ def test_earlier_questions_of_a_chat_count_as_known_text():
 def test_no_consulted_cards_only_language_is_checked():
     assert review_answer("Non ci sono informazioni.", "Who will win the league?", [], "")[0].kind == "language"
     assert review_answer("Non ci sono informazioni.", "Chi vincerà lo scudetto?", [], "") == []
+
+
+def test_a_final_with_other_words_before_the_year_is_not_a_football_rule():
+    for off_topic in ("Chi ha vinto la finale di Sanremo 2022?", "Chi ha vinto la finale di X Factor 2022?",
+                      "Quando è la finale del programma di cucina 2022?"):
+        assert check_question(off_topic).reason == "off_topic", off_topic
+    for football in ("chi ha vinto la finale del 2022?", "Raccontami la finale 2024", "le finali nel 2026",
+                     "come ha vinto la Spagna l'Europeo 2024?", "gli Europei del 2024"):
+        assert check_question(football).reason == "football", football
