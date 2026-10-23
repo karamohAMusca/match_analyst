@@ -13,11 +13,24 @@ from src.ui.graphics.shot_map import match_shots, names_a_shot, shots_svg
 from src.ui.graphics.timeline import timeline_svg
 
 ANSWERED = ("football", "follow_up")   # the input guard's verdicts of a question the agent answered
+# What a figure is called on its tab (several figures under one answer go in tabs), by its class
+_TAB_NAMES = (("ma-timeline", "Linea del tempo"), ("ma-numbers", "Numeri"), ("ma-shots", "Tiri"),
+              ("ma-shape", "Cambio di modulo"), ("ma-goal", "Azione del gol"))
+GOAL_TAB = "Azione del gol"   # the tab of a goal's action, drawn by the app under its picker
 
 
 def real_cases(answer: str) -> list[str]:
     """The finals the real-case lines of an answer cite (the line written by code from the card)."""
     return list(dict.fromkeys(i for m in CASE_LINE_RE.finditer(answer) for i in case_ids(m.group("rest"))))
+
+
+def figure_tabs(figures: list[str], goal_actions_count: int = 0) -> list[str]:
+    """The names of the tabs of the figures under an answer, in order: one per figure, from its class (the
+    pitch of the formations has none of them), then one per action of a goal; a name used twice (two
+    finals) is numbered."""
+    names = [next((name for cls, name in _TAB_NAMES if f'class="ma-figure {cls}' in figure), "Campo")
+             for figure in figures] + [GOAL_TAB] * goal_actions_count
+    return [name if names.count(name) == 1 else f"{name} {names[:i].count(name) + 1}" for i, name in enumerate(names)]
 
 
 def _questions(messages: list[dict], index: int) -> list[str] | None:

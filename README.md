@@ -148,8 +148,10 @@ World Cup, Euro 2024), the action of a goal: the ball travelling through the pas
 every player named when he touches it (the goal its real-case line points to is shown, and a picker under
 the answer lets the coach play any other goal of the final), and the map of the final's shots (each where it was taken, as
 large as its xG, the goals labelled) when the question or the answer speaks of the shots; and every answer shows what the guardrails did and, under "Dettagli", its time, tokens,
-cost and the searches the agent made. The sidebar starts a new conversation, switches model and
-guardrails (to show them at work) and has example questions: one for each graphic (the formations, a coach's
+cost and the searches the agent made. Several graphics under one answer go in tabs (the pitch, the change of shape, the timeline, the numbers, the
+shots, the action of a goal), one is drawn as it is. The sidebar starts a new conversation, switches model and
+guardrails (to show them at work), can hide the cards panel next to the chat (the chat then takes the whole
+width and the graphics are larger) and has example questions: one for each graphic (the formations, a coach's
 change of shape, the numbers and shots of a final), one in English and one off topic.
 **Schede**: the 31 cards by category; a final with its timeline, its numbers and the goals to play, a
 coach with the change of shape his card writes. **Valutazione**: the measured results of the saved runs

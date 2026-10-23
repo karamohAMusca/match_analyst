@@ -74,6 +74,38 @@ def show_card(card: dict, height: int, number: int | None = None) -> None:
         st.markdown("\n".join(f"- {s}" for s in card["sources"]) or "—")
 
 
+def show_goal(index: int, case_id: str, goals: list[dict], default: int, english: bool, animate: bool) -> None:
+    """The action of a goal of the real case, as in the cards tab: the goal its line points to is picked,
+    the coach can pick another."""
+    pick = st.segmented_control("L'azione di un gol (StatsBomb)", list(range(len(goals))), default=default,
+                                key=f"goal_chat_{index}_{case_id}",
+                                format_func=lambda i: graphics.goal_label(goals[i], english))
+    if pick is not None:
+        st.markdown(graphics.goal_svg(goals[pick], cards[case_id], english=english, animate=animate),
+                    unsafe_allow_html=True)
+
+
+def show_figures(index: int, animate: bool) -> None:
+    """The graphics of the answer `index` (src/ui/graphics/answer.py: the formations the coach wrote, a coach's
+    change of shape, the timeline, the numbers and the shots of a final, the action of a goal; st.html would
+    strip the <svg>). One is drawn as it is, several go in tabs, so that the answer is not buried under them."""
+    figures = graphics.answer_figures(state.messages, index, cards, animate=animate, goals=False)
+    goals = graphics.answer_goals(state.messages, index, cards)
+    if len(figures) + len(goals) < 2:
+        for figure in figures:
+            st.markdown(figure, unsafe_allow_html=True)
+        for goal in goals:
+            show_goal(index, *goal, animate)
+        return
+    tabs = st.tabs(graphics.figure_tabs(figures, len(goals)))
+    for tab, figure in zip(tabs, figures):
+        with tab:
+            st.markdown(figure, unsafe_allow_html=True)
+    for tab, goal in zip(tabs[len(figures):], goals):
+        with tab:
+            show_goal(index, *goal, animate)
+
+
 def new_conversation() -> None:
     state.messages = []
     state.conversation = None
@@ -107,6 +139,8 @@ with st.sidebar:
     guardrails = st.toggle("Guardrail attivi", value=True, key="guardrails",
                            help="Ingresso: ferma le domande fuori tema prima del modello. "
                                 "Uscita: controlla lingua, nomi/numeri e citazioni, e se serve fa riscrivere la risposta.")
+    cards_panel = st.toggle("Schede della risposta accanto alla chat", value=True, key="cards_panel",
+                            help="Spento, la chat prende tutta la larghezza: i grafici sono più grandi.")
 
     st.markdown("#### 💡 Prova con")
     for label, question in view.EXAMPLES:
@@ -151,7 +185,10 @@ if not ready:
 tab_chat, tab_cards, tab_eval = st.tabs(["💬 Chat", "📚 Schede", "📈 Valutazione"])
 
 with tab_chat:
-    col_chat, col_cards = st.columns([3, 2], gap="large")
+    if cards_panel:
+        col_chat, col_cards = st.columns([5, 3], gap="large")
+    else:   # the chat takes the whole width, the graphics are larger
+        col_chat, col_cards = st.container(), None
     with col_chat:
         if not state.messages:
             st.markdown(view.welcome_html(), unsafe_allow_html=True)
@@ -163,21 +200,7 @@ with tab_chat:
                     st.markdown(message["content"])
                     continue
                 st.markdown(view.answer_html(message["content"], cards), unsafe_allow_html=True)
-                # the graphics of the answer (src/ui/graphics/answer.py: the formations the coach wrote, a
-                # coach's change of shape, the timeline, the numbers and a goal of the real case; st.html
-                # would strip the <svg>); only the newest answer moves, the older ones are drawn still
-                for figure in graphics.answer_figures(state.messages, index, cards, animate=index == last_answer,
-                                                      goals=False):
-                    st.markdown(figure, unsafe_allow_html=True)
-                # the action of a goal of the real case, as in the cards tab: the goal its line points to is
-                # picked, the coach can pick another
-                for case_id, goals, default, english in graphics.answer_goals(state.messages, index, cards):
-                    pick = st.segmented_control("L'azione di un gol (StatsBomb)", list(range(len(goals))),
-                                                default=default, key=f"goal_chat_{index}_{case_id}",
-                                                format_func=lambda i, goals=goals: graphics.goal_label(goals[i], english))
-                    if pick is not None:
-                        st.markdown(graphics.goal_svg(goals[pick], cards[case_id], english=english,
-                                                      animate=index == last_answer), unsafe_allow_html=True)
+                show_figures(index, animate=index == last_answer)   # only the newest answer moves
                 if message.get("guard_note"):
                     st.markdown(view.guard_html(message), unsafe_allow_html=True)
                 if message.get("meta"):
@@ -187,17 +210,20 @@ with tab_chat:
                     with st.expander("🔎 Cosa ha cercato l'assistente"):
                         st.markdown(view.searches_markdown(message["calls"], cards))
 
-    with col_cards:
-        st.markdown("#### 📄 Schede della risposta")
-        last = next((m for m in reversed(state.messages) if m["role"] == "assistant"), None)
-        ids = view.ordered_cards(last, cards) if last else []
-        numbers = view.citation_numbers(last["content"], cards) if last else {}   # as on the badges
-        if not ids:
-            st.info("Qui compaiono le schede che l'assistente ha consultato e citato, da leggere per intero.")
-        else:
-            pick = st.selectbox("Scheda", ids, key=f"answer_card_{len(state.messages)}", label_visibility="collapsed",
-                                format_func=lambda i: (f"{numbers[i]} · " if i in numbers else "") + view.card_label(cards[i]))
-            show_card(cards[pick], height=460, number=numbers.get(pick))
+    if col_cards is not None:
+        with col_cards:
+            st.markdown("#### 📄 Schede della risposta")
+            last = next((m for m in reversed(state.messages) if m["role"] == "assistant"), None)
+            ids = view.ordered_cards(last, cards) if last else []
+            numbers = view.citation_numbers(last["content"], cards) if last else {}   # as on the badges
+            if not ids:
+                st.info("Qui compaiono le schede che l'assistente ha consultato e citato, da leggere per intero.")
+            else:
+                pick = st.selectbox("Scheda", ids, key=f"answer_card_{len(state.messages)}",
+                                    label_visibility="collapsed",
+                                    format_func=lambda i: (f"{numbers[i]} · " if i in numbers else "")
+                                    + view.card_label(cards[i]))
+                show_card(cards[pick], height=460, number=numbers.get(pick))
 
 with tab_cards:
     col_list, col_card = st.columns([1, 2], gap="large")

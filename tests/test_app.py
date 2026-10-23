@@ -140,3 +140,31 @@ def test_the_coach_can_pick_the_goal_to_play_under_an_answer(app):
     pick.set_value(2).run()                                                   # another goal, from the chat
     goals = [m.value for m in app.chat_message[-1].markdown if "ma-goal" in m.value]
     assert len(goals) == 1 and "86' 2-1 Oyarzabal" in goals[0]
+
+
+def test_several_figures_under_an_answer_go_in_tabs_and_one_figure_does_not(app):
+    final = "case_2026_wc_final_spain_argentina"
+    answer = f"Decise un cambio offensivo [situation_attaccare_un_blocco_basso].\n\nCaso reale: la Spagna batte il 4-4-2 [{final}]."
+    chat = [{"role": "user", "content": "Quanto possesso ha avuto la Spagna? Noi giochiamo 4-3-3 contro un 4-4-2."},
+            {"role": "assistant", "content": answer, "guard": {"input": "football"}}]
+    app.session_state["messages"] = chat
+    app.run()
+    assert not app.exception
+    # the page's tabs, and inside the chat the tabs of the answer's figures: the pitch, then the final's
+    assert [t.label for t in app.tabs] == ["💬 Chat", "Campo", "Linea del tempo", "Numeri", "📚 Schede", "📈 Valutazione"]
+    shown = [m.value for m in app.chat_message[-1].markdown if 'class="ma-figure' in m.value]
+    assert len(shown) == 3 and "@keyframes" in shown[0]                       # the newest answer moves
+    chat[0]["content"] = "Come si difende un vantaggio?"                       # no formation, no number: one figure
+    app.session_state["messages"] = chat
+    app.run()
+    assert [t.label for t in app.tabs] == ["💬 Chat", "📚 Schede", "📈 Valutazione"]   # a single figure: no tabs
+    assert sum('class="ma-figure ma-timeline"' in m.value for m in app.chat_message[-1].markdown) == 1
+
+
+def test_the_cards_panel_next_to_the_chat_can_be_turned_off(app):
+    assert any("Schede della risposta" in m.value for m in app.markdown)
+    app.toggle(key="cards_panel").set_value(False).run()
+    assert not app.exception
+    assert not any("Schede della risposta" in m.value for m in app.markdown)   # the chat takes the whole width
+    app.toggle(key="cards_panel").set_value(True).run()
+    assert any("Schede della risposta" in m.value for m in app.markdown)

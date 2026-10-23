@@ -53,8 +53,9 @@ def test_masthead_and_welcome_tiles_follow_the_design():
     assert '<div class="ma-chips"><span class="label">Nell\'archivio</span>' in head and "🏆 7 finali" in head
     tile = view.feature_html("🔎", "Solo fonti <citate>", "Testo")
     assert tile == '<div class="ma-feature"><div class="t">🔎 Solo fonti &lt;citate&gt;</div><div class="d">Testo</div></div>'
-    welcome = view.welcome_html()   # one grid: the three tiles end at the same height
-    assert welcome.startswith('<div class="ma-welcome">') and welcome.count('class="ma-feature"') == 3
+    welcome = view.welcome_html()   # one grid: the tiles of a row end at the same height
+    assert welcome.startswith('<div class="ma-welcome">') and welcome.count('class="ma-feature"') == 4
+    assert "Guarda la partita" in welcome and "repeat(2, 1fr)" in view.CSS
     assert ".ma-welcome { display:grid;" in view.CSS and "height:100%" in view.CSS
 
 

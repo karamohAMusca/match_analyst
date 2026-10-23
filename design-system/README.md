@@ -11,7 +11,7 @@ answers in Newsreader, labels and badges in IBM Plex Sans Condensed. It was gene
 copied as it is, the HTML of the previews comes from the formatting functions of the same file
 (`header_html`, `answer_html`, `guard_html`, `card_header_html`, `feature_html`), and the answers
 are real ones, from run `eval/runs/agent_20260929-112013.json`. Refreshed on 2026-10-21 for the graphics under an
-answer (`src/ui/graphics/`: they use the same `--ma-*` variables) and the welcome tiles in one grid.
+answer (`src/ui/graphics/`: they use the same `--ma-*` variables) and the welcome tiles in one grid, two by two (four tiles, the last one about the graphics).
 
 ## Structure
 

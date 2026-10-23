@@ -16,7 +16,7 @@ animation, the caption) shared, and `answer.py` choosing the graphics under an a
 This package keeps the names the app, the scripts and the tests import.
 """
 
-from src.ui.graphics.answer import ANSWERED, answer_figures, answer_goals, real_cases
+from src.ui.graphics.answer import ANSWERED, answer_figures, answer_goals, figure_tabs, real_cases
 from src.ui.graphics.badges import badge_width, team_badge
 from src.ui.graphics.formations import coach_formations, formation_places, formations_in, formations_svg
 from src.ui.graphics.goal import GOAL_ACTIONS, goal_actions, goal_label, goal_svg, pick_goal
@@ -27,7 +27,7 @@ from src.ui.graphics.svg import pitch_svg
 from src.ui.graphics.timeline import PERIODS, event_minutes, timeline_svg
 
 __all__ = [
-    "ANSWERED", "GOAL_ACTIONS", "PERIODS", "answer_figures", "answer_goals", "badge_width", "cited_shape_changes", "coach_formations",
+    "ANSWERED", "GOAL_ACTIONS", "PERIODS", "answer_figures", "answer_goals", "figure_tabs", "badge_width", "cited_shape_changes", "coach_formations",
     "event_minutes", "final_numbers", "formation_places", "formations_in", "formations_svg", "goal_actions",
     "goal_label", "goal_svg", "match_shots", "names_a_number", "names_a_shot", "numbers_svg", "pick_goal", "pitch_svg",
     "real_cases", "shape_moves", "shape_svg", "shot_totals", "shots_svg", "team_badge", "timeline_svg",

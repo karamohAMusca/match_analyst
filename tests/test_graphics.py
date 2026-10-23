@@ -241,3 +241,16 @@ def test_the_numbers_of_a_final_the_answer_cites_without_a_real_case_line():
     chat[0]["content"] = "Cosa è successo in quella finale?"
     chat[1]["content"] = "Decise un cambio nei supplementari [case_2026_wc_final_spain_argentina]."
     assert answer_figures(chat, 1, CARDS) == []                      # no number named: nothing
+
+
+def test_the_tabs_of_the_figures_under_an_answer():
+    from src.ui.graphics import figure_tabs
+    chat = [{"role": "user", "content": DEMO + " Quanto possesso ci serve?"},
+            {"role": "assistant", "content": "Senza palla il 3-5-2 diventa 5-3-2 [coach_inzaghi].\n\n" + REAL_CASE,
+             "guard": {"input": "football"}}]
+    figures = answer_figures(chat, 1, CARDS, goals=False)
+    assert figure_tabs(figures) == ["Campo", "Cambio di modulo", "Linea del tempo", "Numeri"]
+    assert figure_tabs(figures, 1)[-1] == "Azione del gol"                      # the goal's action, drawn by the app
+    assert figure_tabs([timeline_svg(CARDS[WC26]), timeline_svg(CARDS["case_2022_wc_final_argentina_france"])], 2) == [
+        "Linea del tempo 1", "Linea del tempo 2", "Azione del gol 1", "Azione del gol 2"]   # a name used twice is numbered
+    assert figure_tabs([]) == [] and figure_tabs([], 0) == []
