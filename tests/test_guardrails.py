@@ -199,3 +199,13 @@ def test_a_final_with_other_words_before_the_year_is_not_a_football_rule():
     for football in ("chi ha vinto la finale del 2022?", "Raccontami la finale 2024", "le finali nel 2026",
                      "come ha vinto la Spagna l'Europeo 2024?", "gli Europei del 2024"):
         assert check_question(football).reason == "football", football
+
+
+def test_a_final_with_a_national_team_is_football_and_neither_alone_is():
+    # "argentina francia finale" was stopped: the guard had no word for a final nor for a national team
+    for text in ("argentina francia finale", "finale Argentina Francia 2022", "Spagna Inghilterra finale",
+                 "Italia Germania semifinale", "Spain England final", "la finale della Francia"):
+        assert check_question(text).reason == "football", text
+    for off_topic in ("Qual è la capitale della Francia?", "Come finisce il finale del film?",
+                      "Quando è la finale di Sanremo?", "Vacanze in Spagna a luglio?", "Argentina Francia"):
+        assert check_question(off_topic).reason == "off_topic", off_topic

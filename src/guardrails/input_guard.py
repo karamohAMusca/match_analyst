@@ -33,6 +33,12 @@ INJECTION_RE = re.compile(
 )
 FORMATION_RE = re.compile(r"\b\d-\d-\d(?:-\d)?\b")
 COMPACT_FORMATION_RE = re.compile(r"\b[1-5]{3,4}\b")   # 352, 4231: digits of the 10 outfield players
+# A final and a national team together ("argentina francia finale"): the finals of the corpus are between
+# national teams. Neither alone is football: "il finale del film", "la capitale della Francia".
+FINAL_RE = re.compile(r"\b(?:semi)?final[ei]\b", re.IGNORECASE)
+NATIONAL_TEAM_RE = re.compile(
+    r"\b(?:argentina|francia|spagna|inghilterra|italia|germania|brasile|portogallo|olanda|croazia|marocco|belgio|uruguay"
+    r"|france|spain|england|italy|germany|brazil|portugal|netherlands|croatia|morocco|belgium)\b", re.IGNORECASE)
 # Game situations, also with no football word ("sto perdendo e sono al 90esimo, che devo fare?").
 SITUATION_RE = re.compile(
     r"\b\d{1,3}\s*(?:esimo\b|['’°]|min\b|minut)"                         # 90esimo, 90', 90°, 85 min, 10 minuti
@@ -139,6 +145,8 @@ def is_football(text: str) -> bool:
     if FORMATION_RE.search(text) or SITUATION_RE.search(text):
         return True
     if any(sum(map(int, m)) == 10 for m in COMPACT_FORMATION_RE.findall(text)):
+        return True
+    if FINAL_RE.search(text) and NATIONAL_TEAM_RE.search(text):
         return True
     return any(w in FOOTBALL_WORDS or w.startswith(FOOTBALL_STEMS) for w in _words(text))
 
