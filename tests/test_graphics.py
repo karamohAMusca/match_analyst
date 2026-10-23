@@ -229,3 +229,15 @@ def test_a_name_near_the_top_touchline_goes_under_the_dot():
     svg = goal_svg(goal, CARDS["case_2024_euro_final_spain_england"])
     assert re.search(r'<text x="90" y="5.9"[^>]*>Yamal</text>', svg)        # 1.5 + 4.4, not above the header
     assert re.search(r'<text x="108" y="27.4"[^>]*>Williams</text>', svg)   # 30 - 2.6: above, as usual
+
+
+def test_the_numbers_of_a_final_the_answer_cites_without_a_real_case_line():
+    # "Quanti tiri ha fatto..." has no "Caso reale" line: the answer cites the final, the question names a number
+    answer = "Nella finale la Spagna ha avuto il 60,2% di possesso [case_2026_wc_final_spain_argentina]."
+    chat = [{"role": "user", "content": "Quanto possesso ha avuto la Spagna?"},
+            {"role": "assistant", "content": answer, "guard": {"input": "football"}}]
+    kinds = [re.search(r'<figure class="ma-figure ?([\w-]*)"', f)[1] for f in answer_figures(chat, 1, CARDS)]
+    assert kinds == ["ma-numbers"]                                   # no timeline: it is not the real case of an advice
+    chat[0]["content"] = "Cosa è successo in quella finale?"
+    chat[1]["content"] = "Decise un cambio nei supplementari [case_2026_wc_final_spain_argentina]."
+    assert answer_figures(chat, 1, CARDS) == []                      # no number named: nothing

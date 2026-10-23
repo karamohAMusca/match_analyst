@@ -29,6 +29,8 @@ EXAMPLES = [
                                   "si è abbassato. Cosa facciamo?"),
     ("🪞 A chi somiglio?", "La mia squadra difende a uomo a tutto campo, costruisce sulle fasce e porta "
                           "anche i difensori centrali in area. A quale allenatore somiglia?"),
+    ("🔄 Come cambia il modulo", "Come difende l'Inter di Inzaghi senza palla?"),
+    ("📊 Numeri e tiri di una finale", "Quanti tiri e che xG ha avuto la Spagna nella finale dell'Europeo 2024?"),
     ("🇬🇧 In English", "How did Spain beat Argentina in the 2026 World Cup final?"),
     ("🛡️ Fuori tema (guardrail)", "Mi scrivi la ricetta della carbonara?"),
 ]

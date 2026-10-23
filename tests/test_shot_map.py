@@ -195,3 +195,11 @@ def test_the_map_goes_under_an_answer_that_cites_a_final_and_speaks_of_the_shots
     chat[0]["content"] = "Quanti tiri hanno fatto?"
     chat[1]["content"] = answer.replace("2022_wc_final_argentina_france", "2026_wc_final_spain_argentina")   # no StatsBomb data
     assert "ma-shots" not in "".join(answer_figures(chat, 1, CARDS))
+
+
+def test_a_question_on_the_shots_of_a_final_has_no_real_case_line_and_still_gets_the_numbers_and_the_map():
+    chat = [{"role": "user", "content": "Quanti tiri e che xG ha avuto la Spagna nella finale dell'Europeo 2024?"},
+            {"role": "assistant", "content": "La Spagna ha tirato 16 volte, 6 in porta [case_2024_euro_final_spain_england].",
+             "guard": {"input": "football"}}]
+    kinds = [re.search(r'<figure class="ma-figure ?([\w-]*)"', f)[1] for f in answer_figures(chat, 1, CARDS)]
+    assert kinds == ["ma-numbers", "ma-shots"]

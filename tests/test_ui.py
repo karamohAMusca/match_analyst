@@ -147,3 +147,12 @@ def test_conversation_keeps_memory_and_guardrails(conversation):
     assert conversation.ask("E perché?")["guard"]["input"] == "follow_up"          # memory: follow-ups go through
     blocked = conversation.ask("Mi scrivi la ricetta della carbonara?")
     assert blocked["calls"] == [] and "fuori tema" in blocked["guard_note"]
+
+
+def test_every_example_question_goes_through_the_guards_but_the_guardrail_one():
+    from src.guardrails.input_guard import check_question
+    labels = [label for label, _ in view.EXAMPLES]
+    assert len(set(labels)) == len(labels) and len(view.EXAMPLES) == 7
+    for label, question in view.EXAMPLES:
+        verdict = check_question(question)
+        assert (verdict.reason == "off_topic") == ("Fuori tema" in label), label

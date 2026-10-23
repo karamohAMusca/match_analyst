@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from src.guardrails.language import detect_language
+from src.guardrails.output_guard import cited_ids
 from src.guardrails.real_case import CASE_LINE_RE, case_ids
 from src.ui.graphics.formations import coach_formations, formations_in, formations_svg
 from src.ui.graphics.goal import goal_actions, goal_svg, pick_goal
@@ -24,9 +25,10 @@ def answer_figures(messages: list[dict], index: int, cards: dict[str, dict], ani
     stopped by the input guard): the pitch, when its own question names a formation of the coach or
     of the opponent (the other side may come from an earlier question of the chat); a coach's change
     of shape, when a line citing the coach's card writes the shape it becomes; the timeline of every
-    final its real-case line cites, its numbers when the question or the answer names one of them and,
-    for a final with StatsBomb data, its shots when they speak of the shots and the action of a goal
-    (the one at a minute the line writes, else the longest)."""
+    final its real-case line cites and the action of a goal, for a final with StatsBomb data (the one
+    at a minute the line writes, else the longest); the numbers of every final the answer cites, when
+    the question or the answer names one of them, and, for a final with StatsBomb data, its shots when
+    they speak of the shots (a question on the shots of a final has no real-case line)."""
     def answered(i: int) -> bool:
         return (i < len(messages) and messages[i].get("role") == "assistant"
                 and (messages[i].get("guard") or {}).get("input") in ANSWERED)
@@ -44,15 +46,18 @@ def answer_figures(messages: list[dict], index: int, cards: dict[str, dict], ani
     if changes := cited_shape_changes(content, cards):   # the first change of shape the answer speaks of
         card_id, change = changes[0]
         figures.append(shape_svg(cards[card_id], change, english=english, animate=animate))
-    for case_id in real_cases(content):
-        if case_id in cards:
+    texts = (questions[-1] if questions else "", content)
+    real = real_cases(content)
+    for case_id in dict.fromkeys(real + [i for i in cited_ids(content) if i.startswith("case_")]):
+        if case_id not in cards:
+            continue
+        if case_id in real:
             figures.append(timeline_svg(cards[case_id], english=english, animate=animate))
-            if any(names_a_number(text, cards[case_id]) for text in (questions[-1] if questions else "", content)):
-                figures.append(numbers_svg(cards[case_id], english=english, animate=animate))
-            if (shots := match_shots().get(case_id)) and any(
-                    names_a_shot(text) for text in (questions[-1] if questions else "", content)):
-                figures.append(shots_svg(shots, cards[case_id], english=english, animate=animate))
-            line = next((m.group(0) for m in CASE_LINE_RE.finditer(content) if case_id in m.group(0)), "")
-            if goal := pick_goal(goal_actions().get(case_id, []), line):
-                figures.append(goal_svg(goal, cards[case_id], english=english, animate=animate))
+        if any(names_a_number(text, cards[case_id]) for text in texts):
+            figures.append(numbers_svg(cards[case_id], english=english, animate=animate))
+        if (shots := match_shots().get(case_id)) and any(names_a_shot(text) for text in texts):
+            figures.append(shots_svg(shots, cards[case_id], english=english, animate=animate))
+        line = next((m.group(0) for m in CASE_LINE_RE.finditer(content) if case_id in m.group(0)), "")
+        if case_id in real and (goal := pick_goal(goal_actions().get(case_id, []), line)):
+            figures.append(goal_svg(goal, cards[case_id], english=english, animate=animate))
     return [f for f in figures if f]

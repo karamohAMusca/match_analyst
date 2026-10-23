@@ -141,14 +141,15 @@ card and writes the shape his team takes ("il 3-5-2 diventa 5-3-2 senza palla"),
 one formation to the other (the change in the card's words, who goes where indicative); when the
 answer cites a final as its real case, its timeline follows (goals and score, saves, red cards, changes, extra time and
 penalties, each from the card's own words, with the teams' symbols: the flag of a national team, a neutral
-shield with the initials for a club, as club crests and competition logos are trademarks), its numbers when the question or the answer
-names one of them (a bar per metric of the card's "Numeri" table, split between the two teams) and,
+shield with the initials for a club, as club crests and competition logos are trademarks); the numbers of a final the answer cites,
+when the question or the answer names one of them (a bar per metric of the card's "Numeri" table, split between the two teams) and,
 for the two finals with StatsBomb event data (2022
 World Cup, Euro 2024), the action of a goal: the ball travelling through the passes at the real tempo,
 every player named when he touches it, and the map of the final's shots (each where it was taken, as
 large as its xG, the goals labelled) when the question or the answer speaks of the shots; and every answer shows what the guardrails did and, under "Dettagli", its time, tokens,
 cost and the searches the agent made. The sidebar starts a new conversation, switches model and
-guardrails (to show them at work) and has example questions, one in English and one off topic.
+guardrails (to show them at work) and has example questions: one for each graphic (the formations, a coach's
+change of shape, the numbers and shots of a final), one in English and one off topic.
 **Schede**: the 31 cards by category; a final with its timeline, its numbers and the goals to play, a
 coach with the change of shape his card writes. **Valutazione**: the measured results of the saved runs
 (no API call). With Phoenix running, every question is also a trace.
