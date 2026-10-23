@@ -58,6 +58,8 @@ def show_card(card: dict, height: int, number: int | None = None) -> None:
         st.markdown(timeline, unsafe_allow_html=True)
     if numbers := graphics.numbers_svg(card, animate=False):   # a final with a "Numeri" table: its numbers
         st.markdown(numbers, unsafe_allow_html=True)
+    if shots := graphics.match_shots().get(card["id"]):   # a final with StatsBomb data: its shots
+        st.markdown(graphics.shots_svg(shots, card, animate=False), unsafe_allow_html=True)
     for change in card.get("shape_changes") or []:   # a coach's changes of shape, from the card
         st.markdown(graphics.shape_svg(card, change, animate=False), unsafe_allow_html=True)
     if goals := graphics.goal_actions().get(card["id"]):   # a final with StatsBomb data: the action of a goal

@@ -8,6 +8,7 @@ from src.ui.graphics.formations import coach_formations, formations_in, formatio
 from src.ui.graphics.goal import goal_actions, goal_svg, pick_goal
 from src.ui.graphics.match_numbers import names_a_number, numbers_svg
 from src.ui.graphics.shape import cited_shape_changes, shape_svg
+from src.ui.graphics.shot_map import match_shots, names_a_shot, shots_svg
 from src.ui.graphics.timeline import timeline_svg
 
 ANSWERED = ("football", "follow_up")   # the input guard's verdicts of a question the agent answered
@@ -24,8 +25,8 @@ def answer_figures(messages: list[dict], index: int, cards: dict[str, dict], ani
     of the opponent (the other side may come from an earlier question of the chat); a coach's change
     of shape, when a line citing the coach's card writes the shape it becomes; the timeline of every
     final its real-case line cites, its numbers when the question or the answer names one of them and,
-    for a final with StatsBomb data, the action of a goal (the one at a minute the line writes, else
-    the longest)."""
+    for a final with StatsBomb data, its shots when they speak of the shots and the action of a goal
+    (the one at a minute the line writes, else the longest)."""
     def answered(i: int) -> bool:
         return (i < len(messages) and messages[i].get("role") == "assistant"
                 and (messages[i].get("guard") or {}).get("input") in ANSWERED)
@@ -48,6 +49,9 @@ def answer_figures(messages: list[dict], index: int, cards: dict[str, dict], ani
             figures.append(timeline_svg(cards[case_id], english=english, animate=animate))
             if any(names_a_number(text, cards[case_id]) for text in (questions[-1] if questions else "", content)):
                 figures.append(numbers_svg(cards[case_id], english=english, animate=animate))
+            if (shots := match_shots().get(case_id)) and any(
+                    names_a_shot(text) for text in (questions[-1] if questions else "", content)):
+                figures.append(shots_svg(shots, cards[case_id], english=english, animate=animate))
             line = next((m.group(0) for m in CASE_LINE_RE.finditer(content) if case_id in m.group(0)), "")
             if goal := pick_goal(goal_actions().get(case_id, []), line):
                 figures.append(goal_svg(goal, cards[case_id], english=english, animate=animate))

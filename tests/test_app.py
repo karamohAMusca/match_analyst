@@ -101,6 +101,18 @@ def test_the_cards_tab_shows_a_final_s_numbers_and_a_coach_s_change_of_shape(app
     assert len(shapes) == 1 and "3-5-2 → 5-3-2" in shapes[0] and "@keyframes" not in shapes[0]
 
 
+def test_a_final_with_statsbomb_data_shows_its_shots_in_the_cards_tab(app):
+    from src.ui.graphics import match_shots
+    if not match_shots():
+        pytest.skip("the derived StatsBomb shots are not on this computer")
+    app.radio(key="browse_card_match_case").set_value("case_2024_euro_final_spain_england").run()
+    assert not app.exception
+    shots = [m.value for m in app.markdown if "ma-shots" in m.value]
+    assert len(shots) == 1 and "16 tiri (6 in porta) · xG 1.79" in shots[0] and "@keyframes" not in shots[0]
+    app.radio(key="browse_card_match_case").set_value("case_2026_wc_final_spain_argentina").run()
+    assert not any("ma-shots" in m.value for m in app.markdown)                # no StatsBomb data for this final
+
+
 def test_the_graphics_preview_page_runs_without_the_model():
     page = AppTest.from_file(str(PROJECT_ROOT / "scripts" / "preview_graphics.py"), default_timeout=60).run()
     assert not page.exception

@@ -23,7 +23,8 @@ A graphic never draws what the model wrote. Its data comes from one of these, an
   `python -m scripts.ingest`);
 - **a card's own text, read by a parser** (`final_numbers`: the `## Numeri` table of a match card,
   each value as written); a value it cannot read for sure leaves its row out;
-- **third-party data derived by a script** (`scripts/build_goal_actions.py`), with its licence
+- **third-party data derived by a script** (`scripts/build_goal_actions.py`: the goal actions and the
+  shots, whose totals a test checks against the card's own "Numeri" table), with its licence
   respected: StatsBomb's raw data is not redistributed, so the derived file stays git-ignored and
   the graphic is simply absent where the file is missing (tests skip).
 

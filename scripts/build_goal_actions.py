@@ -1,6 +1,6 @@
-"""Derive the actions of the goals of the finals with StatsBomb event data (the raw files stay out of
-the repository: references/data/statsbomb/, git-ignored, licence) into a small file the app animates:
-references/derived/statsbomb_goal_actions.json.
+"""Derive the actions of the goals and the shots of the finals with StatsBomb event data (the raw files
+stay out of the repository: references/data/statsbomb/, git-ignored, licence) into a small file the app
+draws: references/derived/statsbomb_goal_actions.json.
 
 For every goal of play (not the shoot-out) of a match card whose `sources` cite a StatsBomb match_id:
 the touches of the scoring team in the last 25 seconds of the possession that ended in the goal, each
@@ -9,6 +9,11 @@ when (seconds from the first touch kept, the real tempo) and who, by the name th
 press use (`SHORT_NAMES`: "Lionel Andrés Messi Cuccittini" -> "Messi").
 The minute and the score come from the card's own timeline (the n-th goal of the match), so the
 animation and the timeline never disagree.
+
+Every shot of the match too (regular and extra time, not the shoot-out: the numbers of the card's
+"Numeri" table are of the match, and the file must agree with them): who, when, where the shot was
+taken (the team attacking left to right), the xG, the outcome and the type. A goal has the minute of
+the card; the other shots the minute of StatsBomb's event, the one in progress ("22:24" is the 23').
 
     python -m scripts.build_goal_actions
 """
@@ -45,6 +50,9 @@ SHORT_NAMES = {
     "Kingsley Coman": "Coman", "Kylian Mbappé Lottin": "Mbappé", "Lautaro Javier Martínez": "Lautaro Martínez",
     "Leandro Daniel Paredes": "Paredes", "Lionel Andrés Messi Cuccittini": "Messi", "Marcus Thuram": "Thuram",
     "Nahuel Molina Lucero": "Molina", "Ángel Fabián Di María Hernández": "Di María",
+    "Rodrigo Javier De Paul": "De Paul", "Randal Kolo Muani": "Kolo Muani", "Youssouf Fofana": "Fofana",
+    "Robin Aime Robert Le Normand": "Le Normand", "Declan Rice": "Rice", "Álvaro Borja Morata Martín": "Morata",
+    "Harry Kane": "Kane", "Phil Foden": "Foden", "Ollie Watkins": "Watkins", "Marc Guehi": "Guéhi",
     "Aymeric Laporte": "Laporte", "Bukayo Saka": "Saka", "Cole Palmer": "Palmer", "Daniel Carvajal Ramos": "Carvajal",
     "Daniel Olmo Carvajal": "Olmo", "Fabián Ruiz Peña": "Fabián Ruiz", "Jordan Pickford": "Pickford",
     "Jude Bellingham": "Bellingham", "Lamine Yamal Nasraoui Ebana": "Yamal", "Marc Cucurella Saseta": "Cucurella",
@@ -91,12 +99,32 @@ def goal_actions(events: list[dict], card: dict) -> list[dict]:
     return actions
 
 
+def match_shots(events: list[dict], card: dict) -> list[dict]:
+    """Every shot of the match, in the order they were taken (the shoot-out left out): the team as the
+    card writes it, the shooter's short name, the minute ("23'", the card's for a goal), the period, where
+    it was taken, its xG, the outcome and the type of StatsBomb."""
+    shots = [e for e in events if e["type"]["name"] == "Shot" and e["period"] < 5]
+    told = iter(e for e in card["timeline"] if e["kind"] in ("goal", "penalty"))
+    out = []
+    for e in shots:
+        shot = e["shot"]
+        minute = f"{e['minute'] + 1}'"
+        if shot["outcome"]["name"] == "Goal":
+            goal = next(told)
+            minute = goal.get("shown") or (f"{goal['minute']}'" if "minute" in goal else minute)
+        out.append({"team": TEAMS[e["team"]["name"]], "player": short_name(e["player"]["name"]), "minute": minute,
+                    "period": e["period"], "x": round(e["location"][0], 1), "y": round(e["location"][1], 1),
+                    "xg": round(shot["statsbomb_xg"], 3), "outcome": shot["outcome"]["name"],
+                    "type": shot["type"]["name"]})
+    return out
+
+
 def main() -> int:
     if not EVENTS_DIR.exists():
         print(f"StatsBomb events not found in {EVENTS_DIR} (see references/SOURCES.md)", file=sys.stderr)
         return 1
     out: dict = {"attribution": "Data: StatsBomb Open Data (https://github.com/statsbomb/open-data). "
-                                "Data provided by StatsBomb. Derived: the touches before each goal.",
+                                "Data provided by StatsBomb. Derived: the touches before each goal and the shots.",
                  "matches": {}}
     for c in load_cards():
         if c.metadata["category"] != "match_case":
@@ -106,8 +134,10 @@ def main() -> int:
             continue
         card = {"id": c.document_id, "timeline": c.metadata.get("timeline") or []}
         events = json.loads((EVENTS_DIR / f"{ids[0]}.json").read_text(encoding="utf-8"))
-        out["matches"][c.document_id] = {"match_id": int(ids[0]), "goals": goal_actions(events, card)}
-        print(f"{c.document_id}: {len(out['matches'][c.document_id]['goals'])} goals")
+        out["matches"][c.document_id] = {"match_id": int(ids[0]), "goals": goal_actions(events, card),
+                                         "shots": match_shots(events, card)}
+        match = out["matches"][c.document_id]
+        print(f"{c.document_id}: {len(match['goals'])} goals, {len(match['shots'])} shots")
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
     print(f"written {OUT.relative_to(PROJECT_ROOT)}")

@@ -50,6 +50,8 @@ for case_id in sorted(i for i in cards if i.startswith("case_")):
     st.markdown(graphics.timeline_svg(cards[case_id], animate=False), unsafe_allow_html=True)
     if numbers := graphics.numbers_svg(cards[case_id], animate=False):
         st.markdown(numbers, unsafe_allow_html=True)
+    if shots := graphics.match_shots().get(case_id):
+        st.markdown(graphics.shots_svg(shots, cards[case_id]), unsafe_allow_html=True)
 
 st.markdown("### Le azioni dei gol (StatsBomb)")
 actions = graphics.goal_actions()

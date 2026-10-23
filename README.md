@@ -145,7 +145,8 @@ shield with the initials for a club, as club crests and competition logos are tr
 names one of them (a bar per metric of the card's "Numeri" table, split between the two teams) and,
 for the two finals with StatsBomb event data (2022
 World Cup, Euro 2024), the action of a goal: the ball travelling through the passes at the real tempo,
-every player named when he touches it; and every answer shows what the guardrails did and, under "Dettagli", its time, tokens,
+every player named when he touches it, and the map of the final's shots (each where it was taken, as
+large as its xG, the goals labelled) when the question or the answer speaks of the shots; and every answer shows what the guardrails did and, under "Dettagli", its time, tokens,
 cost and the searches the agent made. The sidebar starts a new conversation, switches model and
 guardrails (to show them at work) and has example questions, one in English and one off topic.
 **Schede**: the 31 cards by category; a final with its timeline, its numbers and the goals to play, a
@@ -463,5 +464,6 @@ Theses are public FIGC documents (not redistributed: download them from the URLs
 Wikipedia extracts are CC BY-SA 4.0. Match statistics computed from **StatsBomb Open Data**
 (data provided by StatsBomb; raw data not redistributed). The goal actions the app animates are derived
 from the same events by `python -m scripts.build_goal_actions` and stay local as well
-(`references/derived/`, git-ignored): without them the app shows no goal action, everything else works.
+(`references/derived/`, git-ignored): without them the app shows no goal action and no shot map,
+everything else works.
 FIFA match reports are public documents.

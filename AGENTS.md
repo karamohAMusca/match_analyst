@@ -38,7 +38,7 @@ Useful commands (from the project root, virtual environment active):
 | `python -m scripts.review_chats [--all \| <file>]` | automatic checks on the chats saved by the app (`chats/`) | no |
 | `python -m scripts.eval_retrieval --offline --no-save` | retrieval results of every configuration, from the cached question vectors | no (Qdrant running) |
 | `streamlit run scripts/preview_graphics.py` | the graphics under an answer, the timelines and the goal actions, without the model | no |
-| `python -m scripts.build_goal_actions` | the touches before each goal of the finals with StatsBomb data, for the app's animation (`references/derived/`, git-ignored: StatsBomb's licence) | no (needs the raw StatsBomb events) |
+| `python -m scripts.build_goal_actions` | the touches before each goal and the shots of the finals with StatsBomb data, for the app's animation and shot map (`references/derived/`, git-ignored: StatsBomb's licence) | no (needs the raw StatsBomb events) |
 | `python -m scripts.verify --save / --check --cmd "<command>" --baseline <file>` | saves the output of a command, then checks that it did not change | no |
 | `python mcp_server.py` | the knowledge base as an MCP server for Claude Desktop and other hosts (stdio; `MCP_HTTP=1` for Streamable HTTP) | only `search_cards` (and Qdrant) |
 | `python -m scripts.start` | Qdrant + Phoenix + the app; the log live in the terminal, the review of the session's chats on Ctrl+C | yes |

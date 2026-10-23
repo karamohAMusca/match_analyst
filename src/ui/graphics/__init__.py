@@ -10,6 +10,7 @@ One module per graphic:
 - `timeline.py`: the timeline of a final, from the `timeline:` of its card;
 - `match_numbers.py`: the numbers of a final, the two teams side by side, from the "Numeri" table of its card;
 - `goal.py`: the action of a goal of a final, from StatsBomb's events;
+- `shot_map.py`: the shots of a final on the pitch, from StatsBomb's events;
 with `badges.py` (the teams' symbols) and `svg.py` (the pitch, the colours, the text, the style of an
 animation, the caption) shared, and `answer.py` choosing the graphics under an answer.
 This package keeps the names the app, the scripts and the tests import.
@@ -21,12 +22,13 @@ from src.ui.graphics.formations import coach_formations, formation_places, forma
 from src.ui.graphics.goal import GOAL_ACTIONS, goal_actions, goal_label, goal_svg, pick_goal
 from src.ui.graphics.match_numbers import final_numbers, names_a_number, numbers_svg
 from src.ui.graphics.shape import cited_shape_changes, shape_moves, shape_svg
+from src.ui.graphics.shot_map import match_shots, names_a_shot, shot_totals, shots_svg
 from src.ui.graphics.svg import pitch_svg
 from src.ui.graphics.timeline import PERIODS, event_minutes, timeline_svg
 
 __all__ = [
     "ANSWERED", "GOAL_ACTIONS", "PERIODS", "answer_figures", "badge_width", "cited_shape_changes", "coach_formations",
     "event_minutes", "final_numbers", "formation_places", "formations_in", "formations_svg", "goal_actions",
-    "goal_label", "goal_svg", "names_a_number", "numbers_svg", "pick_goal", "pitch_svg", "real_cases", "shape_moves",
-    "shape_svg", "team_badge", "timeline_svg",
+    "goal_label", "goal_svg", "match_shots", "names_a_number", "names_a_shot", "numbers_svg", "pick_goal", "pitch_svg",
+    "real_cases", "shape_moves", "shape_svg", "shot_totals", "shots_svg", "team_badge", "timeline_svg",
 ]
