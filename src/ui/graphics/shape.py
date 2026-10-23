@@ -85,12 +85,14 @@ def shape_moves(first: str, second: str) -> list[tuple[Place, Place]]:
 
 def cited_shape_changes(answer: str, cards: dict[str, dict]) -> list[tuple[str, dict]]:
     """The (card id, change) pairs to draw under an answer: of each card it cites, in the order of the
-    answer and once, the shape changes whose second formation a line citing the card writes ("il 3-5-2
-    diventa 5-3-2 senza palla [coach_inzaghi]"), so that a figure comes only with an answer that speaks
-    of the change: not with a 4-4-2 written elsewhere (the opponent's, say) by an answer citing Pioli."""
+    answer and once, the shape changes whose second formation a line citing the card, or a line citing
+    no card (the opening line, often), writes ("il 3-5-2 diventa 5-3-2 senza palla [coach_inzaghi]"), so
+    that a figure comes only with an answer that speaks of the change: not with a 4-4-2 (the first shape
+    of Pioli's change) nor with a formation of a line citing another card."""
     pairs = []
     for card_id in cited_ids(answer):
-        written = set().union(*(written_formations(line) for line in answer.splitlines() if card_id in cited_ids(line)))
+        written = set().union(*(written_formations(line) for line in answer.splitlines()
+                                if card_id in cited_ids(line) or not cited_ids(line)))
         pairs += [(card_id, change) for change in (cards.get(card_id) or {}).get("shape_changes") or []
                   if as_formation(str(change.get("to", ""))) in written]
     return pairs

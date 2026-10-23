@@ -215,8 +215,13 @@ def test_a_line_citing_the_card_and_writing_the_shape_it_becomes_draws_the_figur
 def test_the_changes_drawn_under_an_answer():
     assert cited_shape_changes("Inzaghi ha esterni che attaccano [coach_inzaghi].", CARDS) == []   # cited, no formation
     assert cited_shape_changes("Inzaghi parte dal 3-5-2 [coach_inzaghi].", CARDS) == []   # the first shape only
-    # the shape it becomes, but on another line: the opponent's, say, not the card's change
-    assert cited_shape_changes("Il loro 5-3-2 si apre sulle fasce.\n\nInzaghi usa gli esterni [coach_inzaghi].", CARDS) == []
+    # the shape it becomes on a line citing another card: that card's, not this change
+    assert cited_shape_changes("Un 5-3-2 basso protegge [situation_difendere_un_vantaggio].\n\n"
+                               "Inzaghi usa gli esterni [coach_inzaghi].", CARDS) == []
+    # an opening line with no citation, as the model writes it (the app, 2026-10-21)
+    opening = ("L'Inter di Inzaghi difende senza palla principalmente in un 5-3-2, con i terzini che tornano in difesa.\n\n"
+               "- **Fluidità tattica**: Il sistema è fluido [coach_inzaghi].")
+    assert cited_shape_changes(opening, CARDS) == [("coach_inzaghi", CHANGE)]
     assert cited_shape_changes("Contro un 4-4-2 alzate il blocco.\n\nPioli: terzini nell'azione [coach_pioli].", CARDS) == []
     assert cited_shape_changes("Guardiola usa il 4-3-3 senza centravanti [coach_guardiola].", CARDS) == []   # another formation
     assert cited_shape_changes("Un 5-3-2 basso protegge il vantaggio [situation_difendere_un_vantaggio].", CARDS) == []   # not cited
