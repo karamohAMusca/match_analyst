@@ -1,7 +1,8 @@
 """What the writer adds to the cards, or leaves unmarked, taken care of by code after the review:
 a closing summary with no citation (`closing_summary`), an effect added after a comma
 (`effect_tails`, E20), a detail said to be missing without the words "Non lo so"
-(`unmarked_unknown`, E19). None of them needs a model call.
+(`unmarked_unknown`, E19), and every external link or image (`links.py`, kept out of the answer
+before and after the review). None of them needs a model call.
 """
 
 from __future__ import annotations
@@ -9,6 +10,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from src.guardrails.links import strip_external_links
 from src.guardrails.output_guard import BRACKETS_RE
 from src.guardrails.real_case import CASE_LINE_RE
 from src.guardrails.text import LEAD_RE, normalize, remove_sentences, sentences
@@ -95,10 +97,14 @@ def unmarked_unknown(answer: str) -> str | None:
 
 # ---------------------------------------------------------------- all three, after the review
 def tidy(answer: str, english: bool) -> tuple[str, dict[str, Any]]:
-    """The answer after the review, in this order: the effect tails cut, the closing summary removed,
-    "Non lo so." (in English "I don't know.") put before an unknown said without it. Also what was
-    done, for the guardrails' report: the keys "tails", "closing", "unknown", only when done."""
+    """The answer after the review, in this order: the external links and images removed (a rewrite may
+    bring them back), the effect tails cut, the closing summary removed, "Non lo so." (in English
+    "I don't know.") put before an unknown said without it. Also what was done, for the guardrails'
+    report: the keys "links", "tails", "closing", "unknown", only when done."""
     done: dict[str, Any] = {}
+    answer, links = strip_external_links(answer)
+    if links:
+        done["links"] = links
     if tails := effect_tails(answer):
         done["tails"] = tails
         for tail in tails:

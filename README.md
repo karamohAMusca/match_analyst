@@ -31,7 +31,7 @@ match data), giving priority to recent (2022–2026) winning tactics. Questions 
 | `src/rag/` | Qdrant store, ingestion, hybrid retrieval (dense + BM25, a datapizza `DagPipeline`) |
 | `src/tools/` | the agent's tools: `search_cards`, `read_card` |
 | `src/agent/` | the datapizza-ai agent and its system prompt |
-| `src/guardrails/` | input guard (off-topic, injection), output guard (language, grounding, citations) and the facts written or checked by code: real case, coaches and teams, the side of a game situation, additions (`facts.py` and its modules) |
+| `src/guardrails/` | input guard (off-topic, injection), output guard (language, grounding, citations, no external link or image) and the facts written or checked by code: real case, coaches and teams, the side of a game situation, additions (`facts.py` and its modules) |
 | `src/observability/` | traces in Arize Phoenix (OpenTelemetry → OpenInference) |
 | `src/evaluation/` | measuring against the gold set: retrieval metrics, answer checks, LLM judge, gold run, cost |
 | `src/ui/` | logic of the Streamlit app: the conversation backend, the formatting, the graphics under an answer, the saved chats |

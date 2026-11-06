@@ -30,6 +30,7 @@ from src.guardrails.facts import (FACT_KINDS, collapse_real_cases, expand_real_c
                                   perspective_issues, premise_issues, remove_sentences, tidy, writes_man_down)
 from src.guardrails.grounding import trim_name_parts
 from src.guardrails.language import detect_language
+from src.guardrails.links import strip_external_links
 from src.guardrails.input_guard import check_question
 from src.evaluation.judge import JUDGE_MAX_RETRIES, JUDGE_TEMPERATURE, JUDGE_TIMEOUT_S
 from src.guardrails.output_guard import Issue, review_answer
@@ -186,10 +187,15 @@ class MatchAnalyst:
         draft = response.text if hasattr(response, "text") else str(response)
         answer = self._compose(draft)
         if self.guardrails:
+            # no external link or image reaches the checks (their addresses would read as invented names)
+            answer, links = strip_external_links(answer)
             with span("output_guard", "GUARDRAIL", answer) as guard:
                 answer = self._review(question, answer)
                 # what the writer added, taken out, and an unknown marked (src/guardrails/additions.py)
                 answer, done = tidy(answer, english)
+                if links := list(dict.fromkeys(links + done.pop("links", []))):
+                    done["links"] = links
+                    log.warning("output guard: %d external links or images removed from the answer", len(links))
                 self.last_guard.update(done)
                 if "tails" in done:
                     log.info("output guard: %d effect tails removed", len(done["tails"]))
@@ -376,6 +382,10 @@ class MatchAnalyst:
             count = len(guard["tails"])
             notes.append("tolta un'aggiunta non scritta nelle schede" if count == 1 else
                          f"tolte {count} aggiunte non scritte nelle schede")
+        if guard.get("links"):
+            count = len(guard["links"])
+            notes.append("tolto un link o un'immagine esterna" if count == 1 else
+                         f"tolti {count} link o immagini esterni")
         if guard.get("closing"):
             notes.append("tolta la frase di chiusura senza fonte")
         if guard.get("trimmed"):
