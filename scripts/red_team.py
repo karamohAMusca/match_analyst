@@ -35,7 +35,8 @@ def print_offline(report: dict) -> None:
     print(f"{'attack':18} {'input guard':12} {'expected':10}  barrier")
     for row in report["attacks"]:
         mark = "ok " if row["input_ok"] else "NO "
-        print(f"{row['id']:18} {row['input']:12} {row['expect_input']:10} {mark} {row.get('barrier') or ''}")
+        probe = f" - probed: {row['probe']}" if row.get("probe") else ""
+        print(f"{row['id']:18} {row['input']:12} {row['expect_input']:10} {mark} {row.get('barrier') or ''}{probe}")
     print()
     for control in report["controls"]:
         print(f"control {control['id']:16} input guard: {control['input']}")

@@ -35,6 +35,7 @@ from src.guardrails.links import strip_external_links
 from src.guardrails.input_guard import check_question
 from src.evaluation.judge import JUDGE_MAX_RETRIES, JUDGE_TEMPERATURE, JUDGE_TIMEOUT_S
 from src.guardrails.output_guard import Issue, review_answer
+from src.guardrails.prompt_leak import REFUSAL, leaked
 from src.guardrails.redact import redact
 from src.guardrails.verifier import VERIFIER_MODEL, verify_answer
 from src.observability.tracing import set_output, span
@@ -199,7 +200,12 @@ class MatchAnalyst:
         response = self.agent.run(question + ENGLISH_REMINDER if english else question)
         draft = response.text if hasattr(response, "text") else str(response)
         answer = self._compose(draft)
-        if self.guardrails:
+        if self.guardrails and (leak := leaked(answer, MATCH_ANALYST_SYSTEM_PROMPT)):
+            # the instructions repeated: a refusal instead, nothing to review (src/guardrails/prompt_leak.py)
+            self.last_guard["prompt_leak"] = leak[:5]
+            log.warning("output guard: the answer repeated the system prompt (%d fragments), replaced", len(leak))
+            answer = REFUSAL["en" if english else "it"]
+        elif self.guardrails:
             # no external link or image reaches the checks (their addresses would read as invented names)
             answer, links = strip_external_links(answer)
             with span("output_guard", "GUARDRAIL", answer) as guard:
@@ -400,6 +406,8 @@ class MatchAnalyst:
             return ("Guardrail: nessuna scheda per chi gioca con un uomo in meno: risposta composta con le "
                     "schede, cosa farà l'avversario.")
         notes = []
+        if guard.get("prompt_leak"):
+            notes.append("la risposta riportava le istruzioni dell'assistente: non mostrata")
         if guard.get("rewritten"):
             fixed = dict.fromkeys(ISSUE_NOTES[i.split(":")[0]] for i in guard["issues"])
             notes.append("risposta corretta automaticamente (" + ", ".join(fixed) + ")")

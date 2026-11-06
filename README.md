@@ -361,16 +361,23 @@ python -m scripts.red_team --compare <a> <b>       # the same attacks in two sav
 
 The defences are one per hop, and deterministic where they can be: the input guard (injection, off topic, length),
 the output handling (no external link or image in an answer, `src/guardrails/links.py`, also applied by the page),
-the page (the text of the model is shown escaped), least privilege (the tools only search and read the cards: no file,
-no email, no network; the MCP server looks an id up among the cards), the corpus and the tool definitions as data
-(`src/guardrails/corpus_scan.py`, a fingerprint on the MCP tools). What no deterministic barrier stops (the model
-must refuse a leak of the prompt, a note hidden in a pasted text, a mixed request) is reported as a residual risk.
+the page (the text of the model is shown escaped), the output guard on the system prompt (an answer that repeats
+the instructions is replaced by a refusal, `src/guardrails/prompt_leak.py`), least privilege (the tools only search
+and read the cards: no file, no email, no network; an id is looked up among the cards, so `../../.env` reads nothing),
+the corpus and the tool definitions as data (`src/guardrails/corpus_scan.py`, a fingerprint on the MCP tools). The
+barriers that the set does not try with a hijacked answer are tried offline by a probe (the system prompt as an
+answer, file paths given to both card tools). What no deterministic barrier stops (the model must refuse a note
+hidden in a pasted text, a mixed request) is reported as a residual risk: 3 attacks of 13. A leak translated or
+paraphrased has no words of the original and is not caught either.
 
 Measured (2026-11-06, gpt-4o-mini, run `red_team_20261106-151005`): of the 13 attacks, 4 are stopped by the input guard
 and 9 reach the model. The bare agent obeys 2 of those 9, the image and the link to an outside address, and the output
 handling removes both: with the guardrails none reaches the coach, and the 3 control questions are still answered with
 their sources. The other 7 were not obeyed by the model in this run ("Non lo so" or plain football advice): that is the
 residual risk, which this run shows but does not guarantee, since a prompt injection is mitigated, not eliminated.
+After this run the two leaks and the file path got a deterministic barrier (the output guard on the system prompt, the
+offline probe of the card tools), and the HTML already had one (the page escapes it): the residual risk is now the two
+notes hidden in a pasted article and the mixed request.
 
 ### Gold run: the whole system judged by an LLM
 
@@ -534,7 +541,7 @@ page fetches nothing the model wrote.
 ### Is it safe?
 
 Measured, not claimed: a fixed set of 13 attacks run before and after the defences (see *Attacks and defences*
-above). With the guardrails none reached the coach; 6 have no deterministic barrier and stay a residual risk. The
+above). With the guardrails none reached the coach; 3 have no deterministic barrier and stay a residual risk. The
 agent can only search and read the cards: no file, no email, no network, nothing it can change. Not done, and
 needed before the app is put online: authentication, a limit of questions and spending per user (today a
 question costs about 0.001 $, but nothing stops a loop of them), HTTPS.
