@@ -75,6 +75,8 @@ Every file in `references/wikipedia/` is cited by at least one card; unused page
 
 ### 2.3 StatsBomb Open Data — `references/data/statsbomb/`
 
+Repository: https://github.com/hudl/open-data (the former `statsbomb/open-data`, which redirects there).
+
 Events (`events/`) and match metadata (`matches/43/106.json`, `matches/55/282.json`) for match 3869685
 (2022 World Cup final) and 3943043 (Euro 2024 final). Licence:
 `references/data/statsbomb/LICENSE.pdf` (StatsBomb Public Data User Agreement): research and non-commercial use,
@@ -144,4 +146,4 @@ the text of the question's `relevant_sources`.
 - [x] StatsBomb credited in text wherever its numbers are shown: the app's sidebar and the caption of the numbers, the
       shot map and the goal actions, and the README ("Data provided by StatsBomb").
 - [ ] Add the StatsBomb logo next to that credit (the app's sidebar, the slides): download it from the StatsBomb
-      resource centre, as the licence agreement allows (project owner).
+      Media Pack (https://statsbomb.com/media-pack/), as the open data README asks (project owner).

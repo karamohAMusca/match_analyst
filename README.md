@@ -602,7 +602,7 @@ club use it to evaluate players, which would move it towards Annex III?
 | Source code (`src/`, `scripts/`, `tests/`, `app.py`, ...) | MIT, see `LICENSE` |
 | Cards (`corpus/`) and Wikipedia extracts (`references/wikipedia/`) | The cards quote and summarise Wikipedia pages, which are CC BY-SA 4.0: the cards and the extracts keep that licence (attribution to the page and revision is in each card's front matter, share-alike for what derives from them) |
 | FIGC theses | Public documents of their authors: not redistributed (download them from the URLs in `SOURCES.md`); the cards only quote short passages, each with its page |
-| StatsBomb Open Data | Data provided by [StatsBomb](https://github.com/statsbomb/open-data) under its public data agreement (research and non-commercial use, credit StatsBomb): the raw events are not redistributed |
+| StatsBomb Open Data | Data provided by [StatsBomb](https://github.com/hudl/open-data) under its public data agreement (research and non-commercial use, credit StatsBomb): the raw events are not redistributed |
 | FIFA match reports | Public documents, kept locally |
 
 Match statistics are computed from **StatsBomb Open Data**

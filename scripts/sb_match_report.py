@@ -42,7 +42,7 @@ def main(match_id: int, out: Path) -> None:
     w("---")
     w(f"title: Match data — {home} vs {away} ({meta['competition']['competition_name']} {meta['season']['season_name']})")
     w("source: StatsBomb Open Data")
-    w(f"url: https://github.com/statsbomb/open-data (match_id {match_id})")
+    w(f"url: https://github.com/hudl/open-data (match_id {match_id})")
     w("license: StatsBomb Public Data User Agreement — research/non-commercial use, credit StatsBomb")
     w("source_type: data")
     w("note: Figures computed from StatsBomb event data. Data provided by StatsBomb.")

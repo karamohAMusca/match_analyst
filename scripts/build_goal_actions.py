@@ -123,7 +123,7 @@ def main() -> int:
     if not EVENTS_DIR.exists():
         print(f"StatsBomb events not found in {EVENTS_DIR} (see references/SOURCES.md)", file=sys.stderr)
         return 1
-    out: dict = {"attribution": "Data: StatsBomb Open Data (https://github.com/statsbomb/open-data). "
+    out: dict = {"attribution": "Data: StatsBomb Open Data (https://github.com/hudl/open-data). "
                                 "Data provided by StatsBomb. Derived: the touches before each goal and the shots.",
                  "matches": {}}
     for c in load_cards():
