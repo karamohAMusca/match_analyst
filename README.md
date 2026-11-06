@@ -8,7 +8,10 @@ match data), giving priority to recent (2022–2026) winning tactics. Questions 
 > **Status:** complete: knowledge base, hybrid retrieval, the agent with its corpus tools,
 > input/output guardrails (the facts of a real match, coaches and teams, the side of a game
 > situation, unsupported additions: 20 errors found and handled, see `eval/error_log.md`),
-> conversation memory, tracing in Phoenix, the Streamlit app and the evaluation with an LLM judge.
+> conversation memory (compact: only questions and answers, the cards are read again when a follow-up needs them),
+> tracing in Phoenix, the Streamlit app with its graphics under an answer (the formations on a pitch, a coach's
+> change of shape, the timeline, the numbers and the shots of a final, the action of every goal) and the
+> evaluation with an LLM judge. Version 1.5.
 > The knowledge base is also an MCP server, usable from Claude Desktop and other hosts. Final
 > gold run (2026-10-21): faithfulness 0.958, relevancy 0.926, abstention 3/3, recall@5 0.95,
 > p95 9.0 s, 0.0011 $ per answer ([results](#results-41-questions-answers-with-guardrails-on-judge-gpt-41-mini)).
@@ -430,6 +433,12 @@ to the OpenInference names Phoenix reads. If Phoenix is not running, tracing is 
 the scripts say so; `eval_agent --no-trace` switches it off on purpose.
 
 ### Checks from a clean install
+
+**Tracked files only (2026-11-06, version 1.5).** The repository cloned into a new folder and the offline
+tests run there with the project's environment: 937 passed and 45 skipped, all of them tests of data that git
+does not hold (the raw StatsBomb events and what is derived from them for the goal actions and the shot map).
+`pip check` found no broken requirement, `check_corpus` 0 problems out of 31 cards (in the working copy, which
+has the PDFs of the sources), and no file that must stay local (`.env`, PDFs, chats, logs, StatsBomb data) is tracked.
 
 **Final version (2026-10-21).** The `develop` branch cloned into a new folder outside OneDrive, with a
 fresh Python 3.12 environment, a copy of `.env` and the Qdrant of the project already running (a
