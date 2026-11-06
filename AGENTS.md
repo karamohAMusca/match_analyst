@@ -84,6 +84,7 @@ Useful commands (from the project root, virtual environment active):
 
 ### Evaluation
 - `eval/gold_set.json` is the evaluation yardstick: do not edit it while tuning prompts or retrieval.
+- The agent's and the MCP server's tools are an allowlist (`AGENT_TOOLS`, `MCP_TOOLS` in `src/evaluation/red_team.py`), all read-only: adding a tool is a security decision. `python -m scripts.red_team` checks the lethal trifecta from the tools that exist (today 1 of 3: untrusted input only) and fails when all three are present.
 - `eval/red_team.json` is the security yardstick, frozen the same way: the attacks (vector, target, channel) are not edited to make a defence pass. A defence is evidence only when the same attacks are run before and after it (`scripts/red_team.py`); an attack no deterministic barrier stops is listed as a residual risk, not hidden.
 - Every run and every saved answer carries its `build` (`src/core/build_info.py`): compare two runs only when their `prompts`, `guardrails_code` and `corpus` fingerprints say what changed between them.
 - List every run in `eval/runs/README.md`; record every wrong answer found in `eval/error_log.md` and try each fix on those cases first.

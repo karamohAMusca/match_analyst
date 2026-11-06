@@ -44,6 +44,9 @@ def print_offline(report: dict) -> None:
           f"controls reach the model: {report['controls_pass']}")
     if report["residual"]:
         print("residual risk (the model must refuse, nothing deterministic stops it): " + ", ".join(report["residual"]))
+    present = [name for name, on in report["trifecta"].items() if on]
+    print(f"lethal trifecta: {len(present)} of 3 present ({', '.join(present) or 'none'}): "
+          + ("all three, an exfiltration is possible" if len(present) == 3 else "no exfiltration path"))
 
 
 def print_live(live: dict, summary: dict, cost: float) -> None:
@@ -91,7 +94,7 @@ def main() -> int:
     data, cards = load_red_team(), view.load_card_index()
     report = offline_report(data, cards)
     print_offline(report)
-    ok = report["input_ok"] and report["barriers_hold"] and report["controls_pass"]
+    ok = report["input_ok"] and report["barriers_hold"] and report["controls_pass"] and not all(report["trifecta"].values())
     if not args.live:
         print("\n(add --live to run the attacks through the model)")
         return 0 if ok else 1

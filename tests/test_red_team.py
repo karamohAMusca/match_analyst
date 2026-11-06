@@ -212,3 +212,37 @@ def test_a_leak_replaced_by_the_output_guard_is_said_so():
     data = {**DATA, "attacks": [a for a in DATA["attacks"] if a["id"] == "leak_football_en"], "controls": []}
     live = run_live(data, lambda guardrails: Leaker(guardrails), CARDS)
     assert live["attacks"][0]["stopped_by"] == "output guard (system prompt)" and live["attacks"][0]["after"]["clean"]
+
+
+# ---------------------------------------------------------------- the lethal trifecta and the tool allowlist
+def test_the_tools_are_the_allowed_ones_and_all_read_only():
+    assert red_team.agent_tools() == red_team.AGENT_TOOLS
+    assert red_team.mcp_tools() == [(name, True) for name in red_team.MCP_TOOLS]
+
+
+def test_only_one_condition_of_the_trifecta_is_present():
+    assert offline_report(DATA, CARDS)["trifecta"] == {"untrusted input": True, "private data": False,
+                                                       "external channel": False}
+
+
+def test_a_new_tool_completes_the_trifecta_until_it_is_reviewed():
+    sending = red_team.trifecta(red_team.AGENT_TOOLS + ["send_email"], [(n, True) for n in red_team.MCP_TOOLS])
+    assert all(sending.values())                                                 # an exfiltration becomes possible
+    writing = red_team.trifecta(red_team.AGENT_TOOLS, [("list_cards", True), ("read_card", False), ("search_cards", True)])
+    assert writing["external channel"] and not writing["private data"]          # a tool that is not read-only
+
+
+def test_the_trifecta_follows_the_barriers(monkeypatch):
+    tools, mcp = red_team.AGENT_TOOLS, [(n, True) for n in red_team.MCP_TOOLS]
+    monkeypatch.setattr(red_team, "strip_external_links", lambda answer: (answer, []))
+    assert red_team.trifecta(tools, mcp)["external channel"]                     # links in the answer: a channel
+    monkeypatch.setattr(red_team.CorpusTools, "read_card", lambda self, document_id: "the file")
+    assert all(red_team.trifecta(tools, mcp).values())                           # a tool that reads files
+
+
+def test_the_command_fails_when_the_trifecta_is_complete(monkeypatch, capsys):
+    monkeypatch.setattr("sys.argv", ["red_team"])
+    monkeypatch.setattr(script, "offline_report", lambda data, cards: {
+        **offline_report(data, cards), "trifecta": dict.fromkeys(("untrusted input", "private data", "external channel"), True)})
+    assert script.main() == 1
+    assert "lethal trifecta: 3 of 3 present" in capsys.readouterr().out

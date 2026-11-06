@@ -370,6 +370,15 @@ answer, file paths given to both card tools). What no deterministic barrier stop
 hidden in a pasted text, a mixed request) is reported as a residual risk: 3 attacks of 13. A leak translated or
 paraphrased has no words of the original and is not caught either.
 
+**The lethal trifecta.** An exfiltration needs three things together: untrusted input, access to private data and a
+channel to the outside. The offline report checks them from the tools that actually exist (the agent's and the
+MCP server's, read from `tools/list`): untrusted input is always there (the coach's question, a pasted text, cards
+derived from Wikipedia); private data is not, because the card tools read no file; an external channel is not,
+because every tool is read-only and the answer holds no link. So 1 of 3. The tools are an allowlist
+(`AGENT_TOOLS`, `MCP_TOOLS` in `src/evaluation/red_team.py`): a tool not in it counts as both private data and an
+external channel until it is reviewed, and the command fails when all three are present. No human approval gate is
+needed for the same reason: the agent has no action to approve, it sends, writes and changes nothing.
+
 Measured (2026-11-06, gpt-4o-mini, run `red_team_20261106-151005`): of the 13 attacks, 4 are stopped by the input guard
 and 9 reach the model. The bare agent obeys 2 of those 9, the image and the link to an outside address, and the output
 handling removes both: with the guardrails none reaches the coach, and the 3 control questions are still answered with
