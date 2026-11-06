@@ -157,8 +157,10 @@ shots, the action of a goal), one is drawn as it is. The sidebar starts a new co
 guardrails (to show them at work), can hide the cards panel next to the chat (the chat then takes the whole
 width). The panel says which question its cards answer, stays in view while the chat scrolls, and a button under
 each answer chooses the answer it shows; the graphics are not wider than 460 to 680 px, so that a pitch fits
-beside the answer on a laptop screen. The sidebar has example questions: one for each graphic (the formations, a coach's
-change of shape, the numbers and shots of a final), one in English and one off topic.
+beside the answer on a laptop screen. The sidebar has example questions, each showing one thing the system does: a goal
+animated under the advice (a comeback, wing play), the numbers and shots of a final, a coach's change of shape, the
+answer in English, the honest "Non lo so", a contact hidden before the model and an attempt to change the
+instructions stopped by the input guard.
 **Schede**: the 31 cards by category; a final with its timeline, its numbers and the goals to play, a
 coach with the change of shape his card writes. **Valutazione**: the measured results of the saved runs
 (no API call). With Phoenix running, every question is also a trace.

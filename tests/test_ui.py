@@ -152,11 +152,14 @@ def test_conversation_keeps_memory_and_guardrails(conversation):
 
 def test_every_example_question_goes_through_the_guards_but_the_guardrail_one():
     from src.guardrails.input_guard import check_question
+    from src.guardrails.redact import redact
     labels = [label for label, _ in view.EXAMPLES]
-    assert len(set(labels)) == len(labels) and len(view.EXAMPLES) == 7
+    assert len(set(labels)) == len(labels) and len(view.EXAMPLES) == 9
     for label, question in view.EXAMPLES:
         verdict = check_question(question)
-        assert (verdict.reason == "off_topic") == ("Fuori tema" in label), label
+        assert (verdict.reason in ("off_topic", "injection")) == ("(guardrail)" in label), label
+    privacy = dict(view.EXAMPLES)["🔒 Contatto nascosto (privacy)"]
+    assert redact(privacy)[1] == ["email"]   # the example really has a contact to hide
 
 
 def test_the_panel_note_names_the_question_and_cuts_it_between_words():

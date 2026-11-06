@@ -30,7 +30,7 @@ def test_page_renders_tabs_welcome_and_examples(app):
     assert any("ma-hero" in m.value for m in app.markdown)                    # header
     assert any("Prepara la partita" in m.value for m in app.markdown)          # welcome, no messages yet
     labels = [b.label for b in app.sidebar.button]
-    assert "🆕 Nuova conversazione" in labels and "🛡️ Fuori tema (guardrail)" in labels
+    assert "🆕 Nuova conversazione" in labels and "🛡️ Istruzioni cambiate (guardrail)" in labels
 
 
 def test_question_gets_an_answer_with_badges_and_cards(app):
@@ -42,13 +42,13 @@ def test_question_gets_an_answer_with_badges_and_cards(app):
     assert [e.label for e in app.expander][:2] == ["📊 Dettagli della risposta", "🔎 Cosa ha cercato l'assistente"]
 
 
-def test_off_topic_example_is_stopped_and_explained(app):
+def test_guardrail_example_is_stopped_and_explained(app):
     app.chat_input[0].set_value(QUESTION).run()                                # a conversation is going on
     next(b for b in app.sidebar.button if b.label.startswith("🛡️")).click().run()
     assert not app.exception
     answer = app.chat_message[-1]
-    assert answer.name == "assistant" and "Posso aiutarti solo" in answer.markdown[0].value
-    assert any('class="ma-guard blocked"' in m.value and "fuori tema" in m.value
+    assert answer.name == "assistant" and "Non posso cambiare le mie istruzioni" in answer.markdown[0].value
+    assert any('class="ma-guard blocked"' in m.value and "tentativo di cambiare le istruzioni" in m.value
                for m in answer.markdown)                                       # the guardrail box
 
 
