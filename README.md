@@ -356,6 +356,12 @@ no email, no network; the MCP server looks an id up among the cards), the corpus
 (`src/guardrails/corpus_scan.py`, a fingerprint on the MCP tools). What no deterministic barrier stops (the model
 must refuse a leak of the prompt, a note hidden in a pasted text, a mixed request) is reported as a residual risk.
 
+Measured (2026-11-06, gpt-4o-mini, run `red_team_20261106-151005`): of the 13 attacks, 4 are stopped by the input guard
+and 9 reach the model. The bare agent obeys 2 of those 9, the image and the link to an outside address, and the output
+handling removes both: with the guardrails none reaches the coach, and the 3 control questions are still answered with
+their sources. The other 7 were not obeyed by the model in this run ("Non lo so" or plain football advice): that is the
+residual risk, which this run shows but does not guarantee, since a prompt injection is mitigated, not eliminated.
+
 ### Gold run: the whole system judged by an LLM
 
 ```bash
