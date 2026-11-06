@@ -3,17 +3,16 @@ paths:
   - "**/*.py"
 ---
 
-# Scoped instructions: refactoring by criteria
+# Refactoring rules for the Python files
 
-These rules apply only to the Python files of the project (`**/*.py`); `AGENTS.md` applies
-to the whole project.
+These rules cover the Python files only (`**/*.py`); `AGENTS.md` covers the whole project.
 
-When you change a Python file in this project:
+Before you edit a Python file here:
 
-- Follow the rules and the procedure of `AGENTS.md`.
-- Do not change the observable behaviour: after the change, `python -m pytest` and the two
-  `python -m scripts.verify --check` commands of `AGENTS.md` must stay green.
-- Apply one change at a time, small and motivated.
-- Keep the type hints, and add them where they are missing.
-- Do not add new dependencies or new features.
-- Tests stay offline: no API key and no network (use the fakes in `tests/fakes.py`).
+- Read the rules and the procedure in `AGENTS.md` and follow them.
+- What the program prints and returns must stay the same. Once you are done, `python -m pytest` and both
+  `python -m scripts.verify --check` commands listed in `AGENTS.md` have to pass.
+- Work in small steps, one reason per step.
+- Leave the type hints in place; where a signature has none, add them.
+- No new dependency and no new feature.
+- Tests run offline, without an API key or network: use the fakes in `tests/fakes.py`.
