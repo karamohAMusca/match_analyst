@@ -53,7 +53,7 @@ Useful commands (from the project root, virtual environment active):
 
 ### Architecture
 - One folder per responsibility, no loose modules in `src/`:
-  - `src/core/`: paths and settings (`config.py`); the disk cache with datapizza's `Cache` interface (`disk_cache.py`: embeddings and judge verdicts already paid for, in `.cache/`).
+  - `src/core/`: paths and settings (`config.py`); the version of the system (`build_info.py`: commit, uncommitted changes, fingerprints of the prompts, of the guardrails' code and of the corpus manifest), saved with every answer of the app and every run, so that each piece of evidence says what it was made with; the disk cache with datapizza's `Cache` interface (`disk_cache.py`: embeddings and judge verdicts already paid for, in `.cache/`).
   - `src/corpus/`: reading cards and manifest, splitting cards into chunks. Offline only: no API keys, no network.
   - `src/rag/`: Qdrant store, embeddings, search (a datapizza `DagPipeline`), and ingestion. Ingest only the cards listed in `corpus/manifest.json`; the YAML front matter goes into the payload, not into the embedded text.
   - `src/evaluation/`: measuring the system against `eval/gold_set.json`: retrieval metrics, deterministic answer checks, LLM judge, gold run, cost. Two entry points: `scripts/eval_agent.py` (fast deterministic checks, guardrail questions included) and `scripts/gold_run.py` (all metrics with the LLM judge; `--rejudge` re-judges a saved run; verdicts already given are read from `.cache/`, `--no-judge-cache` asks again).
@@ -85,6 +85,7 @@ Useful commands (from the project root, virtual environment active):
 ### Evaluation
 - `eval/gold_set.json` is the evaluation yardstick: do not edit it while tuning prompts or retrieval.
 - `eval/red_team.json` is the security yardstick, frozen the same way: the attacks (vector, target, channel) are not edited to make a defence pass. A defence is evidence only when the same attacks are run before and after it (`scripts/red_team.py`); an attack no deterministic barrier stops is listed as a residual risk, not hidden.
+- Every run and every saved answer carries its `build` (`src/core/build_info.py`): compare two runs only when their `prompts`, `guardrails_code` and `corpus` fingerprints say what changed between them.
 - List every run in `eval/runs/README.md`; record every wrong answer found in `eval/error_log.md` and try each fix on those cases first.
 - A change that alters the answers is kept only if the gold run (same judge) shows: faithfulness up by at least 0.03 and at least 0.85; recall@k down by at most 0.02; latency and cost within budget (today about 0.0012 $ per answer, p95 about 10 s).
 

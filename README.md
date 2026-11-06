@@ -539,6 +539,16 @@ agent can only search and read the cards: no file, no email, no network, nothing
 needed before the app is put online: authentication, a limit of questions and spending per user (today a
 question costs about 0.001 $, but nothing stops a loop of them), HTTPS.
 
+### Can you show who decided what?
+
+Every answer saved in `chats/` and every run in `eval/runs/` (agent, gold, red team) carries its `build`
+(`src/core/build_info.py`): the commit and whether the working copy had changes not committed, a fingerprint of
+the prompts, of the guardrails' code and of the corpus manifest, the model, the verifier, the guardrails on or off,
+the chat memory. A measured result speaks only for the configuration that produced it: when a prompt or a guardrail
+changes, the fingerprint says so, and the old evidence is no longer taken for the new system. The runs saved before
+2026-11-06 have no `build`: their configuration is the one written in `eval/runs/README.md`. Inside an answer, the
+guardrails' report says what the code changed and why, and the trace in Phoenix has every step.
+
 ### Classification of the system
 
 | Question | Answer |
@@ -547,7 +557,7 @@ question costs about 0.001 $, but nothing stops a loop of them), HTTPS.
 | What can it do? | Suggest and explain, with cited sources. It decides nothing and acts on nothing: the coach chooses |
 | Who is involved? | The coach who asks; indirectly the players the coach writes about |
 | Who builds it, who uses it? | Built by the project (the provider, in AI Act terms); used by the club or the coach (the deployer) |
-| What evidence can it give? | The cards cited in each answer, the guardrails' report, the saved chats, the traces, the gold runs and the red team runs in `eval/runs/` |
+| What evidence can it give? | The cards cited in each answer, the guardrails' report, the saved chats, the traces, the gold runs and the red team runs in `eval/runs/`; each answer and each run with the version it was made with |
 | What stays under human control? | Every decision: the answer is advice to read, and says "Non lo so" when the cards do not cover the question |
 
 **AI Act, working hypothesis.** Not a prohibited practice (art. 5), and not in the high-risk list of Annex III:

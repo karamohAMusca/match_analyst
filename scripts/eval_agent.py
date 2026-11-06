@@ -148,7 +148,7 @@ def main() -> int:
     stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     out = RUNS_DIR / f"agent_{stamp}.json"
     run = {"run": stamp, "model": analyst.model, "guardrails": analyst.guardrails,
-           "verifier": analyst.verifier_model, "questions": rows}
+           "verifier": analyst.verifier_model, "build": analyst.build, "questions": rows}
     out.write_text(json.dumps(run, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Answers saved to {out.relative_to(PROJECT_ROOT).as_posix()}")
     return 0

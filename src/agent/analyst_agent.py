@@ -26,6 +26,7 @@ from datapizza.type import ROLE, FunctionCallBlock, FunctionCallResultBlock, Tex
 
 from src.agent.prompts import ENGLISH_REMINDER, MATCH_ANALYST_SYSTEM_PROMPT, REWRITE_REQUEST
 from src.core.config import LLM_PROVIDER, load_settings, require_api_key
+from src.core.build_info import code_version
 from src.guardrails.facts import (FACT_KINDS, collapse_real_cases, expand_real_cases, fact_issues, man_down_answer,
                                   perspective_issues, premise_issues, remove_sentences, tidy, writes_man_down)
 from src.guardrails.grounding import trim_name_parts
@@ -170,7 +171,7 @@ class MatchAnalyst:
             set_output(root, answer)
             root.set_attribute("metadata", json.dumps(
                 {"model": self.model, "verifier": self.verifier_model, "consulted_cards": self.consulted_cards,
-                 "guardrails": self.last_guard},
+                 "guardrails": self.last_guard, "build": self.build},
                 ensure_ascii=False))
         return answer
 
@@ -364,6 +365,13 @@ class MatchAnalyst:
             rewritten = self.client.invoke(input=request, system_prompt=system_prompt).text.strip()
             set_output(current, rewritten)
         return rewritten
+
+    @property
+    def build(self) -> dict[str, Any]:
+        """The configuration of the answers (src/core/build_info.py): the code's version and fingerprints, then
+        the model, the verifier, the guardrails and the chat memory of this agent."""
+        return {**code_version(), "model": self.model, "verifier": self.verifier_model,
+                "guardrails": self.guardrails, "compact_memory": self.compact_memory}
 
     @property
     def verifier_model(self) -> str | None:

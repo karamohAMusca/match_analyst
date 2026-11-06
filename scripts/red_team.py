@@ -104,7 +104,7 @@ def main() -> int:
     def make_analyst(guardrails: bool) -> MatchAnalyst:
         analyst = MatchAnalyst(model=args.model, guardrails=guardrails, retriever=shared.get("retriever"))
         shared["retriever"] = analyst.corpus_tools.retriever
-        shared["model"] = analyst.model
+        shared["model"], shared["build"] = analyst.model, analyst.build   # the guarded one's, made last
         return analyst
 
     def meter(analyst: MatchAnalyst):
@@ -122,7 +122,8 @@ def main() -> int:
     RUNS_DIR.mkdir(parents=True, exist_ok=True)
     stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     out = RUNS_DIR / f"red_team_{stamp}.json"
-    out.write_text(json.dumps({"run": stamp, "model": shared["model"], "set": data["version"], "offline": report,
+    out.write_text(json.dumps({"run": stamp, "model": shared["model"], "build": shared["build"], "set": data["version"],
+                               "offline": report,
                                "live": live, "summary": summary, "cost_usd": round(cost, 5)},
                               ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"\nSaved to {out.relative_to(PROJECT_ROOT)}")
