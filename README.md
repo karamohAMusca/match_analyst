@@ -606,7 +606,8 @@ club use it to evaluate players, which would move it towards Annex III?
 | FIFA match reports | Public documents, kept locally |
 
 Match statistics are computed from **StatsBomb Open Data**
-(data provided by StatsBomb; raw data not redistributed). The app credits StatsBomb in the sidebar and in the caption
+(data provided by StatsBomb; raw data not redistributed). The app credits StatsBomb in the sidebar, with the logo from StatsBomb's Media Pack
+(`src/ui/assets/hudl-statsbomb-logo.png`, a trademark of its owner, used only to credit the data), and in the caption
 of every figure drawn from its events (numbers, shots, goal actions). The goal actions the app animates are derived
 from the same events by `python -m scripts.build_goal_actions` and stay local as well
 (`references/derived/`, git-ignored): without them the app shows no goal action and no shot map,

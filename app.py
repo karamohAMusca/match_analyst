@@ -173,6 +173,7 @@ with st.sidebar:
                                     "ricerche, guardrail e memoria dell'agente.")
 
     st.divider()
+    st.markdown(view.statsbomb_logo_html(), unsafe_allow_html=True)
     st.caption(view.DATA_CREDIT)
 
 # a different model or guardrail setting starts a new conversation

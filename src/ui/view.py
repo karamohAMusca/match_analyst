@@ -6,9 +6,11 @@ in Italian; every piece of model output or card text is HTML-escaped before it i
 
 from __future__ import annotations
 
+import base64
 import html
 import json
 import re
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -165,6 +167,9 @@ CSS = """
   .ma-card-head .n { width:36px; height:36px; line-height:36px; font-size:20px; }
   .ma-cite { white-space:normal; }
 }
+/* The StatsBomb logo on a light chip: its "hudl" is dark, so it reads in the dark theme too */
+.ma-sb-logo { display:block; background:#FFFFFF; padding:8px 10px; margin-bottom:6px; }
+.ma-sb-logo img { display:block; width:100%; height:auto; }
 </style>
 """
 
@@ -244,6 +249,15 @@ AI_NOTICE = ("🤖 Le risposte sono scritte da un modello di intelligenza artifi
 # goal actions of two finals (the figures say it too in their captions).
 DATA_CREDIT = ("Numeri, tiri e azioni dei gol delle finali del Mondiale 2022 e dell'Europeo 2024: dati forniti da "
                "[StatsBomb](https://github.com/hudl/open-data) (StatsBomb Open Data), calcoli del progetto.")
+STATSBOMB_LOGO = Path(__file__).parent / "assets" / "hudl-statsbomb-logo.png"   # from StatsBomb's Media Pack
+
+
+@lru_cache(maxsize=1)
+def statsbomb_logo_html() -> str:
+    """The StatsBomb logo, linked to the open data, as one inline image (the file is read once)."""
+    data = base64.b64encode(STATSBOMB_LOGO.read_bytes()).decode()
+    return ('<a class="ma-sb-logo" href="https://github.com/hudl/open-data" target="_blank" rel="noopener">'
+            f'<img alt="Hudl StatsBomb" src="data:image/png;base64,{data}"></a>')
 
 
 def welcome_html() -> str:

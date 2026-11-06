@@ -145,5 +145,7 @@ the text of the question's `relevant_sources`.
 - [ ] Register at the StatsBomb resource centre (project owner).
 - [x] StatsBomb credited in text wherever its numbers are shown: the app's sidebar and the caption of the numbers, the
       shot map and the goal actions, and the README ("Data provided by StatsBomb").
-- [ ] Add the StatsBomb logo next to that credit (the app's sidebar, the slides): download it from the StatsBomb
-      Media Pack (https://statsbomb.com/media-pack/), as the open data README asks (project owner).
+- [x] StatsBomb logo (`src/ui/assets/hudl-statsbomb-logo.png`, "hudl-statsbomb-logo-default" from the Media Pack,
+      https://statsbomb.com/media-pack/, usage rights "External Use Approved") next to that credit in the app's
+      sidebar, as the open data README asks.
+- [ ] The same logo on the slides of the talk (project owner).

@@ -162,6 +162,14 @@ def test_every_example_question_goes_through_the_guards_but_the_guardrail_one():
     assert redact(privacy)[1] == ["email"]   # the example really has a contact to hide
 
 
+def test_the_statsbomb_logo_is_a_png_inline_with_its_link():
+    import base64
+    page = view.statsbomb_logo_html()
+    data = page.split("base64,", 1)[1].split('"', 1)[0]
+    assert base64.b64decode(data)[1:4] == b"PNG"   # the PNG signature
+    assert 'alt="Hudl StatsBomb"' in page and "github.com/hudl/open-data" in page and ".ma-sb-logo" in view.CSS
+
+
 def test_the_panel_note_names_the_question_and_cuts_it_between_words():
     assert view.panel_note_html("Come difende l'Inter?") == (
         '<div class="ma-panel-note">alla domanda «Come difende l&#x27;Inter?»</div>')

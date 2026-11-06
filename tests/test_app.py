@@ -203,6 +203,7 @@ def test_the_coach_is_told_the_answers_come_from_an_ai_and_where_the_questions_g
 def test_statsbomb_is_credited_in_the_sidebar(app):
     credit = [c.value for c in app.sidebar.caption if "StatsBomb" in c.value]
     assert credit == [view.DATA_CREDIT] and "github.com/hudl/open-data" in credit[0]
+    assert [m.value for m in app.sidebar.markdown if "ma-sb-logo" in m.value] == [view.statsbomb_logo_html()]
 
 
 def test_streamlit_sends_no_usage_statistics():
