@@ -75,7 +75,7 @@ cp .env.example .env               # then add OPENAI_API_KEY
 ```bash
 python -m pytest                   # corpus, retrieval, agent loop (fake model), guardrails, evaluation, app, MCP server
 python -m pytest --cov=src --cov=scripts --cov-report=term-missing   # which lines the tests never run
-python -m scripts.check_corpus     # quotes and cited pages vs references/ (needs the PDFs in references/theses)
+python -m scripts.check_corpus     # quotes and cited pages vs references/ (needs the PDFs in references/theses), and nothing in a card that acts as an instruction
 ```
 
 Coverage is read, not just accepted: the core (retrieval, tools, guardrails, judge, gold run) is
