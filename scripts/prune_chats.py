@@ -6,7 +6,7 @@
 
 A chat's age is the time it started, read from its name (`2026-09-30_153012.jsonl`), else the time the file
 was last written. The chats hold what the coaches typed: keeping them for a limited time is part of the answer
-to "where does the data go" (see "Data and privacy" in the README). The traces in Phoenix are kept in the
+to "where does the data go" (see "Data and privacy" in docs/security.md). The traces in Phoenix are kept in the
 Docker volume `phoenix_data` and go with it (`docker compose down -v` deletes the index too). No key, no network.
 """
 

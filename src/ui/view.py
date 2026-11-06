@@ -241,7 +241,7 @@ def header_html(cards: dict[str, dict[str, Any]]) -> str:
 
 
 # Who the coach is talking to and where the question goes, always on screen (AI Act, art. 50(1): a person who
-# interacts with an AI system is told so, at the latest at the first interaction). See "Data and privacy" in the README.
+# interacts with an AI system is told so, at the latest at the first interaction). See "Data and privacy" in docs/security.md.
 AI_NOTICE = ("🤖 Le risposte sono scritte da un modello di intelligenza artificiale (OpenAI) a partire dalle schede "
              "citate: controllale prima di usarle. Le domande vanno a OpenAI e restano salvate su questo computer "
              "(`chats/`); non scrivere dati personali dei giocatori.")
@@ -423,7 +423,7 @@ def run_summaries(runs_dir: Path) -> dict[str, Any]:
         retrieval_rows.append({"metodo": RETRIEVAL_NAMES.get(name, name),
                                "recall@5": overall.get("recall@5"), "MRR": overall.get("MRR@10")})
     live = [g for g in gold if g["live"] and not g["verifier"]]   # the configuration the app runs
-    final = {}   # the latest "final-*" judgement of each agent model: the numbers quoted in the README
+    final = {}   # the latest "final-*" judgement of each agent model: the numbers quoted in the README and docs/evaluation.md
     for path in sorted(runs_dir.glob("gold_*.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
         if str(data.get("tag", "")).startswith("final-"):

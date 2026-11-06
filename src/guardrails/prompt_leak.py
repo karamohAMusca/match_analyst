@@ -9,7 +9,7 @@ the guardrails are written, and the answer would not be advice.
 A fragment is a sequence of 8 words of the prompt, compared as lowercase words; a leak is a heading, or at least
 3 fragments (10 words in a row). None of the 1,037 answers saved in the runs and the chats until 2026-11-06 has
 one, while 5- and 6-word sequences are shared with the cards' section names. Not caught: a leak translated or
-paraphrased, as no sequence of the original is left (a residual risk, said in the README).
+paraphrased, as no sequence of the original is left (a residual risk, said in docs/security.md).
 """
 
 from __future__ import annotations

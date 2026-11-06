@@ -67,4 +67,4 @@ A graphic never draws what the model wrote. Its data comes from one of these, an
   after changing `src/` (Streamlit does not reload modules outside the script's folder).
 - Run the palette check of the dataviz skill when a colour is added.
 - Docs: the row of `ui/graphics/` in `src/README.md` (and `src/LEGGIMI.md`), the app paragraph of
-  `README.md`, a preview in `design-system/previews/` (group "Graphics") when the graphic is new.
+  `docs/app.md`, a preview in `design-system/previews/` (group "Graphics") when the graphic is new.
