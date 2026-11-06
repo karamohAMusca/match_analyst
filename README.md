@@ -501,6 +501,62 @@ error found is collected, with its source and the candidate fixes, in
 
 ---
 
+## Data and privacy
+
+The three questions a customer asks before anything else, answered for this project. What follows is a
+technical description and a working hypothesis, not legal advice: the questions at the end are for a lawyer.
+
+### Where the data goes
+
+| Where | What goes there | Who keeps it |
+|---|---|---|
+| OpenAI API (`gpt-4o-mini`, `text-embedding-3-small`) | the coach's question, the earlier questions and answers of the chat, the passages of the cards found, the system prompt; the search queries for their embeddings | OpenAI, under its API terms (at the time of writing: not used for training by default, kept up to 30 days for abuse monitoring; check the current terms) |
+| `chats/` (this computer, git-ignored) | every question and answer, the searches, the guardrails' report, time, tokens and cost | the user, until deleted |
+| `logs/match_analyst.log` (this computer, git-ignored) | events: the length of a question (not its text), verdicts, cards found, times, costs | the user, rotated at 1 MB (5 old files) |
+| Phoenix (Docker on this computer, volume `phoenix_data`) | the traces: the question and the answer, the searches and the passages found | the user, until the volume is deleted |
+| Qdrant (Docker on this computer) | the cards and their vectors only: nothing the coach writes | — |
+| MCP server | serves the cards; keeps nothing | — |
+| The browser | the page loads its fonts from Google Fonts (the address of the computer reaches Google); Streamlit's usage statistics are off (`.streamlit/config.toml`) | Google, for the fonts |
+
+Nothing is sent anywhere else: the answer can hold no external link or image (`src/guardrails/links.py`), so the
+page fetches nothing the model wrote.
+
+### Is it safe?
+
+Measured, not claimed: a fixed set of 13 attacks run before and after the defences (see *Attacks and defences*
+above). With the guardrails none reached the coach; 6 have no deterministic barrier and stay a residual risk. The
+agent can only search and read the cards: no file, no email, no network, nothing it can change. Not done, and
+needed before the app is put online: authentication, a limit of questions and spending per user (today a
+question costs about 0.001 $, but nothing stops a loop of them), HTTPS.
+
+### Classification of the system
+
+| Question | Answer |
+|---|---|
+| Where is it used? | Football clubs and coaches, amateur and youth teams; to prepare a match or decide in a game situation |
+| What can it do? | Suggest and explain, with cited sources. It decides nothing and acts on nothing: the coach chooses |
+| Who is involved? | The coach who asks; indirectly the players the coach writes about |
+| Who builds it, who uses it? | Built by the project (the provider, in AI Act terms); used by the club or the coach (the deployer) |
+| What evidence can it give? | The cards cited in each answer, the guardrails' report, the saved chats, the traces, the gold runs and the red team runs in `eval/runs/` |
+| What stays under human control? | Every decision: the answer is advice to read, and says "Non lo so" when the cards do not cover the question |
+
+**AI Act, working hypothesis.** Not a prohibited practice (art. 5), and not in the high-risk list of Annex III:
+it advises on tactics, not on people. It would come close to it if it were used to evaluate players or decide on
+their contracts (Annex III, point 4, employment and the management of workers): that is outside its purpose and
+the cards do not support it. So: minimal risk, with the transparency obligation of art. 50(1), since a person
+talks to it. The app says so in the sidebar, always on screen: the answers are written by an AI model from the
+cited cards, the questions go to OpenAI and are saved on the computer. A club that uses it has to make sure its
+staff knows how to use it (art. 4, AI literacy).
+
+**GDPR.** The project needs no personal data, but a coach may write some: a player's name, an injury (health
+data, a special category, art. 9). The app asks not to; nothing filters names, so it is the deployer's
+responsibility to say so to its staff.
+
+**Questions for a lawyer before a real deployment.** Who is the controller of the questions saved in `chats/`
+and in the traces, and on what legal basis? Is a data processing agreement with OpenAI in place, and does the
+transfer outside the EU have its safeguards? How long are chats and traces kept, and who can read them? Does any
+club use it to evaluate players, which would move it towards Annex III?
+
 ## Data and licences
 
 Theses are public FIGC documents (not redistributed: download them from the URLs in `SOURCES.md`).

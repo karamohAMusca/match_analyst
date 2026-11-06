@@ -228,6 +228,13 @@ def header_html(cards: dict[str, dict[str, Any]]) -> str:
             f'<div class="ma-chips"><span class="label">Nell\'archivio</span>{chips}</div></header>')
 
 
+# Who the coach is talking to and where the question goes, always on screen (AI Act, art. 50(1): a person who
+# interacts with an AI system is told so, at the latest at the first interaction). See "Data and privacy" in the README.
+AI_NOTICE = ("🤖 Le risposte sono scritte da un modello di intelligenza artificiale (OpenAI) a partire dalle schede "
+             "citate: controllale prima di usarle. Le domande vanno a OpenAI e restano salvate su questo computer "
+             "(`chats/`); non scrivere dati personali dei giocatori.")
+
+
 def welcome_html() -> str:
     """The welcome tiles of the empty chat in one grid, two by two, so that they end at the same height
     (Streamlit columns grew each to its own text); on a narrow screen they wrap to one column."""
