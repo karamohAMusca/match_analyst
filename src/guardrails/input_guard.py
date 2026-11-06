@@ -33,6 +33,11 @@ INJECTION_RE = re.compile(
 )
 FORMATION_RE = re.compile(r"\b\d-\d-\d(?:-\d)?\b")
 COMPACT_FORMATION_RE = re.compile(r"\b[1-5]{3,4}\b")   # 352, 4231: digits of the 10 outfield players
+# English football terms no stem or word above covers ("my full-backs", "against a back four", "centre-backs");
+# only terms that are football and nothing else ("build up" or "back pain" are not).
+FOOTBALL_PHRASE_RE = re.compile(
+    r"\b(?:back\s+(?:three|four|five)|back\s?line|(?:full|wing|centre|center)[\s-]?backs?|(?:low|mid|high)\s+(?:block|line)"
+    r"|set[\s-]?pieces?|false\s+(?:nine|9))\b", re.IGNORECASE)
 # A final and a national team together ("argentina francia finale"): the finals of the corpus are between
 # national teams. Neither alone is football: "il finale del film", "la capitale della Francia".
 FINAL_RE = re.compile(r"\b(?:semi)?final[ei]\b", re.IGNORECASE)
@@ -147,6 +152,8 @@ def is_football(text: str) -> bool:
     if any(sum(map(int, m)) == 10 for m in COMPACT_FORMATION_RE.findall(text)):
         return True
     if FINAL_RE.search(text) and NATIONAL_TEAM_RE.search(text):
+        return True
+    if FOOTBALL_PHRASE_RE.search(text):
         return True
     return any(w in FOOTBALL_WORDS or w.startswith(FOOTBALL_STEMS) for w in _words(text))
 

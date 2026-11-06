@@ -41,6 +41,8 @@ Useful commands (from the project root, virtual environment active):
 | `python -m scripts.build_goal_actions` | the touches before each goal and the shots of the finals with StatsBomb data, for the app's animation and shot map (`references/derived/`, git-ignored: StatsBomb's licence) | no (needs the raw StatsBomb events) |
 | `python -m scripts.verify --save / --check --cmd "<command>" --baseline <file>` | saves the output of a command, then checks that it did not change | no |
 | `python mcp_server.py` | the knowledge base as an MCP server for Claude Desktop and other hosts (stdio; `MCP_HTTP=1` for Streamable HTTP) | only `search_cards` (and Qdrant) |
+| `python -m scripts.red_team` | the fixed set of attacks (`eval/red_team.json`): the input guard on each, the output handling and the page on a hijacked answer; offline, exit 1 if a deterministic defence fails | no |
+| `python -m scripts.red_team --live` | the same attacks through the bare agent and the guarded one, and three control questions (about 30 calls, a few cents); saved to `eval/runs/red_team_*.json`; `--compare <a> <b>` retests two runs | yes |
 | `python -m scripts.start` | Qdrant + Phoenix + the app; the log live in the terminal, the review of the session's chats on Ctrl+C | yes |
 | `python -m scripts.ingest`, `scripts.eval_agent`, `scripts.gold_run` | index sync, answer checks, gold run with the LLM judge | yes |
 
@@ -81,6 +83,7 @@ Useful commands (from the project root, virtual environment active):
 
 ### Evaluation
 - `eval/gold_set.json` is the evaluation yardstick: do not edit it while tuning prompts or retrieval.
+- `eval/red_team.json` is the security yardstick, frozen the same way: the attacks (vector, target, channel) are not edited to make a defence pass. A defence is evidence only when the same attacks are run before and after it (`scripts/red_team.py`); an attack no deterministic barrier stops is listed as a residual risk, not hidden.
 - List every run in `eval/runs/README.md`; record every wrong answer found in `eval/error_log.md` and try each fix on those cases first.
 - A change that alters the answers is kept only if the gold run (same judge) shows: faithfulness up by at least 0.03 and at least 0.85; recall@k down by at most 0.02; latency and cost within budget (today about 0.0012 $ per answer, p95 about 10 s).
 
