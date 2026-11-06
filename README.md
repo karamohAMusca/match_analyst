@@ -44,7 +44,7 @@ match data), giving priority to recent (2022–2026) winning tactics. Questions 
 | `eval/red_team.json` | the security yardstick: 13 attacks and 3 controls (frozen), run by `python -m scripts.red_team` |
 | `eval/runs/` | every measured run, listed with its result in [`eval/runs/README.md`](eval/runs/README.md) |
 | `eval/error_log.md` | wrong answers found, with their cause and fix |
-| `scripts/` | commands run as `python -m scripts.<name>`: `start`, `ingest`, `eval_retrieval`, `eval_agent`, `gold_run`, `build_manifest`, `check_corpus`, `build_goal_actions`, `red_team`, `preview_graphics` (run with `streamlit run`), `sb_match_report`, `verify` (the output of a command before and after a refactoring) |
+| `scripts/` | commands run as `python -m scripts.<name>`: `start`, `ingest`, `eval_retrieval`, `eval_agent`, `gold_run`, `build_manifest`, `check_corpus`, `build_goal_actions`, `red_team`, `prune_chats`, `preview_graphics` (run with `streamlit run`), `sb_match_report`, `verify` (the output of a command before and after a refactoring) |
 | `tests/` | offline tests, no API key and no network (`python -m pytest`) |
 | `docker-compose.yml` | Qdrant (vector store) and Phoenix (traces) |
 | `.env.example` | settings template: copy it to `.env` and add the key |
@@ -193,6 +193,16 @@ the searches with the cards found and their time, the output guard and the rewri
 with time, tokens and cost; warnings for stopped questions and discarded rewrites; errors with
 their stack trace. `LOG_LEVEL=DEBUG` in `.env` also writes the search queries. The file is rotated
 at 1 MB (5 old files kept). Both folders are git-ignored: they hold what the users typed.
+
+A key or a contact written in a question (an OpenAI key pasted by mistake, an email, a phone number, an IBAN,
+a tax code) is hidden before the question reaches the model, and again in the chat's file, in the traces and
+in the log (`src/guardrails/redact.py`); the note under the answer says what was hidden. Names are not: nothing
+tells a player's name from a coach's, so the app asks not to write the players' personal data.
+
+```bash
+python -m scripts.prune_chats             # the chats older than 30 days, listed (nothing deleted)
+python -m scripts.prune_chats --delete    # delete them (--days N for another limit)
+```
 
 With `python -m scripts.start` everything is in one terminal: while the app is open the log lines
 are printed there too (marked `[log]`), and Ctrl+C closes the app and prints the review of the
@@ -510,10 +520,10 @@ technical description and a working hypothesis, not legal advice: the questions 
 
 | Where | What goes there | Who keeps it |
 |---|---|---|
-| OpenAI API (`gpt-4o-mini`, `text-embedding-3-small`) | the coach's question, the earlier questions and answers of the chat, the passages of the cards found, the system prompt; the search queries for their embeddings | OpenAI, under its API terms (at the time of writing: not used for training by default, kept up to 30 days for abuse monitoring; check the current terms) |
-| `chats/` (this computer, git-ignored) | every question and answer, the searches, the guardrails' report, time, tokens and cost | the user, until deleted |
+| OpenAI API (`gpt-4o-mini`, `text-embedding-3-small`) | the coach's question (keys, emails, phone numbers, IBANs and tax codes hidden first), the earlier questions and answers of the chat, the passages of the cards found, the system prompt; the search queries for their embeddings | OpenAI, under its API terms (at the time of writing: not used for training by default, kept up to 30 days for abuse monitoring; check the current terms) |
+| `chats/` (this computer, git-ignored) | every question and answer, the searches, the guardrails' report, time, tokens and cost (redacted as above) | the user: `python -m scripts.prune_chats --delete` removes the chats older than 30 days |
 | `logs/match_analyst.log` (this computer, git-ignored) | events: the length of a question (not its text), verdicts, cards found, times, costs | the user, rotated at 1 MB (5 old files) |
-| Phoenix (Docker on this computer, volume `phoenix_data`) | the traces: the question and the answer, the searches and the passages found | the user, until the volume is deleted |
+| Phoenix (Docker on this computer, volume `phoenix_data`) | the traces: the question and the answer (redacted), the searches and the passages found | the user, until the volume is deleted (`docker compose down -v`, which deletes the index too) |
 | Qdrant (Docker on this computer) | the cards and their vectors only: nothing the coach writes | — |
 | MCP server | serves the cards; keeps nothing | — |
 | The browser | the page loads its fonts from Google Fonts (the address of the computer reaches Google); Streamlit's usage statistics are off (`.streamlit/config.toml`) | Google, for the fonts |

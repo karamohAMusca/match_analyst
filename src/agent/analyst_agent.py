@@ -34,6 +34,7 @@ from src.guardrails.links import strip_external_links
 from src.guardrails.input_guard import check_question
 from src.evaluation.judge import JUDGE_MAX_RETRIES, JUDGE_TEMPERATURE, JUDGE_TIMEOUT_S
 from src.guardrails.output_guard import Issue, review_answer
+from src.guardrails.redact import redact
 from src.guardrails.verifier import VERIFIER_MODEL, verify_answer
 from src.observability.tracing import set_output, span
 from src.rag.embedding_cache import CachedEmbedder
@@ -48,6 +49,9 @@ INPUT_NOTES = {
     "injection": "tentativo di cambiare le istruzioni, fermato prima del modello",
     "too_long": "domanda troppo lunga, fermata prima del modello",
 }
+# What src/guardrails/redact.py hid from a question, as the note under the answer says it
+REDACTED_NOTES = {"key": "una chiave", "email": "un indirizzo email", "iban": "un IBAN",
+                  "tax_code": "un codice fiscale", "phone": "un numero di telefono"}
 ISSUE_NOTES = {
     "language": "lingua della risposta",
     "ungrounded": "nomi o numeri non presenti nelle schede",
@@ -148,10 +152,18 @@ class MatchAnalyst:
 
         With tracing on (src/observability), the question is one trace: this span, with the
         guardrails, the agent's steps, the searches and the model calls inside it.
+
+        A key or a contact written in the question is hidden first (src/guardrails/redact.py), with the
+        guardrails on or off: the model, the traces and the chat's memory never see it.
         """
+        question, hidden = redact(question)
+        if hidden:
+            log.warning("question: %s hidden before the model", ", ".join(hidden))
         with span("match_analyst", "CHAIN", question, **{"session.id": self.session_id}) as root:
             first_new = len(self.agent._memory.memory)
             answer = self._answer(question)
+            if hidden:
+                self.last_guard["redacted"] = hidden
             # all the turns this question added, for the chat's file (the agent may swap its memory object)
             self.last_turns = [turn.to_dict() for turn in self.agent._memory.memory[first_new:]]
             self._compact()
@@ -366,6 +378,13 @@ class MatchAnalyst:
     @property
     def guard_note(self) -> str | None:
         """One line on what the guardrails did for the last question (Italian, for the user), or None."""
+        checks = self._checks_note()
+        if not self.last_guard.get("redacted"):
+            return checks
+        hidden = ", ".join(REDACTED_NOTES[kind] for kind in self.last_guard["redacted"])
+        return f"Privacy: nascosto dalla domanda prima di inviarla al modello: {hidden}." + (f" {checks}" if checks else "")
+
+    def _checks_note(self) -> str | None:
         guard = self.last_guard
         if guard.get("input") in INPUT_NOTES:
             return f"Guardrail: {INPUT_NOTES[guard['input']]}."

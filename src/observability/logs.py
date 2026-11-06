@@ -20,6 +20,7 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 import src.core.config as config
+from src.guardrails.redact import redact
 
 __all__ = ["CONSOLE_HANDLER", "FILE_HANDLER", "LOG_FILE", "setup_logging"]
 
@@ -28,6 +29,18 @@ FORMAT = "%(asctime)s %(levelname)-7s %(name)s: %(message)s"
 CONSOLE_FORMAT = "[log] %(asctime)s %(levelname)-7s %(message)s"
 FILE_HANDLER = "match_analyst_file"
 CONSOLE_HANDLER = "match_analyst_console"
+
+
+class Redact(logging.Filter):
+    """Every line of the project's log with its keys and contacts hidden (src/guardrails/redact.py): an
+    error message or a search query may hold what the coach typed."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        message = record.getMessage()
+        hidden = redact(message)[0]
+        if hidden != message:
+            record.msg, record.args = hidden, ()
+        return True
 
 
 def setup_logging(level: str = "INFO", folder: Path | None = None, console: bool = False) -> Path:
@@ -42,10 +55,12 @@ def setup_logging(level: str = "INFO", folder: Path | None = None, console: bool
     handler = RotatingFileHandler(folder / LOG_FILE, maxBytes=1_000_000, backupCount=5, encoding="utf-8")
     handler.set_name(FILE_HANDLER)
     handler.setFormatter(logging.Formatter(FORMAT))
+    handler.addFilter(Redact())
     logger.addHandler(handler)
     if console:
         terminal = logging.StreamHandler(sys.stderr)
         terminal.set_name(CONSOLE_HANDLER)
+        terminal.addFilter(Redact())
         terminal.setFormatter(logging.Formatter(CONSOLE_FORMAT, datefmt="%H:%M:%S"))
         logger.addHandler(terminal)
     logger.setLevel(level)
