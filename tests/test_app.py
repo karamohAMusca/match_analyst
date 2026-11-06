@@ -200,6 +200,11 @@ def test_the_coach_is_told_the_answers_come_from_an_ai_and_where_the_questions_g
     assert [c.value for c in app.sidebar.caption if "intelligenza artificiale" in c.value] == [view.AI_NOTICE]
 
 
+def test_statsbomb_is_credited_in_the_sidebar(app):
+    credit = [c.value for c in app.sidebar.caption if "StatsBomb" in c.value]
+    assert credit == [view.DATA_CREDIT] and "github.com/statsbomb/open-data" in credit[0]
+
+
 def test_streamlit_sends_no_usage_statistics():
     import tomllib
     config = tomllib.loads((PROJECT_ROOT / ".streamlit" / "config.toml").read_text(encoding="utf-8"))

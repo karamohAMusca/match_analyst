@@ -141,4 +141,7 @@ the text of the question's `relevant_sources`.
 - [x] Attribution stored with every source (card front matter and Wikipedia file headers).
 - [x] Raw StatsBomb data, FIFA reports and thesis PDFs excluded from version control (`.gitignore`).
 - [ ] Register at the StatsBomb resource centre (project owner).
-- [ ] Add the StatsBomb logo wherever StatsBomb-based numbers are shown (UI, slides).
+- [x] StatsBomb credited in text wherever its numbers are shown: the app's sidebar and the caption of the numbers, the
+      shot map and the goal actions, and the README ("Data provided by StatsBomb").
+- [ ] Add the StatsBomb logo next to that credit (the app's sidebar, the slides): download it from the StatsBomb
+      resource centre, as the licence agreement allows (project owner).

@@ -597,10 +597,17 @@ club use it to evaluate players, which would move it towards Annex III?
 
 ## Data and licences
 
-Theses are public FIGC documents (not redistributed: download them from the URLs in `SOURCES.md`).
-Wikipedia extracts are CC BY-SA 4.0. Match statistics computed from **StatsBomb Open Data**
-(data provided by StatsBomb; raw data not redistributed). The goal actions the app animates are derived
+| What | Terms |
+|---|---|
+| Source code (`src/`, `scripts/`, `tests/`, `app.py`, ...) | MIT, see `LICENSE` |
+| Cards (`corpus/`) and Wikipedia extracts (`references/wikipedia/`) | The cards quote and summarise Wikipedia pages, which are CC BY-SA 4.0: the cards and the extracts keep that licence (attribution to the page and revision is in each card's front matter, share-alike for what derives from them) |
+| FIGC theses | Public documents of their authors: not redistributed (download them from the URLs in `SOURCES.md`); the cards only quote short passages, each with its page |
+| StatsBomb Open Data | Data provided by [StatsBomb](https://github.com/statsbomb/open-data) under its public data agreement (research and non-commercial use, credit StatsBomb): the raw events are not redistributed |
+| FIFA match reports | Public documents, kept locally |
+
+Match statistics are computed from **StatsBomb Open Data**
+(data provided by StatsBomb; raw data not redistributed). The app credits StatsBomb in the sidebar and in the caption
+of every figure drawn from its events (numbers, shots, goal actions). The goal actions the app animates are derived
 from the same events by `python -m scripts.build_goal_actions` and stay local as well
 (`references/derived/`, git-ignored): without them the app shows no goal action and no shot map,
 everything else works.
-FIFA match reports are public documents.

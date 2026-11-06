@@ -240,6 +240,10 @@ def header_html(cards: dict[str, dict[str, Any]]) -> str:
 AI_NOTICE = ("🤖 Le risposte sono scritte da un modello di intelligenza artificiale (OpenAI) a partire dalle schede "
              "citate: controllale prima di usarle. Le domande vanno a OpenAI e restano salvate su questo computer "
              "(`chats/`); non scrivere dati personali dei giocatori.")
+# StatsBomb's open data agreement asks to credit StatsBomb wherever its data is shown: the numbers, the shots and the
+# goal actions of two finals (the figures say it too in their captions).
+DATA_CREDIT = ("Numeri, tiri e azioni dei gol delle finali del Mondiale 2022 e dell'Europeo 2024: dati forniti da "
+               "[StatsBomb](https://github.com/statsbomb/open-data) (StatsBomb Open Data), calcoli del progetto.")
 
 
 def welcome_html() -> str:

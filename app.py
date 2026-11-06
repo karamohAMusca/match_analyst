@@ -172,6 +172,9 @@ with st.sidebar:
                                help=f"Salvata anche in chats/{log.name}: domande, risposte, schede, "
                                     "ricerche, guardrail e memoria dell'agente.")
 
+    st.divider()
+    st.caption(view.DATA_CREDIT)
+
 # a different model or guardrail setting starts a new conversation
 conversation = state.conversation
 if ready and (conversation is None or (conversation.model, conversation.guardrails) != (model, guardrails)):
