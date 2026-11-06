@@ -26,13 +26,17 @@ from datapizza.type import ROLE, FunctionCallBlock, FunctionCallResultBlock, Tex
 
 from src.agent.prompts import ENGLISH_REMINDER, MATCH_ANALYST_SYSTEM_PROMPT, REWRITE_REQUEST
 from src.core.config import LLM_PROVIDER, load_settings, require_api_key
+from src.core.build_info import code_version
 from src.guardrails.facts import (FACT_KINDS, collapse_real_cases, expand_real_cases, fact_issues, man_down_answer,
                                   perspective_issues, premise_issues, remove_sentences, tidy, writes_man_down)
 from src.guardrails.grounding import trim_name_parts
 from src.guardrails.language import detect_language
+from src.guardrails.links import strip_external_links
 from src.guardrails.input_guard import check_question
 from src.evaluation.judge import JUDGE_MAX_RETRIES, JUDGE_TEMPERATURE, JUDGE_TIMEOUT_S
 from src.guardrails.output_guard import Issue, review_answer
+from src.guardrails.prompt_leak import REFUSAL, leaked
+from src.guardrails.redact import redact
 from src.guardrails.verifier import VERIFIER_MODEL, verify_answer
 from src.observability.tracing import set_output, span
 from src.rag.embedding_cache import CachedEmbedder
@@ -47,6 +51,9 @@ INPUT_NOTES = {
     "injection": "tentativo di cambiare le istruzioni, fermato prima del modello",
     "too_long": "domanda troppo lunga, fermata prima del modello",
 }
+# What src/guardrails/redact.py hid from a question, as the note under the answer says it
+REDACTED_NOTES = {"key": "una chiave", "email": "un indirizzo email", "iban": "un IBAN",
+                  "tax_code": "un codice fiscale", "phone": "un numero di telefono"}
 ISSUE_NOTES = {
     "language": "lingua della risposta",
     "ungrounded": "nomi o numeri non presenti nelle schede",
@@ -147,17 +154,25 @@ class MatchAnalyst:
 
         With tracing on (src/observability), the question is one trace: this span, with the
         guardrails, the agent's steps, the searches and the model calls inside it.
+
+        A key or a contact written in the question is hidden first (src/guardrails/redact.py), with the
+        guardrails on or off: the model, the traces and the chat's memory never see it.
         """
+        question, hidden = redact(question)
+        if hidden:
+            log.warning("question: %s hidden before the model", ", ".join(hidden))
         with span("match_analyst", "CHAIN", question, **{"session.id": self.session_id}) as root:
             first_new = len(self.agent._memory.memory)
             answer = self._answer(question)
+            if hidden:
+                self.last_guard["redacted"] = hidden
             # all the turns this question added, for the chat's file (the agent may swap its memory object)
             self.last_turns = [turn.to_dict() for turn in self.agent._memory.memory[first_new:]]
             self._compact()
             set_output(root, answer)
             root.set_attribute("metadata", json.dumps(
                 {"model": self.model, "verifier": self.verifier_model, "consulted_cards": self.consulted_cards,
-                 "guardrails": self.last_guard},
+                 "guardrails": self.last_guard, "build": self.build},
                 ensure_ascii=False))
         return answer
 
@@ -185,11 +200,21 @@ class MatchAnalyst:
         response = self.agent.run(question + ENGLISH_REMINDER if english else question)
         draft = response.text if hasattr(response, "text") else str(response)
         answer = self._compose(draft)
-        if self.guardrails:
+        if self.guardrails and (leak := leaked(answer, MATCH_ANALYST_SYSTEM_PROMPT)):
+            # the instructions repeated: a refusal instead, nothing to review (src/guardrails/prompt_leak.py)
+            self.last_guard["prompt_leak"] = leak[:5]
+            log.warning("output guard: the answer repeated the system prompt (%d fragments), replaced", len(leak))
+            answer = REFUSAL["en" if english else "it"]
+        elif self.guardrails:
+            # no external link or image reaches the checks (their addresses would read as invented names)
+            answer, links = strip_external_links(answer)
             with span("output_guard", "GUARDRAIL", answer) as guard:
                 answer = self._review(question, answer)
                 # what the writer added, taken out, and an unknown marked (src/guardrails/additions.py)
                 answer, done = tidy(answer, english)
+                if links := list(dict.fromkeys(links + done.pop("links", []))):
+                    done["links"] = links
+                    log.warning("output guard: %d external links or images removed from the answer", len(links))
                 self.last_guard.update(done)
                 if "tails" in done:
                     log.info("output guard: %d effect tails removed", len(done["tails"]))
@@ -348,6 +373,13 @@ class MatchAnalyst:
         return rewritten
 
     @property
+    def build(self) -> dict[str, Any]:
+        """The configuration of the answers (src/core/build_info.py): the code's version and fingerprints, then
+        the model, the verifier, the guardrails and the chat memory of this agent."""
+        return {**code_version(), "model": self.model, "verifier": self.verifier_model,
+                "guardrails": self.guardrails, "compact_memory": self.compact_memory}
+
+    @property
     def verifier_model(self) -> str | None:
         """The verifier's model, or None when the answers are not verified."""
         return getattr(self.verifier, "model_name", None) if self.verifier is not None else None
@@ -360,6 +392,13 @@ class MatchAnalyst:
     @property
     def guard_note(self) -> str | None:
         """One line on what the guardrails did for the last question (Italian, for the user), or None."""
+        checks = self._checks_note()
+        if not self.last_guard.get("redacted"):
+            return checks
+        hidden = ", ".join(REDACTED_NOTES[kind] for kind in self.last_guard["redacted"])
+        return f"Privacy: nascosto dalla domanda prima di inviarla al modello: {hidden}." + (f" {checks}" if checks else "")
+
+    def _checks_note(self) -> str | None:
         guard = self.last_guard
         if guard.get("input") in INPUT_NOTES:
             return f"Guardrail: {INPUT_NOTES[guard['input']]}."
@@ -367,6 +406,8 @@ class MatchAnalyst:
             return ("Guardrail: nessuna scheda per chi gioca con un uomo in meno: risposta composta con le "
                     "schede, cosa farà l'avversario.")
         notes = []
+        if guard.get("prompt_leak"):
+            notes.append("la risposta riportava le istruzioni dell'assistente: non mostrata")
         if guard.get("rewritten"):
             fixed = dict.fromkeys(ISSUE_NOTES[i.split(":")[0]] for i in guard["issues"])
             notes.append("risposta corretta automaticamente (" + ", ".join(fixed) + ")")
@@ -376,6 +417,10 @@ class MatchAnalyst:
             count = len(guard["tails"])
             notes.append("tolta un'aggiunta non scritta nelle schede" if count == 1 else
                          f"tolte {count} aggiunte non scritte nelle schede")
+        if guard.get("links"):
+            count = len(guard["links"])
+            notes.append("tolto un link o un'immagine esterna" if count == 1 else
+                         f"tolti {count} link o immagini esterni")
         if guard.get("closing"):
             notes.append("tolta la frase di chiusura senza fonte")
         if guard.get("trimmed"):

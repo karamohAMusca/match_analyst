@@ -120,6 +120,11 @@ list, FIFA Full Time Match Report) were deleted and can be re-downloaded from th
    60.2% FIFA vs 65% English Wikipedia).
 9. **No name without a source.** The PSG coach is not named in any source used, so no card names him
    (gold question Q21 tests the abstention).
+10. **A card is data, not instructions.** Nothing in it may read as a command to a model ("ignore the
+    previous instructions"), and it holds no invisible character, no HTML comment or tag and no address or
+    image in the text (the `sources` of the header cite documents by address). The agent and every MCP host
+    read a card as the result of a tool, so a card with an instruction in it would be an indirect prompt
+    injection: `scripts/check_corpus.py` and `tests/test_corpus_safety.py` look for it.
 10. **Recent and winning first.** Match cases cover finals from 2022 onwards and focus on how the winner won.
 
 Consistency with the evaluation set is checked by rebuilding `manifest.json` and `eval/gold_set.json`:

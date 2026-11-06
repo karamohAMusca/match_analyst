@@ -30,6 +30,8 @@ from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import ReadableSpan, TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, SpanExporter, SpanExportResult
 
+from src.guardrails.redact import redact
+
 PROJECT_KEY = "openinference.project.name"   # Phoenix groups traces by project
 MAX_CHARS = 20000                            # long card contexts are cut in the UI, not in the run
 KIND = {"agent": "AGENT", "generation": "LLM", "tool": "TOOL"}
@@ -167,8 +169,8 @@ def span(name: str, kind: str, input_value: str = "", **attributes: Any) -> Iter
     """A span written directly in OpenInference; a no-op when tracing is off."""
     with _tracer.start_as_current_span(name) as current:
         current.set_attribute("openinference.span.kind", kind)
-        if input_value:
-            current.set_attribute("input.value", input_value[:MAX_CHARS])
+        if input_value:   # redacted: a trace keeps what it captures (src/guardrails/redact.py)
+            current.set_attribute("input.value", redact(input_value)[0][:MAX_CHARS])
         for key, value in attributes.items():
             if value is not None:
                 current.set_attribute(key, value)
@@ -182,7 +184,7 @@ def tag_run(name: str) -> Any:
 
 
 def set_output(current: Any, value: str) -> None:
-    current.set_attribute("output.value", value[:MAX_CHARS])
+    current.set_attribute("output.value", redact(value)[0][:MAX_CHARS])
 
 
 def record_documents(current: Any, chunks: list, max_chars: int = 2000) -> None:

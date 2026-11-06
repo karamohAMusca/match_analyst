@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from src.corpus.cards import load_cards
+from src.guardrails.links import strip_external_links
 from src.guardrails.output_guard import BRACKETS_RE, ID_WITH_PAGE_RE, citation_ids
 
 CATEGORIES = {
@@ -227,6 +228,13 @@ def header_html(cards: dict[str, dict[str, Any]]) -> str:
             f'<div class="ma-chips"><span class="label">Nell\'archivio</span>{chips}</div></header>')
 
 
+# Who the coach is talking to and where the question goes, always on screen (AI Act, art. 50(1): a person who
+# interacts with an AI system is told so, at the latest at the first interaction). See "Data and privacy" in the README.
+AI_NOTICE = ("🤖 Le risposte sono scritte da un modello di intelligenza artificiale (OpenAI) a partire dalle schede "
+             "citate: controllale prima di usarle. Le domande vanno a OpenAI e restano salvate su questo computer "
+             "(`chats/`); non scrivere dati personali dei giocatori.")
+
+
 def welcome_html() -> str:
     """The welcome tiles of the empty chat in one grid, two by two, so that they end at the same height
     (Streamlit columns grew each to its own text); on a narrow screen they wrap to one column."""
@@ -278,7 +286,9 @@ UNKNOWN_START = ("non lo so", "i don't know", "i do not know")
 def answer_html(answer: str, cards: dict[str, dict[str, Any]]) -> str:
     """The answer for st.markdown: numbered citation badges, and every paragraph that says
     "Non lo so" (the part of the answer with no source) in its own box."""
-    paragraphs = cite_badges(answer, cards).split("\n\n")
+    # what the model wrote is shown as text: no external image (the browser would fetch it) and no link, with
+    # the guardrails off too (src/guardrails/links.py)
+    paragraphs = cite_badges(strip_external_links(answer)[0], cards).split("\n\n")
     marked = [f'<div class="ma-unknown"><span class="k">Senza fonte</span><p>{p.strip()}</p></div>'
               if p.strip().lower().startswith(UNKNOWN_START) else p for p in paragraphs]
     return "\n\n".join(marked)

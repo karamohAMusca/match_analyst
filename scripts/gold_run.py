@@ -87,11 +87,11 @@ def main() -> int:
         if source is None:
             analyst = MatchAnalyst(model=args.model, guardrails=not args.no_guardrails, verify=args.verifier)
             retriever, agent_model, guardrails_on = analyst.corpus_tools.retriever, analyst.model, analyst.guardrails
-            verifier_model = analyst.verifier_model
+            verifier_model, build = analyst.verifier_model, analyst.build
         else:
             retriever = build_retriever()
             agent_model, guardrails_on = source.get("model") or "gpt-4o-mini", source.get("guardrails", True)
-            verifier_model = source.get("verifier")
+            verifier_model, build = source.get("verifier"), source.get("build")   # the answers' own version
         judge_model = args.judge_model or DEFAULT_JUDGE_MODEL   # never the agent's model by accident
         cache = None if args.no_judge_cache else DiskCache(CACHE_DIR / f"judge_{judge_model}.json", JUDGE_OUTPUTS)
         judge = ClientFactory.create(provider=args.judge_provider, api_key=require_api_key(args.judge_provider),
@@ -154,7 +154,8 @@ def main() -> int:
     out = RUNS_DIR / f"gold_{stamp}.json"
     record = {"run": stamp, "tag": args.tag, "model": agent_model, "judge_provider": args.judge_provider,
               "judge_model": judge_model, "faithfulness_method": args.faithfulness,
-              "guardrails": guardrails_on, "verifier": verifier_model, "rejudged_from": args.rejudge, "metrics": metrics,
+              "guardrails": guardrails_on, "verifier": verifier_model, "build": build, "rejudged_from": args.rejudge,
+              "metrics": metrics,
               "score": score(metrics), "judge_cost_usd": judge_cost, "judge_cache_hits": cached, "rows": rows}
     out.write_text(json.dumps(record, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"\nRun saved to {out.relative_to(PROJECT_ROOT).as_posix()}")

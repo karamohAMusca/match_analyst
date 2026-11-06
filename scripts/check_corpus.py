@@ -5,7 +5,9 @@
 Checks:
 1. every quoted passage in a card ("...") appears verbatim in the sources
    (accent-, case-, whitespace- and quote-style-insensitive);
-2. every thesis page cited in a card body ([Author, p. N]) is listed in the card's `sources` header.
+2. every thesis page cited in a card body ([Author, p. N]) is listed in the card's `sources` header;
+3. nothing in a card could act as an instruction to the model that reads it (src/guardrails/corpus_scan.py:
+   an instruction, an invisible character, an HTML comment or tag, an external address in the text).
 
 The fast structural checks (manifest, links, gold set) live in tests/ and run with pytest.
 """
@@ -21,6 +23,7 @@ import pymupdf
 
 from src.core.config import REFERENCES_DIR
 from src.corpus.cards import load_cards
+from src.guardrails.corpus_scan import corpus_problems
 
 THESIS_AUTHORS = ("Soncin", "Spalla", "Dileo", "Pioli", "Italiano", "Contran", "Polenghi")
 
@@ -89,10 +92,14 @@ def check_cited_pages(cards) -> list[str]:
     return problems
 
 
+def check_safety() -> list[str]:
+    return [f"{card}: {problem}" for card, problems in corpus_problems().items() for problem in problems]
+
+
 def main() -> int:
     cards = load_cards()
     print(f"Reading sources in {REFERENCES_DIR} ...")
-    problems = check_quotes(cards, load_source_text()) + check_cited_pages(cards)
+    problems = check_quotes(cards, load_source_text()) + check_cited_pages(cards) + check_safety()
     for p in problems:
         print("PROBLEM", p)
     print(f"{len(cards)} cards checked, {len(problems)} problems")

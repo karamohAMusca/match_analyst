@@ -29,4 +29,5 @@ borderColor = "#6E5A5E"
 backgroundColor = "#2A1D20"
 
 [browser]
+# Streamlit sends usage statistics of the page by default: off (see "Data and privacy" in the README)
 gatherUsageStats = false

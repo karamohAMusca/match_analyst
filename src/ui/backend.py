@@ -90,7 +90,8 @@ class Conversation:
             "guard_note": self.analyst.guard_note,
             "meta": {"latency_s": latency, "prompt_tokens": prompt, "completion_tokens": completion,
                      "cost_usd": cost, "model": self.model,
-                     "verifier_model": verifier_model, "verifier_tokens": sum(checked)},
+                     "verifier_model": verifier_model, "verifier_tokens": sum(checked),
+                     "build": self.analyst.build},   # what the answer was made with (src/core/build_info.py)
         }
         logger.info("answer: %.1f s, %d+%d tokens, %.4f $, %d searches, cards %s",
                     latency, prompt, completion, message["meta"]["cost_usd"], len(message["calls"]),

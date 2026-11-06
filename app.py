@@ -137,6 +137,7 @@ tracing = get_tracing() if ready else ""
 # ----------------------------------------------------------------- sidebar
 with st.sidebar:
     st.markdown("## ⚽ Match Analyst")
+    st.caption(view.AI_NOTICE)
     st.button("🆕 Nuova conversazione", on_click=new_conversation, use_container_width=True)
 
     st.markdown("#### ⚙️ Impostazioni")

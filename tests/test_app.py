@@ -9,6 +9,7 @@ pytest.importorskip("streamlit")
 from streamlit.testing.v1 import AppTest  # noqa: E402
 
 import src.ui.backend as backend  # noqa: E402
+from src.ui import view  # noqa: E402
 from src.core.config import PROJECT_ROOT  # noqa: E402
 from tests.fakes import ScriptedLLM  # noqa: E402
 
@@ -189,3 +190,17 @@ def test_the_cards_panel_says_which_answer_it_is_of_and_follows_the_coach_s_pick
     assert app.selectbox(key="answer_card_1_4").value == "coach_inzaghi"
     app.toggle(key="cards_panel").set_value(False).run()                          # no panel: no buttons either
     assert not any(b.key and b.key.startswith("panel_") for b in app.button)
+
+
+def test_the_coach_is_told_the_answers_come_from_an_ai_and_where_the_questions_go(app):
+    # AI Act art. 50(1): always on screen, before the first question and after it
+    notice = [c.value for c in app.sidebar.caption if "intelligenza artificiale" in c.value]
+    assert notice == [view.AI_NOTICE] and "OpenAI" in notice[0] and "chats/" in notice[0]
+    app.chat_input[0].set_value("Come difendo un 1-0 negli ultimi minuti?").run()
+    assert [c.value for c in app.sidebar.caption if "intelligenza artificiale" in c.value] == [view.AI_NOTICE]
+
+
+def test_streamlit_sends_no_usage_statistics():
+    import tomllib
+    config = tomllib.loads((PROJECT_ROOT / ".streamlit" / "config.toml").read_text(encoding="utf-8"))
+    assert config["browser"]["gatherUsageStats"] is False
