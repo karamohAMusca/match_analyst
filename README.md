@@ -33,6 +33,33 @@ python -m scripts.ingest           # embed the 31 cards (about $0.0003)
 python -m scripts.start            # Qdrant + Phoenix + the app, then open the page it prints
 ```
 
+### Goal animations and shot maps (optional, one-time)
+
+The app animates the goals and draws the shot maps of two finals (World Cup 2022 and Euro 2024)
+from StatsBomb event data. Its licence forbids redistributing the raw data, so the events are not in
+this repository: **without the steps below the app shows no goal animation and no shot map**
+(everything else works). Download the two matches' events, then build the file the app draws:
+
+```bash
+mkdir -p references/data/statsbomb/events
+curl -L -o references/data/statsbomb/events/3869685.json https://raw.githubusercontent.com/statsbomb/open-data/master/data/events/3869685.json
+curl -L -o references/data/statsbomb/events/3943043.json https://raw.githubusercontent.com/statsbomb/open-data/master/data/events/3943043.json
+python -m scripts.build_goal_actions   # writes references/derived/statsbomb_goal_actions.json (no API key)
+```
+
+On Windows PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force references\data\statsbomb\events
+Invoke-WebRequest https://raw.githubusercontent.com/statsbomb/open-data/master/data/events/3869685.json -OutFile references\data\statsbomb\events\3869685.json
+Invoke-WebRequest https://raw.githubusercontent.com/statsbomb/open-data/master/data/events/3943043.json -OutFile references\data\statsbomb\events\3943043.json
+python -m scripts.build_goal_actions
+```
+
+Then restart the app. Both folders are git-ignored. The data is for research and non-commercial use,
+with credit to StatsBomb (see [Data and licences](#data-and-licences)). If the URLs answer 404, use
+`hudl/open-data` instead of `statsbomb/open-data`.
+
 ## Guides
 
 | Guide | What it covers |
