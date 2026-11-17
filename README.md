@@ -33,6 +33,34 @@ python -m scripts.ingest           # embed the 31 cards (about $0.0003)
 python -m scripts.start            # Qdrant + Phoenix + the app, then open the page it prints
 ```
 
+### On Windows (PowerShell)
+
+The same steps, with the pitfalls met on a clean Windows install:
+
+```powershell
+winget install Python.Python.3.12 --source winget   # then close and reopen PowerShell
+py -3.12 -m venv .venv
+Set-ExecutionPolicy -Scope Process RemoteSigned     # only if activating the venv is blocked
+.venv\Scripts\activate                              # the prompt now starts with (.venv)
+pip install -r requirements.txt
+copy .env.example .env                              # then add OPENAI_API_KEY
+python -m pytest
+docker compose up -d                                # Docker Desktop must be open, "Engine running"
+python -m scripts.ingest
+python -m scripts.start
+```
+
+- **Python**: use the installer (winget, or the "Windows installer (64-bit)" `.exe` from python.org with
+  "Add python.exe to PATH" ticked), not the *embeddable* zip: it has no `pip` and no `venv`.
+  "Python was not found; run without arguments to install from the Microsoft Store" means Python is not
+  installed: that message is a Windows shortcut (Settings → Apps → Advanced app settings → App execution aliases).
+- **`No module named 'dotenv'`** (or any other package): the virtual environment is not active, or
+  `pip install` stopped before the end. Activate it, check that `python -c "import sys; print(sys.executable)"`
+  ends in `.venv\Scripts\python.exe`, and install again.
+- **`UnicodeEncodeError: 'ascii' codec can't encode character`** on the first call to OpenAI: a value in
+  `.env` holds a character that is not ASCII, usually a key pasted with a stray character. Paste the key
+  again by hand, with no quotes and no spaces.
+
 ### Goal animations and shot maps (optional, one-time)
 
 The app animates the goals and draws the shot maps of two finals (World Cup 2022 and Euro 2024)
