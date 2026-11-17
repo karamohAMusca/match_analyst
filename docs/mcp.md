@@ -40,6 +40,10 @@ environment where `requirements.txt` is installed (with the setup of
     }
   }
   ```
+  **Checked on 2026-11-17** on Windows 11, from a clean install (Python 3.12, the project's `.venv`,
+  Qdrant in Docker): Claude Desktop started the server, `list_cards` listed the 31 cards by category, and
+  the cards answered "how to defend a lead" from `situation_difendere_un_vantaggio`,
+  citing its real cases (2022 World Cup, 2026 and 2023 Champions League finals).
 - **Claude Code**: `claude mcp add match-analyst -- <PYTHON> <PROJECT>/mcp_server.py`
 - **VS Code + Copilot**: in `.vscode/mcp.json`,
   `{"servers": {"match-analyst": {"type": "stdio", "command": "<PYTHON>", "args": ["<PROJECT>/mcp_server.py"]}}}`,
