@@ -148,4 +148,4 @@ the text of the question's `relevant_sources`.
 - [x] StatsBomb logo (`src/ui/assets/hudl-statsbomb-logo.png`, "hudl-statsbomb-logo-default" from the Media Pack,
       https://statsbomb.com/media-pack/, usage rights "External Use Approved") next to that credit in the app's
       sidebar, as the open data README asks.
-- [ ] The same logo on the slides of the talk (project owner).
+- [x] The same logo on the slides of the talk (project owner): on the closing slide, next to the data credit.
