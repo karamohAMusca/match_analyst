@@ -5,88 +5,53 @@ The coach describes their own team and the opponent; the assistant helps prepare
 in-game situations, with advice **grounded in cited sources** (Coverciano theses, recent finals,
 match data), giving priority to recent (2022–2026) winning tactics. Questions in Italian or English.
 
-> **Status:** complete: knowledge base, hybrid retrieval, the agent with its corpus tools,
-> input/output guardrails (the facts of a real match, coaches and teams, the side of a game
-> situation, unsupported additions: 20 errors found and handled, see `eval/error_log.md`),
-> conversation memory (compact: only questions and answers, the cards are read again when a follow-up needs them),
-> tracing in Phoenix, the Streamlit app with its graphics under an answer (the formations on a pitch, a coach's
-> change of shape, the timeline, the numbers and the shots of a final, the action of every goal) and the
-> evaluation with an LLM judge. Version 1.6. Security: a frozen red team (13 attacks), no external link or image in an answer, personal data hidden before the model.
-> The knowledge base is also an MCP server, usable from Claude Desktop and other hosts. Final
-> gold run (2026-10-21): faithfulness 0.958, relevancy 0.926, abstention 3/3, recall@5 0.95,
-> p95 9.0 s, 0.0011 $ per answer ([results](docs/evaluation.md#results-41-questions-answers-with-guardrails-on-judge-gpt-41-mini)).
+**What it does** (version 1.6, complete):
+- **RAG** on 31 cards, with hybrid retrieval (dense + BM25) on Qdrant; an **agent** that searches and reads the cards, with a compact conversation **memory**.
+- **Guardrails** in and out: off-topic questions and injections stopped, every claim checked against the cards it cites, personal data hidden before the model, no external link or image in an answer (20 errors found and fixed, in [`eval/error_log.md`](eval/error_log.md); 13 attacks in a frozen red team).
+- A **Streamlit app** that draws graphics under an answer (formations, timeline, numbers and shots of a final, the action of every goal), **traces** in Phoenix, and the knowledge base as an **MCP server** for Claude Desktop and other hosts.
+- **Evaluated** by an LLM judge on 41 questions: faithfulness 0.958, relevancy 0.926, abstention 3/3, recall@5 0.95, p95 9.0 s, 0.0011 $ per answer ([results](docs/evaluation.md#results-41-questions-answers-with-guardrails-on-judge-gpt-41-mini)); no regression after the security work (2026-11-06: faithfulness 0.960).
 
 ---
 
 ## Quick start
 
-Prerequisites: Python ≥ 3.10; Docker Desktop (for Qdrant); an OpenAI API key for the index and the agent (not for the tests).
+Prerequisites: Python ≥ 3.10; Docker Desktop (for Qdrant and Phoenix); an OpenAI API key for the index and the agent (not for the tests).
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env               # then add OPENAI_API_KEY
+cp .env.example .env               # Windows: copy .env.example .env; then add OPENAI_API_KEY
 python -m pytest                   # offline: no key, no network
 docker compose up -d               # Qdrant on localhost:6337 and Phoenix on :6006
 python -m scripts.ingest           # embed the 31 cards (about $0.0003)
 python -m scripts.start            # Qdrant + Phoenix + the app, then open the page it prints
 ```
 
-### On Windows (PowerShell)
-
-The same steps, with the pitfalls met on a clean Windows install:
-
-```powershell
-winget install Python.Python.3.12 --source winget   # then close and reopen PowerShell
-py -3.12 -m venv .venv
-Set-ExecutionPolicy -Scope Process RemoteSigned     # only if activating the venv is blocked
-.venv\Scripts\activate                              # the prompt now starts with (.venv)
-pip install -r requirements.txt
-copy .env.example .env                              # then add OPENAI_API_KEY
-python -m pytest
-docker compose up -d                                # Docker Desktop must be open, "Engine running"
-python -m scripts.ingest
-python -m scripts.start
-```
-
-- **Python**: use the installer (winget, or the "Windows installer (64-bit)" `.exe` from python.org with
-  "Add python.exe to PATH" ticked), not the *embeddable* zip: it has no `pip` and no `venv`.
-  "Python was not found; run without arguments to install from the Microsoft Store" means Python is not
-  installed: that message is a Windows shortcut (Settings → Apps → Advanced app settings → App execution aliases).
-- **`No module named 'dotenv'`** (or any other package): the virtual environment is not active, or
-  `pip install` stopped before the end. Activate it, check that `python -c "import sys; print(sys.executable)"`
-  ends in `.venv\Scripts\python.exe`, and install again.
-- **`UnicodeEncodeError: 'ascii' codec can't encode character`** on the first call to OpenAI: a value in
-  `.env` holds a character that is not ASCII, usually a key pasted with a stray character. Paste the key
-  again by hand, with no quotes and no spaces.
+**On Windows**, the pitfalls of a clean install:
+- **Python**: install it with `winget install Python.Python.3.12 --source winget` (or the "Windows installer (64-bit)" from python.org, with "Add python.exe to PATH" ticked), then reopen PowerShell and create the environment with `py -3.12 -m venv .venv`. The *embeddable* zip does not work: it has no `pip` and no `venv`. "Python was not found; run without arguments to install from the Microsoft Store" only means that Python is not installed yet.
+- **Activating the environment is blocked**: run `Set-ExecutionPolicy -Scope Process RemoteSigned` first. Once active, the prompt starts with `(.venv)`.
+- **`No module named 'dotenv'`** (or any other package): the environment is not active, or `pip install` stopped before the end. Activate it and install again.
+- **`UnicodeEncodeError: 'ascii' codec can't encode character`** on the first call to OpenAI: a value in `.env` holds a character that is not ASCII, usually a key pasted with a stray character. Paste it again by hand, with no quotes and no spaces.
+- **Docker**: Docker Desktop must be open and show "Engine running" before `docker compose up -d`.
 
 ### Goal animations and shot maps (optional, one-time)
 
-The app animates the goals and draws the shot maps of two finals (World Cup 2022 and Euro 2024)
-from StatsBomb event data. Its licence forbids redistributing the raw data, so the events are not in
-this repository: **without the steps below the app shows no goal animation and no shot map**
-(everything else works). Download the two matches' events, then build the file the app draws:
+The app animates the goals and draws the shots of two finals (World Cup 2022, Euro 2024) from
+StatsBomb event data. Its licence forbids redistributing the raw data, so the events are not in this
+repository: **without these two commands the app shows no goal animation and no shot map** (everything
+else works). The first downloads the events of the two matches, the second builds the file the app draws
+(no API key); the same commands work in bash and PowerShell:
 
 ```bash
-mkdir -p references/data/statsbomb/events
-curl -L -o references/data/statsbomb/events/3869685.json https://raw.githubusercontent.com/statsbomb/open-data/master/data/events/3869685.json
-curl -L -o references/data/statsbomb/events/3943043.json https://raw.githubusercontent.com/statsbomb/open-data/master/data/events/3943043.json
-python -m scripts.build_goal_actions   # writes references/derived/statsbomb_goal_actions.json (no API key)
-```
-
-On Windows PowerShell:
-
-```powershell
-New-Item -ItemType Directory -Force references\data\statsbomb\events
-Invoke-WebRequest https://raw.githubusercontent.com/statsbomb/open-data/master/data/events/3869685.json -OutFile references\data\statsbomb\events\3869685.json
-Invoke-WebRequest https://raw.githubusercontent.com/statsbomb/open-data/master/data/events/3943043.json -OutFile references\data\statsbomb\events\3943043.json
+python -c "import pathlib, urllib.request as u; d = pathlib.Path('references/data/statsbomb/events'); d.mkdir(parents=True, exist_ok=True); [u.urlretrieve(f'https://raw.githubusercontent.com/statsbomb/open-data/master/data/events/{i}.json', d / f'{i}.json') for i in (3869685, 3943043)]"
 python -m scripts.build_goal_actions
 ```
 
-Then restart the app. Both folders are git-ignored. The data is for research and non-commercial use,
-with credit to StatsBomb (see [Data and licences](#data-and-licences)). If the URLs answer 404, use
-`hudl/open-data` instead of `statsbomb/open-data`.
+Then restart the app. Both folders (`references/data/`, `references/derived/`) are git-ignored. If the
+download answers 404, use `hudl/open-data` instead of `statsbomb/open-data`.
+
+---
 
 ## Guides
 
@@ -98,7 +63,7 @@ with credit to StatsBomb (see [Data and licences](#data-and-licences)). If the U
 | [`docs/mcp.md`](docs/mcp.md) | the knowledge base as an MCP server, for Claude Desktop and other hosts |
 | [`docs/security.md`](docs/security.md) | the red team (attacks and defences), data and privacy, the AI Act hypothesis |
 | [`docs/evaluation.md`](docs/evaluation.md) | the gold run judged by an LLM, and its results |
-| [`AGENTS.md`](AGENTS.md) | for AI coding agents: context, rules, the procedure for every change |
+| [`AGENTS.md`](AGENTS.md) | for AI coding agents (Claude Code, GitHub Copilot): context, rules, the procedure for every change |
 
 ---
 
@@ -106,47 +71,25 @@ with credit to StatsBomb (see [Data and licences](#data-and-licences)). If the U
 
 | Path | What it is for |
 |---|---|
-| `app.py` | **The Streamlit app**: chat, cards, evaluation results (`python -m scripts.start` starts everything) |
-| `interactive_cli.py` | chat with the agent from the terminal |
-| `mcp_server.py` | the knowledge base as an MCP server, for Claude Desktop and other hosts ([how to use it](docs/mcp.md)) |
-| `src/` | application code, one folder per responsibility; file-by-file guide in [`src/README.md`](src/README.md) |
-| `src/core/` | paths and settings from `.env`, disk cache (embeddings, judge verdicts) |
-| `src/corpus/` | read cards and manifest, split cards into chunks (offline) |
-| `src/rag/` | Qdrant store, ingestion, hybrid retrieval (dense + BM25, a datapizza `DagPipeline`) |
-| `src/tools/` | the agent's tools: `search_cards`, `read_card` |
-| `src/agent/` | the datapizza-ai agent and its system prompt |
-| `src/guardrails/` | input guard (off-topic, injection), output guard (language, grounding, citations, no external link or image) and the facts written or checked by code: real case, coaches and teams, the side of a game situation, additions (`facts.py` and its modules) |
-| `src/observability/` | traces in Arize Phoenix (OpenTelemetry → OpenInference) |
-| `src/evaluation/` | measuring against the gold set: retrieval metrics, answer checks, LLM judge, gold run, cost |
-| `src/ui/` | logic of the Streamlit app: the conversation backend, the formatting, the graphics under an answer, the saved chats |
-| `src/mcp_server/` | the MCP server: the corpus as read-only tools, `card://` resources and a prompt |
-| `design-system/` | the app's tokens, components and answer states as HTML previews, for redesigning it with Claude Design ([`design-system/README.md`](design-system/README.md)) |
-| `docs/` | the guides: setup and checks, the app, the terminal chat, the MCP server, security and privacy, evaluation |
-| `corpus/` | the knowledge base (ingested): 31 short cards in Italian, in `match_cases/` (recent finals), `game_situations/` (in-game and preparation problems), `coach_profiles/`, `thesis_notes/`, `glossary/` (metrics and formations) |
-| `corpus/manifest.json` | catalogue of the cards: ids, metadata, SHA-256 (generated by `scripts/build_manifest.py`) |
-| `references/` | upstream sources, not ingested (theses, Wikipedia, StatsBomb, FIFA); `SOURCES.md`: provenance, licences and card-writing rules |
-| `eval/gold_set.json` | the evaluation yardstick: 45 questions, Italian with paired English ones (frozen) |
-| `eval/red_team.json` | the security yardstick: 13 attacks and 3 controls (frozen), run by `python -m scripts.red_team` |
-| `eval/runs/` | every measured run, listed with its result in [`eval/runs/README.md`](eval/runs/README.md) |
-| `eval/error_log.md` | wrong answers found, with their cause and fix |
-| `scripts/` | commands run as `python -m scripts.<name>`: `start`, `ingest`, `eval_retrieval`, `eval_agent`, `gold_run`, `build_manifest`, `check_corpus`, `build_goal_actions`, `red_team`, `prune_chats`, `preview_graphics` (run with `streamlit run`), `sb_match_report`, `verify` (the output of a command before and after a refactoring) |
-| `tests/` | offline tests, no API key and no network (`python -m pytest`) |
-| `docker-compose.yml` | Qdrant (vector store) and Phoenix (traces) |
-| `.env.example` | settings template: copy it to `.env` and add the key |
-| `requirements.txt` | Python packages |
-| `AGENTS.md` | instructions for AI coding agents: project context, rules, the procedure for every change, constraints; one file for every assistant |
-| `CLAUDE.md`, `.claude/` | Claude Code: `CLAUDE.md` imports `AGENTS.md`; `rules/` holds the rules for the Python files only, `commands/` a reusable chat command (`/refactor-by-criteria`), `skills/chat-graphic/` the recipe for a graphic under an answer |
-| `.github/` | the same two files in the GitHub Copilot format: rules for the Python files only (`instructions/`) and a reusable chat command (`prompts/`) |
-| `.streamlit/config.toml`, `pytest.ini`, `.gitattributes` | app theme; test settings; LF line endings on every checkout (the manifest hashes the cards' bytes) |
+| `app.py` | the Streamlit app: chat, cards, evaluation results |
+| `interactive_cli.py` | the chat with the agent from the terminal |
+| `mcp_server.py` | the knowledge base as an MCP server |
+| `src/` | the application code, one folder per responsibility (core, corpus, rag, tools, agent, guardrails, observability, evaluation, ui, mcp_server): file by file in [`src/README.md`](src/README.md) |
+| `corpus/` | the knowledge base: 31 short cards in Italian (recent finals, game situations, coaches, theses, glossary) and `manifest.json`, their catalogue |
+| `references/` | the upstream sources, not ingested; [`SOURCES.md`](references/SOURCES.md): provenance, licences and card-writing rules |
+| `eval/` | the frozen yardsticks (`gold_set.json`: 45 questions; `red_team.json`: 13 attacks), every measured run in [`runs/`](eval/runs/README.md), the wrong answers found in `error_log.md` |
+| `scripts/` | the commands, run as `python -m scripts.<name>` (the main ones, with what they do, in [`AGENTS.md`](AGENTS.md#1-project-context)) |
+| `tests/` | offline tests, no API key and no network |
+| `design-system/` | the app's tokens and components as HTML previews ([`design-system/README.md`](design-system/README.md)) |
 
 Created locally and not versioned: `.env` (the key), `.cache/` (embeddings and judge verdicts
-already paid for), `qdrant_storage/` (the index).
+already paid for), `qdrant_storage/` (the index), `chats/` and `logs/`.
 
 ---
 
-## Data and privacy
+## Privacy
 
-The coach's questions go to OpenAI (keys, emails, phone numbers, IBANs and tax codes are hidden first); the chats stay on this computer in `chats/` (git-ignored; `python -m scripts.prune_chats` lists the old ones); an answer can hold no external link or image; the app tells the coach that it talks to an AI. The table of where the data goes, the measured attacks, the AI Act hypothesis and the questions for a lawyer are in [`docs/security.md`](docs/security.md#data-and-privacy).
+The coach's questions go to OpenAI (keys, emails, phone numbers, IBANs and tax codes are hidden first); the chats stay on this computer in `chats/` (git-ignored; `python -m scripts.prune_chats` lists the old ones); an answer can hold no external link or image; the app tells the coach that it talks to an AI. Where the data goes, the measured attacks, the AI Act hypothesis and the questions for a lawyer are in [`docs/security.md`](docs/security.md#data-and-privacy).
 
 ---
 
@@ -157,13 +100,9 @@ The coach's questions go to OpenAI (keys, emails, phone numbers, IBANs and tax c
 | Source code (`src/`, `scripts/`, `tests/`, `app.py`, ...) | No licence is granted: all rights reserved by the author. The repository is public to be read and to show the project |
 | Cards (`corpus/`) and Wikipedia extracts (`references/wikipedia/`) | The cards quote and summarise Wikipedia pages, which are CC BY-SA 4.0: the cards and the extracts keep that licence (attribution to the page and revision is in each card's front matter, share-alike for what derives from them) |
 | FIGC theses | Public documents of their authors: not redistributed (download them from the URLs in `SOURCES.md`); the cards only quote short passages, each with its page |
-| StatsBomb Open Data | Data provided by [StatsBomb](https://github.com/hudl/open-data) under its public data agreement (research and non-commercial use, credit StatsBomb): the raw events are not redistributed |
+| StatsBomb Open Data | Data provided by [StatsBomb](https://github.com/hudl/open-data) under its public data agreement (research and non-commercial use, credit StatsBomb): the raw events and what is derived from them stay local |
 | FIFA match reports | Public documents, kept locally |
 
-Match statistics are computed from **StatsBomb Open Data**
-(data provided by StatsBomb; raw data not redistributed). The app credits StatsBomb in the sidebar, with the logo from StatsBomb's Media Pack
-(`src/ui/assets/hudl-statsbomb-logo.png`, a trademark of its owner, used only to credit the data), and in the caption
-of every figure drawn from its events (numbers, shots, goal actions). The goal actions the app animates are derived
-from the same events by `python -m scripts.build_goal_actions` and stay local as well
-(`references/derived/`, git-ignored): without them the app shows no goal action and no shot map,
-everything else works.
+The app credits StatsBomb in the sidebar, with the logo from StatsBomb's Media Pack
+(`src/ui/assets/hudl-statsbomb-logo.png`, a trademark of its owner, used only to credit the data), and in
+the caption of every figure drawn from its events (numbers, shots, goal actions).
