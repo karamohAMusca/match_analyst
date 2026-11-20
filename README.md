@@ -87,6 +87,25 @@ already paid for), `qdrant_storage/` (the index), `chats/` and `logs/`.
 
 ---
 
+## Built with
+
+The project was designed and written by Gaetano Cultrera with AI coding assistants, used on purpose
+and with the same rules for each:
+
+| Assistant | What it reads | Used for |
+|---|---|---|
+| **Claude Code** (Anthropic) | [`CLAUDE.md`](CLAUDE.md), which imports `AGENTS.md`; `.claude/` (rules for the Python files, the `/refactor-by-criteria` command, the `chat-graphic` skill) | code, refactoring, tests, documentation; the commits it wrote carry a `Co-Authored-By: Claude` line |
+| **GitHub Copilot** | [`AGENTS.md`](AGENTS.md) and `.github/` (the same rules and command in Copilot's format) | the same project rules, from the editor |
+| **Claude Design** | [`design-system/`](design-system/README.md) | the redesign of the app's look (tokens and components) |
+
+[`AGENTS.md`](AGENTS.md) is the one file of instructions for every assistant: project context, rules,
+the procedure for every change (baseline, small steps, a check after each) and the constraints, such as
+never reading `.env` and never calling the OpenAI API (those commands are run by the author).
+`tests/test_agent_instructions.py` fails if the Claude Code and Copilot copies of the rules drift apart.
+Whichever assistant makes a change, the offline tests must pass before it is committed.
+
+---
+
 ## Privacy
 
 The coach's questions go to OpenAI (keys, emails, phone numbers, IBANs and tax codes are hidden first); the chats stay on this computer in `chats/` (git-ignored; `python -m scripts.prune_chats` lists the old ones); an answer can hold no external link or image; the app tells the coach that it talks to an AI. Where the data goes, the measured attacks, the AI Act hypothesis and the questions for a lawyer are in [`docs/security.md`](docs/security.md#data-and-privacy).
